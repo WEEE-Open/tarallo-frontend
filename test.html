@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+	<meta charset="UTF-8">
+	<title>Test</title>
+</head>
+<body>
+	<div id="asd">
+		<label>A: <input id="a" type="text"></label>
+		<label>B: <input id="b" type="text"></label>
+		<button id="button">VAI!</button>
+		<div id="resulta"></div>
+		<div id="resultb"></div>
+	</div>
+<script>
+	"use strict";
+
+	document.getElementById('button').addEventListener('click', function() {
+		document.dispatchEvent(buttonClicked(document.getElementById('a').value, document.getElementById('b').value));
+	});
+
+	document.addEventListener('tarallo-test-result-updated', function(ev) {
+		document.getElementById('resulta').textContent = 'a: ' + ev.detail.foo;
+		document.getElementById('resultb').textContent = 'b: ' + ev.detail.bar;
+	});
+
+	function buttonClicked(a, b) {
+		var ev = new CustomEvent('tarallo-test-result-updated', {'detail': {
+			foo: a.split("").reverse().join(""),
+			bar: b.split("").reverse().join("")
+		}});
+		return ev;
+	}
+</script>
+</body>
+</html>
