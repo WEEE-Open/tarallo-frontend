@@ -14,22 +14,38 @@
 	</div>
 <script>
 	"use strict";
+	var what = document;
+
+	var state = {
+		_a: null,
+		_b: null,
+		get a() {
+			return this._a;
+		},
+		get b() {
+			return this._b;
+		},
+		set a(value) {
+			this._a = value;
+			what.dispatchEvent(new CustomEvent('tarallo-test-result-updated'));
+		},
+		set b(value) {
+			this._b = value;
+		}
+	};
 
 	document.getElementById('button').addEventListener('click', function() {
-		document.dispatchEvent(buttonClicked(document.getElementById('a').value, document.getElementById('b').value));
+		buttonClicked(document.getElementById('a').value, document.getElementById('b').value);
 	});
 
-	document.addEventListener('tarallo-test-result-updated', function(ev) {
-		document.getElementById('resulta').textContent = 'a: ' + ev.detail.foo;
-		document.getElementById('resultb').textContent = 'b: ' + ev.detail.bar;
+	document.addEventListener('tarallo-test-result-updated', function() {
+		document.getElementById('resulta').textContent = 'a: ' + state.a;
+		document.getElementById('resultb').textContent = 'b: ' + state.b;
 	});
 
 	function buttonClicked(a, b) {
-		var ev = new CustomEvent('tarallo-test-result-updated', {'detail': {
-			foo: a.split("").reverse().join(""),
-			bar: b.split("").reverse().join("")
-		}});
-		return ev;
+		state.a = a.split("").reverse().join("");
+		state.b = b.split("").reverse().join("");
 	}
 </script>
 </body>
