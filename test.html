@@ -5,48 +5,40 @@
 	<title>Test</title>
 </head>
 <body>
-	<div id="asd">
-		<label>A: <input id="a" type="text"></label>
-		<label>B: <input id="b" type="text"></label>
-		<button id="button">VAI!</button>
-		<div id="resulta"></div>
-		<div id="resultb"></div>
-	</div>
+<div id="asd">
+	<label>A: <input id="a" type="text"></label>
+	<label>B: <input id="b" type="text"></label>
+	<button id="button">VAI!</button>
+	<div id="resulta"></div>
+	<div id="resultb"></div>
+</div>
+
 <script>
 	"use strict";
-	var what = document;
 
-	var state = {
-		_a: null,
-		_b: null,
-		get a() {
-			return this._a;
-		},
-		get b() {
-			return this._b;
-		},
-		set a(value) {
-			this._a = value;
-			what.dispatchEvent(new CustomEvent('tarallo-test-result-updated'));
-		},
-		set b(value) {
-			this._b = value;
+	var theOtherDocument = (function(where) {
+		document.getElementById('button').addEventListener('click', function() {
+			// mostra spinner
+			// gestisci timeout
+			// mostra messaggi di errore
+			// etc...
+
+			document.getElementById('resulta').textContent = theLogic.reverse(document.getElementById('a').value);
+			document.getElementById('resultb').textContent = theLogic.reverse(document.getElementById('b').value);
+		});
+	});
+</script>
+
+<script>
+	var theLogic = (function() {
+		function reverse(a) {
+			return a.split("").reverse().join("");
 		}
-	};
+	})();
+</script>
 
-	document.getElementById('button').addEventListener('click', function() {
-		buttonClicked(document.getElementById('a').value, document.getElementById('b').value);
-	});
-
-	document.addEventListener('tarallo-test-result-updated', function() {
-		document.getElementById('resulta').textContent = 'a: ' + state.a;
-		document.getElementById('resultb').textContent = 'b: ' + state.b;
-	});
-
-	function buttonClicked(a, b) {
-		state.a = a.split("").reverse().join("");
-		state.b = b.split("").reverse().join("");
-	}
+<script>
+	theOtherDocument(document.getElementsByTagName('body')[0]);
 </script>
 </body>
 </html>
