@@ -12,33 +12,11 @@
 	<div id="resulta"></div>
 	<div id="resultb"></div>
 </div>
-
+<script src="node_modules/underscore/underscore-min.js"></script>
+<script src="node_modules/backbone/backbone-min.js"></script>
 <script>
 	"use strict";
 
-	var theOtherDocument = (function(where) {
-		document.getElementById('button').addEventListener('click', function() {
-			// mostra spinner
-			// gestisci timeout
-			// mostra messaggi di errore
-			// etc...
-
-			document.getElementById('resulta').textContent = theLogic.reverse(document.getElementById('a').value);
-			document.getElementById('resultb').textContent = theLogic.reverse(document.getElementById('b').value);
-		});
-	});
-</script>
-
-<script>
-	var theLogic = (function() {
-		function reverse(a) {
-			return a.split("").reverse().join("");
-		}
-	})();
-</script>
-
-<script>
-	theOtherDocument(document.getElementsByTagName('body')[0]);
 </script>
 </body>
 </html>
