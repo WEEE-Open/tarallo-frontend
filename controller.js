@@ -3,34 +3,54 @@ var Controller = (function () {
 
 	var controller = document.getElementById('controller');
 	var loginPage = document.getElementById('login-page');
+	var asd = document.getElementById('asd');
 	var router = Backbone.Router.extend({
 		routes: {
 			"": "home",
 			"login": "login",
 			"test": "test",
-			"location/:location": "search",
-			"location/:location/:page": "search"
+			"add": "add",
+			"search": "search",
+			"search/:page": "search",
+			"location/:location": "list",
+			"location/:location/:page": "list"
 		},
 
 		home: function() {
-			alert("asd");
+			alert("FUNZIONA.");
 		},
 
 		test: function() {
-			alert("TEST. FUNZIONA.");
+			render(asd)
 		},
 
 		login: function() {
-			do {
-				controller.appendChild(loginPage.firstChild);
-			} while (loginPage.firstChild);
+			render(loginPage);
 		},
 
-		search: function(location, page) {
+		list: function(location, page) {
 			alert(location + ", " + page);
+		},
+
+		search: function(page) {
+			alert("ricerca" + ", " + page);
+		},
+
+		add: function() {
+			alert("a(s)dd");
 		}
 
 	});
+
+	function render(div) {
+		var child;
+		while(child = controller.firstChild) {
+			controller.removeChild(child);
+		}
+		do {
+			controller.appendChild(div.firstChild);
+		} while(div.firstChild);
+	}
 
 	return {
 		router: router
