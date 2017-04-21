@@ -1,3 +1,4 @@
 (function() {
-	Backbone.history.start({pushState: true});
+	new Controller.router();
+	Backbone.history.start();
 })();
