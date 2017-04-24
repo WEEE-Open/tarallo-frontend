@@ -42,14 +42,12 @@ var Controller = (function () {
 
 	});
 
-	function render(div) {
-		var child;
-		while(child = controller.firstChild) {
-			controller.removeChild(child);
+	function render(template) {
+		var oldContent;
+		while(oldContent = controller.firstChild) {
+			controller.removeChild(oldContent);
 		}
-		do {
-			controller.appendChild(div.firstChild);
-		} while(div.firstChild);
+			controller.appendChild(template.content.cloneNode(true));
 	}
 
 	return {
