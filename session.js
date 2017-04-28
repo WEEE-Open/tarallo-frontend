@@ -24,6 +24,8 @@ var Session = Backbone.Model.extend({
 
 	sync: function(method, model, options) {
 		// TODO: implement
-		alert('SYNC! ' + method + " " + model + " " + options);
+		alert('SYNC! ' + method);
+		console.log(model);
+		console.log(options);
 	}
 });
