@@ -4,6 +4,7 @@ var Controller = (function () {
 	var controller = document.getElementById('controller');
 	var loginPage = document.getElementById('login-page');
 	var asd = document.getElementById('asd');
+	var session;
 	var router = Backbone.Router.extend({
 		routes: {
 			"": "home",
@@ -47,8 +48,22 @@ var Controller = (function () {
 		while(oldContent = controller.firstChild) {
 			controller.removeChild(oldContent);
 		}
-			controller.appendChild(template.content.cloneNode(true));
+		controller.appendChild(template.content.cloneNode(true));
 	}
+
+	controller.addEventListener('click', function(event) {
+		switch(event.target.id) {
+			case 'login-login':
+				console.log('Event handling, yay!');
+				session = new Session({username: document.getElementById('login-username').value, password: document.getElementById('login-password').value});
+				session.on('invalid', function(model, error) {alert('VALIDAZIONE FALLITA. PUNTO. ' + error)}); // TODO: use views?
+				session.login();
+				break;
+			default:
+				return;
+		}
+		event.preventDefault(); // default returns, so the events keeps bubbling
+	});
 
 	return {
 		router: router
