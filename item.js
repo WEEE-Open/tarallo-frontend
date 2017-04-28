@@ -1,4 +1,4 @@
-var Item = Backbone.model.extend({
+var Item = Backbone.Model.extend({
 	_validateFeature: function(name, value) {
 		return typeof name === "string" && typeof value === "string";
 	},
