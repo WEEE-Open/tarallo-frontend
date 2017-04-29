@@ -34,14 +34,20 @@ var LoginView = TemplateView.extend({
 	},
 
 	'events': {
-		'click #login-login': 'send'
+		'click #login-login': 'login',
+		'click #login-logout': 'logout'
 	},
 
-	'send': function(e) {
+	'login': function(e) {
 		e.preventDefault();
 		console.log('Event handling, yay!');
 		this.model.set('username', document.getElementById('login-username').value);
 		this.model.set('password', document.getElementById('login-password').value);
 		this.model.login();
+	},
+
+	'logout': function(e) {
+		this.model.destroy();
+		// TODO: what now?
 	}
 });
