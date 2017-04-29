@@ -3,7 +3,10 @@ var Controller = (function () {
 
 	var loginPage = document.getElementById('login-page');
 	var asd = document.getElementById('asd');
-	var session;
+	var session = new Session();
+	var container = document.getElementById('views');
+	var currentPage = null;
+
 	var router = Backbone.Router.extend({
 		routes: {
 			"": "home",
@@ -21,11 +24,12 @@ var Controller = (function () {
 		},
 
 		test: function() {
+			goTo(null);
 			alert('Pagina "test"');
 		},
 
 		login: function() {
-			new LoginView().render();
+			append(new LoginView({"model": session}).render());
 		},
 
 		list: function(location, page) {
@@ -41,6 +45,21 @@ var Controller = (function () {
 		}
 
 	});
+
+	function append(view) {
+		goTo(view);
+		container.appendChild(view.el);
+	}
+
+	function goTo(mainView) {
+		if(currentPage !== null) {
+			currentPage.remove();
+			//while(oldContent = container.firstChild) {
+			//	container.removeChild(oldContent);
+			//}
+		}
+		currentPage = mainView;
+	}
 
 	return {
 		router: router
