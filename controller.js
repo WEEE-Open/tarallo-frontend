@@ -25,7 +25,7 @@ var Controller = (function () {
 		},
 
 		login: function() {
-			new LoginView();
+			new LoginView().render();
 		},
 
 		list: function(location, page) {

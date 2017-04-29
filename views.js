@@ -1,31 +1,33 @@
 var TemplateView = Backbone.NativeView.extend({
 	'tagName': 'div',
 
-	'id': document.getElementById('template-target'),
+	'_container': document.getElementById('views'),
 
-	'_container': document.getElementById('page'),
-
-	/**
-	 * Copy content of template into the new (or old) node
-	 *
-	 * @param templateElement Element a "template" element
-	 * @return Element new node
-	 */
-	'renderFrom': function(templateElement) {
-		this.el.appendChild(templateElement.content.cloneNode(true));
-		return this.el;
+	'initialize': function() {
+		this.el.appendChild(document.getElementById(this.templateId()).content.cloneNode(true));
 	},
 
-	'append': function() {
+	'append': function(element) {
+		element = this.el;
 		//var oldContent;
 		//while(oldContent = this._container.firstChild) {
 		//	this._container.removeChild(oldContent);
 		//}
-		this._container.appendChild(this.el);
+		this._container.appendChild(element);
+	},
+
+	'id': function() {
+		return this.viewName + '-view'
+	},
+
+	'templateId': function() {
+		return this.viewName + '-template'
 	}
 });
 
 var LoginView = TemplateView.extend({
+	'viewName': 'login',
+
 	'render': function() {
 		this.append();
 		document.getElementById('login-login').addEventListener('click', function(event) {
