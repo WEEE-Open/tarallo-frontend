@@ -1,7 +1,6 @@
 var Controller = (function () {
 	"use strict";
 
-	var loginPage = document.getElementById('login-page');
 	var asd = document.getElementById('asd');
 	var session = new Session();
 	var container = document.getElementById('views');
@@ -24,12 +23,11 @@ var Controller = (function () {
 		},
 
 		test: function() {
-			goTo(null);
 			alert('Pagina "test"');
 		},
 
 		login: function() {
-			append(new LoginView({"model": session}).render());
+			goTo(new LoginView({"model": session}).render());
 		},
 
 		list: function(location, page) {
@@ -46,19 +44,12 @@ var Controller = (function () {
 
 	});
 
-	function append(view) {
-		goTo(view);
-		container.appendChild(view.el);
-	}
-
 	function goTo(mainView) {
 		if(currentPage !== null) {
 			currentPage.remove();
-			//while(oldContent = container.firstChild) {
-			//	container.removeChild(oldContent);
-			//}
 		}
 		currentPage = mainView;
+		container.appendChild(mainView.el);
 	}
 
 	return {
