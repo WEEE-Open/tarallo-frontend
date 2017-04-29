@@ -30,13 +30,14 @@ var LoginView = TemplateView.extend({
 
 	'render': function() {
 		this.append();
-		document.getElementById('login-login').addEventListener('click', function(event) {
+		document.getElementById('login-login').addEventListener('click', function() {
 			console.log('Event handling, yay!');
 			var session = new Session({username: document.getElementById('login-username').value, password: document.getElementById('login-password').value});
 			session.on('invalid', function(model, error) {
 				alert(error)
 			});
 			session.login();
-		})
+		});
+		return this;
 	}
 });
