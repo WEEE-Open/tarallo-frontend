@@ -22,21 +22,36 @@ var Session = Backbone.Model.extend({
 	},
 
 	sync: function(method, model, options) {
-		// TODO: implement
 		console.log('SYNC! ' + method + ' id: ' + model.get('id'));
 		//console.log(model);
 		//console.log(options);
-		if(method === 'delete') {
-			delete model.unset('id');
+		if(method === 'delete' || (model.get('username') === null && model.get('password') === null)) {
+			model.unset('id');
 		} else {
-			model.set('id', model.get('username'));
+			var req = new XMLHttpRequest();
+			req.open("POST", path + '/Login', true);
+			req.setRequestHeader('Accept', 'application/json');
+			req.setRequestHeader('Content-Type', 'application/json');
+			req.withCredentials = true;
+
+			req.onreadystatechange = function () {
+				if(req.readyState === XMLHttpRequest.DONE) {
+					console.log(req.status);
+					console.log(req);
+					if(_.isFunction(options.success)) {
+						options.success();
+					}
+					model.trigger('sync');
+					model.set('id', model.get('username'));
+					// model.trigger('error');
+				}
+			};
+			var data = JSON.stringify({username: model.get('username'), password: model.get('password')});
+			req.send(data);
 		}
 
 		// WHY.
 		//noinspection JSUnresolvedVariable,JSUnresolvedFunction
-		if(_.isFunction(options.success)) {
-			options.success();
-		}
 		console.log('ora id: ' + model.get('id'));
 	},
 
