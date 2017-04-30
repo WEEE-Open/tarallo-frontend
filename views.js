@@ -11,6 +11,7 @@ var TemplateView = Backbone.NativeView.extend({
 
 	'render': function() {
 		this.el.appendChild(document.getElementById(this.templateId()).content.cloneNode(true));
+		this.updateRender();
 		return this;
 	},
 
@@ -34,20 +35,46 @@ var LoginView = TemplateView.extend({
 	},
 
 	'events': {
-		'click #login-login': 'login',
-		'click #login-logout': 'logout'
+		'click #login-login': 'login'
 	},
 
 	'login': function(e) {
 		e.preventDefault();
-		console.log('Event handling, yay!');
 		this.model.set('username', document.getElementById('login-username').value);
 		this.model.set('password', document.getElementById('login-password').value);
 		this.model.login();
+	}
+
+});
+
+var LogoutView = TemplateView.extend({
+	'viewName': 'logout',
+
+	'initialize': function() {
+		this.listenTo(this.model, 'sync', this.whoami);
+	},
+
+	'updateRender': function() {
+		this.whoami();
+	},
+
+	'whoami': function() {
+		var area = this.el.querySelector('#logout-alreadyloggedmessage');
+		var message;
+		if(this.model.get('username') === null) {
+			message = 'Not currently logged in';
+		} else {
+			message = 'Logged in as ' + this.model.get('username');
+		}
+		area.textContent = message;
+	},
+
+	'events': {
+		'click #logout-logout': 'logout'
 	},
 
 	'logout': function(e) {
-		this.model.destroy();
-		// TODO: what now?
+		e.preventDefault();
+		this.model.logout();
 	}
 });

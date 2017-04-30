@@ -3,6 +3,7 @@ var Controller = (function () {
 
 	var asd = document.getElementById('asd');
 	var session = new Session();
+	/* session.fetch(); */
 	var container = document.getElementById('views');
 	var currentPage = null;
 
@@ -10,6 +11,7 @@ var Controller = (function () {
 		routes: {
 			"": "home",
 			"login": "login",
+			"logout": "logout",
 			"test": "test",
 			"add": "add",
 			"search": "search",
@@ -28,6 +30,10 @@ var Controller = (function () {
 
 		login: function() {
 			goTo(new LoginView({"model": session}).render());
+		},
+
+		logout: function() {
+			goTo(new LogoutView({"model": session}).render());
 		},
 
 		list: function(location, page) {

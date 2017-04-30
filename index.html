@@ -7,15 +7,13 @@
 <link type="text/css" media="all" rel="stylesheet" href="main.css">
 <body>
 <template id="login-template">
-	<div id="login-logoutarea">
-		<span id="login-alreadyloggedmessage"></span>
-		<input type="button" value="logout" id="login-logout">
-	</div>
-	<div id="login-loginarea">
-		<label>Username: <input id="login-username" type="text"></label>
-		<label>Password: <input id="login-password" type="text"></label>
-		<input type="submit" value="VAI." id="login-login">
-	</div>
+	<label>Username: <input id="login-username" type="text"></label>
+	<label>Password: <input id="login-password" type="text"></label>
+	<input type="submit" value="VAI." id="login-login">
+</template>
+<template id="logout-template">
+	<span id="logout-alreadyloggedmessage"></span>
+	<input type="button" value="logout" id="logout-logout">
 </template>
 <template id="asd">
 	<label>A: <input id="a" type="text"></label>
