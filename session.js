@@ -4,7 +4,7 @@ var Session = Backbone.Model.extend({
 		'password': null
 	},
 
-	validate: function(attrs, options) {
+	validate: function(/*attrs, options*/) {
 		if(this.get('username') !== null || this.get('password') !== null) {
 			if(!this.has('username')) {
 				return "Missing username";
@@ -28,13 +28,8 @@ var Session = Backbone.Model.extend({
 		if(method === 'delete' || (model.get('username') === null && model.get('password') === null)) {
 			model.unset('id');
 		} else {
-			var req = new XMLHttpRequest();
-			req.open("POST", path + '/Login', true);
-			req.setRequestHeader('Accept', 'application/json');
-			req.setRequestHeader('Content-Type', 'application/json');
-			req.withCredentials = true;
-
-			req.onreadystatechange = function () {
+			var req = Controller.POST('/Login');
+			req.onreadystatechange = function() {
 				if(req.readyState === XMLHttpRequest.DONE) {
 					console.log(req.status);
 					console.log(req);
@@ -46,8 +41,13 @@ var Session = Backbone.Model.extend({
 					// model.trigger('error');
 				}
 			};
-			var data = JSON.stringify({username: model.get('username'), password: model.get('password')});
-			req.send(data);
+			req.send(JSON.stringify({username: model.get('username'), password: model.get('password')}));
+			if(_.isFunction(options.success)) {
+				options.success();
+			}
+			model.trigger('sync');
+			model.set('id', model.get('username'));
+			// model.trigger('error');
 		}
 
 		// WHY.
