@@ -1,5 +1,4 @@
 var TemplateView = Backbone.NativeView.extend({
-	childViews: [],
 	tagName: 'div',
 
 	id: function() {
@@ -12,14 +11,6 @@ var TemplateView = Backbone.NativeView.extend({
 
 	readTemplate: function() {
 		this.el.appendChild(document.getElementById(this.templateId()).content.cloneNode(true));
-	},
-
-	remove: function() {
-		_.each(this.childViews, function(view) {
-			console.log('Removing child view');
-			view.remove();
-		});
-		Backbone.Model.prototype.remove.apply(this, arguments);
 	}
 
 	// Basic correct implementation of render():
@@ -32,8 +23,23 @@ var TemplateView = Backbone.NativeView.extend({
 var LoginView = TemplateView.extend({
 	viewName: 'login',
 
+	logView: null,
+
 	'initialize': function() {
 		this.listenTo(this.model, 'invalid', this.loginError);
+	},
+
+	render: function() {
+		this.logView = new LogsView({"model": this.model.get("logs")}).render();
+		this.readTemplate();
+		this.el.appendChild(this.logView.el);
+		return this;
+	},
+
+	remove: function() {
+		this.logView.remove();
+		//console.log("removed logView!");
+		Backbone.View.prototype.remove.apply(this);
 	},
 
 	loginError: function(model, error) {
@@ -99,7 +105,7 @@ var LogsView = TemplateView.extend({
 	},
 
 	render: function() {
-		this.readTemplate();
+		//this.readTemplate();
 		return this;
 	}
 });

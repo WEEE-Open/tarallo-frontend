@@ -3,6 +3,7 @@ var Controller = (function () {
 
 	var pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	var session = new Session();
+	var logs = new Logs();
 	/* session.fetch(); */
 	var container = document.getElementById('views');
 	var currentPage = null;
@@ -29,7 +30,7 @@ var Controller = (function () {
 		},
 
 		login: function() {
-			goTo(new LoginView({"model": session}).render());
+			goTo(new LoginView({"model": session, "logs": logs}).render());
 		},
 
 		logout: function() {
