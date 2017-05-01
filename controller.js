@@ -58,6 +58,8 @@ var Controller = (function () {
 		container.appendChild(mainView.el);
 	}
 
+	var TIMEOUT = 30000;
+
 	/**
 	 * @param path URL parameter (e.g. /Login)
 	 * @return XMLHttpRequest
@@ -68,6 +70,7 @@ var Controller = (function () {
 		req.setRequestHeader('Accept', 'application/json');
 		req.setRequestHeader('Content-Type', 'application/json');
 		req.withCredentials = true;
+		req.timeout = TIMEOUT;
 		return req;
 	}
 
@@ -80,7 +83,48 @@ var Controller = (function () {
 		req.open("GET", pathPrefix + path, true);
 		req.setRequestHeader('Accept', 'application/json');
 		req.withCredentials = true;
+		req.timeout = TIMEOUT;
 		return req;
+	}
+
+	/**
+	 * Set some event handlers and wire them to two functions: onfail, onsuccess.
+	 *
+	 * Error codes:
+	 * -1 for network error
+	 * -2 for abort
+	 * -3 for timeout
+	 * -4 for error parsing JSON response ("message" contains the error message)
+	 * Anything else: HTTP status code (any code except 200 is considered an error)
+	 *
+	 * @param xhr XMLHttpRequest
+	 * @param onfail function(code)
+	 * @param onsuccess function(data), data is decoded JSON
+	 */
+	function reqSetHandler(xhr, onfail, onsuccess) {
+		xhr.addEventListener("load", function() {
+			if(xhr.status === 200) {
+				var json;
+				try {
+					json = JSON.parse(xhr.response);
+				} catch(err) {
+					onfail(-4);
+					return;
+				}
+				onsuccess(json);
+			} else {
+				onfail(xhr.status);
+			}
+		});
+		xhr.addEventListener("error", function() {
+			onfail(-1);
+		});
+		xhr.addEventListener("abort", function() {
+			onfail(-2);
+		});
+		xhr.addEventListener("timeout", function() {
+			onfail(-3);
+		})
 	}
 
 	return {
