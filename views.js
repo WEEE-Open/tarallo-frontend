@@ -1,64 +1,72 @@
 var TemplateView = Backbone.NativeView.extend({
-	'tagName': 'div',
+	childViews: [],
+	tagName: 'div',
 
-	'id': function() {
+	id: function() {
 		return this.viewName + '-view'
 	},
 
-	'templateId': function() {
+	templateId: function() {
 		return this.viewName + '-template'
 	},
 
-	'render': function() {
+	readTemplate: function() {
 		this.el.appendChild(document.getElementById(this.templateId()).content.cloneNode(true));
-		this.updateRender();
-		return this;
 	},
 
-	/**
-	 * Override this!
-	 */
-	'updateRender': function() {
-
+	remove: function() {
+		_.each(this.childViews, function(view) {
+			console.log('Removing child view');
+			view.remove();
+		});
+		Backbone.Model.prototype.remove.apply(this, arguments);
 	}
+
+	// Basic correct implementation of render():
+	// 'render': function() {
+	//    this.readTemplate();
+	//    return this;
+	// },
 });
 
 var LoginView = TemplateView.extend({
-	'viewName': 'login',
+	viewName: 'login',
 
 	'initialize': function() {
 		this.listenTo(this.model, 'invalid', this.loginError);
 	},
 
-	'loginError': function(model, error) {
+	loginError: function(model, error) {
 		alert(error)
 	},
 
-	'events': {
+	events: {
 		'click #login-login': 'login'
 	},
 
-	'login': function(e) {
+	login: function(e) {
 		e.preventDefault();
-		this.model.set('username', document.getElementById('login-username').value);
-		this.model.set('password', document.getElementById('login-password').value);
+		this.model.set('username', this.el.querySelector('#login-username').value);
+		this.model.set('password', this.el.querySelector('#login-password').value);
 		this.model.login();
 	}
 
 });
 
 var LogoutView = TemplateView.extend({
-	'viewName': 'logout',
+	viewName: 'logout',
 
 	'initialize': function() {
 		this.listenTo(this.model, 'sync', this.whoami);
 	},
 
-	'updateRender': function() {
+	render: function() {
+		this.readTemplate();
 		this.whoami();
+		return this;
 	},
 
-	'whoami': function() {
+	whoami: function() {
 		var area = this.el.querySelector('#logout-alreadyloggedmessage');
 		var message;
 		if(this.model.get('username') === null) {
@@ -69,12 +77,29 @@ var LogoutView = TemplateView.extend({
 		area.textContent = message;
 	},
 
-	'events': {
+	events: {
 		'click #logout-logout': 'logout'
 	},
 
-	'logout': function(e) {
+	logout: function(e) {
 		e.preventDefault();
 		this.model.logout();
+	}
+});
+
+var LogsView = TemplateView.extend({
+	viewName: 'logs',
+
+	'initialize': function() {
+		this.listenTo(this.model, 'add', this.added);
+	},
+
+	added: function(model /*, collection, options*/) {
+		alert(model.get('datetime') + " " + model.get('message'));
+	},
+
+	render: function() {
+		this.readTemplate();
+		return this;
 	}
 });
