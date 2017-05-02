@@ -22,41 +22,35 @@ var Session = Backbone.Model.extend({
 	},
 
 	sync: function(method, model, options) {
-		console.log('SYNC! ' + method + ' id: ' + model.get('id'));
-		//console.log(model);
-		//console.log(options);
 		if(method === 'delete' || (model.get('username') === null && model.get('password') === null)) {
 			model.unset('id');
 		} else {
 			var req = Controller.POST('/Login');
-			req.onreadystatechange = function() {
-				if(req.readyState === XMLHttpRequest.DONE) {
-					console.log(req.status);
-					console.log(req);
-					if(_.isFunction(options.success)) {
-						options.success();
-					}
-					model.trigger('sync');
-					model.set('id', model.get('username'));
-					// model.trigger('error');
+			Controller.reqSetHandler(req, function(code) {
+				model.trigger("error");
+				if(_.isFunction(options.error)) {
+					options.error(code);
 				}
-			};
-			req.send(JSON.stringify({username: model.get('username'), password: model.get('password')}));
-			if(_.isFunction(options.success)) {
-				options.success();
-			}
-			model.trigger('sync');
-			model.set('id', model.get('username'));
-			// model.trigger('error');
-		}
+				model.trigger("complete");
+			}, function(data) {
+				model.set('id', model.get('username'));
+				model.trigger('sync');
+				if(_.isFunction(options.success)) {
+					options.success(data);
+				}
+				model.trigger("complete");
 
-		// WHY.
-		//noinspection JSUnresolvedVariable,JSUnresolvedFunction
-		console.log('ora id: ' + model.get('id'));
+				// TODO: remove this
+				// WHY.
+				//noinspection JSUnresolvedVariable,JSUnresolvedFunction
+				console.log('ora id: ' + model.get('id'));
+			});
+			req.send(JSON.stringify({username: model.get('username'), password: model.get('password')}));
+		}
 	},
 
-	login: function() {
-		this.save();
+	login: function(options) {
+		this.save(null, options);
 	},
 
 	logout: function() {

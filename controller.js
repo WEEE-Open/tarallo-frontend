@@ -30,7 +30,7 @@ var Controller = (function () {
 		},
 
 		login: function() {
-			goTo(new LoginView({"model": session, "logs": logs}).render());
+			goTo(new LoginView({"model": session}).render());
 		},
 
 		logout: function() {
@@ -131,6 +131,7 @@ var Controller = (function () {
 	return {
 		router: router,
 		'POST': POST,
-		'GET': GET
+		'GET': GET,
+		'reqSetHandler': reqSetHandler
 	}
 })();
