@@ -3,6 +3,10 @@ var Log = Backbone.Model.extend({
 	Warning: 2,
 	Info: 1,
 
+	initialize: function() {
+		this.set("timedate", Date.now());
+	},
+
 	sync: function() {},
 
 	id: function() {
@@ -11,9 +15,18 @@ var Log = Backbone.Model.extend({
 });
 
 var Logs = Backbone.Collection.extend({
+	MAX: 100,
+
 	model: Log,
 
 	comparator: "timedate",
 
-	sync: function() {}
+	sync: function() {},
+
+	log: function(message) {
+		if(this.length >= this.MAX) {
+			this.shift();
+			this.add({"message": message});
+		}
+	}
 });

@@ -43,7 +43,7 @@ var LoginView = TemplateView.extend({
 	},
 
 	loginError: function(model, error) {
-		alert(error)
+		this.get("logs").log(error);
 	},
 
 	events: {
