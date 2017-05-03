@@ -27,17 +27,12 @@ var Session = Backbone.Model.extend({
 		} else {
 			var req = Controller.POST('/Login');
 			Controller.reqSetHandler(req, function(code) {
-				model.trigger("error");
-				if(_.isFunction(options.error)) {
-					options.error(code);
-				}
+				options.error(code);
 				model.trigger("complete");
 			}, function(data) {
 				model.set('id', model.get('username'));
-				model.trigger('sync');
-				if(_.isFunction(options.success)) {
-					options.success(data);
-				}
+				model.trigger('sync'); // TODO: does success already fire sync?
+				options.success(data);
 				model.trigger("complete");
 
 				// TODO: remove this
