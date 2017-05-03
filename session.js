@@ -30,20 +30,15 @@ var Session = Backbone.Model.extend({
 			Controller.reqSetHandler(req, function(code) {
 				// model, response, options
 				options.error(code);
-				model.trigger("complete");
+				this.trigger("complete"); // TODO: needed? Backbone doesn't trigger this in default sync() implementation, but neither does it in fetch() et al...
 			}, function(data) {
 				model.set('id', model.get('username'));
-				model.trigger('sync'); // TODO: does success already fire sync?
 				// model, response, options
 				options.success(data);
-				model.trigger("complete");
-
-				// TODO: remove this
-				// WHY.
-				//noinspection JSUnresolvedVariable,JSUnresolvedFunction
-				console.log('ora id: ' + model.get('id'));
+				this.trigger("complete"); // TODO: ditto
 			});
 			req.send(JSON.stringify({username: model.get('username'), password: model.get('password')}));
+			model.trigger('request', model, req, options); // TODO: does this even work after send? Backbone.js does it here. Or so it seems.
 		}
 	},
 
