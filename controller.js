@@ -4,6 +4,15 @@ var Controller = (function () {
 	var pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	var session = new Session();
 	var logs = new Logs();
+	session.on("login-successful", function(model, data, options) {
+		logs.log("Login successful!");
+		console.log(data);
+	});
+	session.on("login-failed", function(model, data, options) {
+		var code = data;
+		logs.log("Login failed: " + code);
+		console.log("Login failed: " + code);
+	});
 	/* session.fetch(); */
 	var container = document.getElementById('views');
 	var currentPage = null;
@@ -107,6 +116,7 @@ var Controller = (function () {
 			if(xhr.status === 200) {
 				var json;
 				try {
+					// TODO: argument object is not assignable to string?
 					json = JSON.parse(xhr.response);
 				} catch(err) {
 					onfail(-4);

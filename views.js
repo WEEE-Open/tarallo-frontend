@@ -52,15 +52,15 @@ var LoginView = TemplateView.extend({
 
 	login: function(e) {
 		e.preventDefault();
+		var thisView = this;
 		this.model.set('username', this.el.querySelector('#login-username').value);
 		this.model.set('password', this.el.querySelector('#login-password').value);
-		this.model.login({"success": function(data) {
-			this.get("logs").log("success!"); // TODO: Views don't have get & set, cannot pass logs from outside. Now what?
-			console.log(data);
-		}, "error": function(code) {
-			this.get("logs").log("error " + code);
+		this.model.login({"success": function(model, data, options) {
+			thisView.model.trigger("login-successful", model, data, options);
+		}, "error": function(model, data, options) {
+			thisView.model.trigger("login-failed", model, data, options);
 		}, "complete": function() {
-			//console.log("complete!");
+			console.log("complete!");
 		}});
 	}
 

@@ -22,16 +22,19 @@ var Session = Backbone.Model.extend({
 	},
 
 	sync: function(method, model, options) {
+		var thisModel = this;
 		if(method === 'delete' || (model.get('username') === null && model.get('password') === null)) {
 			model.unset('id');
 		} else {
 			var req = Controller.POST('/Login');
 			Controller.reqSetHandler(req, function(code) {
+				// model, response, options
 				options.error(code);
 				model.trigger("complete");
 			}, function(data) {
 				model.set('id', model.get('username'));
 				model.trigger('sync'); // TODO: does success already fire sync?
+				// model, response, options
 				options.success(data);
 				model.trigger("complete");
 
