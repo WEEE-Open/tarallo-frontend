@@ -1,3 +1,6 @@
+/**
+ * Do not use directly
+ */
 var TemplateView = Backbone.NativeView.extend({
 	tagName: 'div',
 
@@ -20,17 +23,23 @@ var TemplateView = Backbone.NativeView.extend({
 	// },
 });
 
+/**
+ * Pass:
+ * - "model": Session model
+ * - "logs": Logs collection
+ */
 var LoginView = TemplateView.extend({
 	viewName: 'login',
 
 	logView: null,
 
-	'initialize': function() {
+	'initialize': function(options) {
+		this.logs = options.logs;
 		this.listenTo(this.model, 'invalid', this.loginError);
 	},
 
 	render: function() {
-		this.logView = new LogsView({"model": this.model.get("logs")}).render();
+		this.logView = new LogsView({"model": this.logs}).render();
 		this.readTemplate();
 		this.el.appendChild(this.logView.el);
 		return this;
@@ -66,6 +75,10 @@ var LoginView = TemplateView.extend({
 
 });
 
+/**
+ * Pass:
+ * - "model": Session model
+ */
 var LogoutView = TemplateView.extend({
 	viewName: 'logout',
 
@@ -100,6 +113,10 @@ var LogoutView = TemplateView.extend({
 	}
 });
 
+/**
+ * Pass:
+ * - "model": Logs collection
+ */
 var LogsView = TemplateView.extend({
 	viewName: 'logs',
 

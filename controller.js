@@ -39,7 +39,7 @@ var Controller = (function () {
 		},
 
 		login: function() {
-			goTo(new LoginView({"model": session}).render());
+			goTo(new LoginView({"model": session, "logs": logs}).render());
 		},
 
 		logout: function() {

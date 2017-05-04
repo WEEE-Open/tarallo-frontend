@@ -3,7 +3,7 @@ var Log = Backbone.Model.extend({
 	Warning: 2,
 	Info: 1,
 
-	initialize: function() {
+	'initialize': function() {
 		this.set("timedate", Date.now());
 	},
 
@@ -23,10 +23,13 @@ var Logs = Backbone.Collection.extend({
 
 	sync: function() {},
 
-	log: function(message) {
+	log: function(message, severity) {
+		if(typeof severity !== "number") {
+			severity = Log.Info;
+		}
 		if(this.length >= this.MAX) {
 			this.shift();
-			this.add({"message": message});
 		}
+		this.add({"message": message, "severity": severity});
 	}
 });

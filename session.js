@@ -22,7 +22,6 @@ var Session = Backbone.Model.extend({
 	},
 
 	sync: function(method, model, options) {
-		var thisModel = this;
 		if(method === 'delete' || (model.get('username') === null && model.get('password') === null)) {
 			model.unset('id');
 		} else {
@@ -30,12 +29,12 @@ var Session = Backbone.Model.extend({
 			Controller.reqSetHandler(req, function(code) {
 				// model, response, options
 				options.error(code);
-				this.trigger("complete"); // TODO: needed? Backbone doesn't trigger this in default sync() implementation, but neither does it in fetch() et al...
+				model.trigger("complete"); // TODO: needed? Backbone doesn't trigger this in default sync() implementation, but neither does it in fetch() et al...
 			}, function(data) {
 				model.set('id', model.get('username'));
 				// model, response, options
 				options.success(data);
-				this.trigger("complete"); // TODO: ditto
+				model.trigger("complete"); // TODO: ditto
 			});
 			req.send(JSON.stringify({username: model.get('username'), password: model.get('password')}));
 			model.trigger('request', model, req, options); // TODO: does this even work after send? Backbone.js does it here. Or so it seems.
