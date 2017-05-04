@@ -6,12 +6,16 @@ var Controller = (function () {
 	var logs = new Logs();
 	session.on("login-successful", function(model, data, options) {
 		logs.log("Login successful!");
-		console.log(data);
 	});
 	session.on("login-failed", function(model, data, options) {
-		var code = data;
-		logs.log("Login failed: " + code);
-		console.log("Login failed: " + code);
+		var code = data.code;
+		console.log(data.message);
+		if(typeof data.message === 'string') {
+			logs.log("Login failed: " + data.message);
+		} else {
+			logs.log("Login failed: " + code);
+		}
+		// TODO: if "fail", message could be an hash of messages
 	});
 	/* session.fetch(); */
 	var container = document.getElementById('views');
@@ -99,16 +103,20 @@ var Controller = (function () {
 
 	/**
 	 * Set some event handlers and wire them to two functions: onfail, onsuccess.
+	 * 44 lines of code and just as much branches.
 	 *
 	 * Error codes:
 	 * -1 for network error
 	 * -2 for abort
 	 * -3 for timeout
 	 * -4 for error parsing JSON response ("message" contains the error message)
-	 * Anything else: HTTP status code (any code except 200 is considered an error)
+	 * -5 for malformed JSend response (missing keys)
+	 * -6 JSend "error" ("message" contains the error message)
+	 * -7 JSend "fail" ("message" contains an hash of error messages or null)
+	 * Any HTTP status code: got that code instead of 200
 	 *
 	 * @param xhr XMLHttpRequest
-	 * @param onfail function(code)
+	 * @param onfail function(code, message)
 	 * @param onsuccess function(data), data is decoded JSON
 	 */
 	function reqSetHandler(xhr, onfail, onsuccess) {
@@ -122,7 +130,26 @@ var Controller = (function () {
 					onfail(-4);
 					return;
 				}
-				onsuccess(json);
+				if(json.status === "success") {
+					if(typeof json.data !== 'undefined') {
+						onsuccess(json.data);
+					} else {
+						onfail(-5);
+					}
+				} else if(json.status === "error") {
+					if(typeof json.message === 'string') {
+						onfail(-6, json.message);
+					} else {
+						onfail(-5);
+					}
+				} else if(json.status === "fail") {
+					if(typeof json.data === 'undefined') {
+						json.data = null;
+					} else if(typeof json.data !== 'object') {
+						onfail(-5);
+					}
+					onfail(-7, json.data);
+				}
 			} else {
 				onfail(xhr.status);
 			}

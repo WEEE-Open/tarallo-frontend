@@ -125,7 +125,8 @@ var LogsView = TemplateView.extend({
 	},
 
 	added: function(model /*, collection, options*/) {
-		alert(model.get('datetime') + " " + model.get('message'));
+		// TODO: add this thing to the DOM. FINALLY. HERE. NOW. IMMEDIATELY.
+		alert(model.get('timedate') + " " + model.get('message'));
 	},
 
 	render: function() {

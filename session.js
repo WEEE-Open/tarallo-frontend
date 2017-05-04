@@ -26,9 +26,9 @@ var Session = Backbone.Model.extend({
 			model.unset('id');
 		} else {
 			var req = Controller.POST('/Login');
-			Controller.reqSetHandler(req, function(code) {
+			Controller.reqSetHandler(req, function(code, message) {
 				// model, response, options
-				options.error(code);
+				options.error({"code": code, "message": message});
 				model.trigger("complete"); // TODO: needed? Backbone doesn't trigger this in default sync() implementation, but neither does it in fetch() et al...
 			}, function(data) {
 				model.set('id', model.get('username'));
