@@ -4,7 +4,7 @@ var Log = Backbone.Model.extend({
 	Info: 1,
 
 	'initialize': function() {
-		this.set("timedate", Date.now());
+		this.set("timedate", new Date());
 	},
 
 	sync: function() {},

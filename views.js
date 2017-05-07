@@ -125,8 +125,38 @@ var LogsView = TemplateView.extend({
 	},
 
 	added: function(model /*, collection, options*/) {
-		// TODO: add this thing to the DOM. FINALLY. HERE. NOW. IMMEDIATELY.
-		alert(model.get('timedate') + " " + model.get('message'));
+		var line = document.createElement("div");
+		line.setAttribute("id", "log-" + model.get("id"));
+		line.classList.add("new");
+		switch(model.get("severity")) {
+			default:
+			case model.Info:
+				line.classList.add('info');
+				break;
+			case model.Warning:
+				line.classList.add('warning');
+				break;
+			case model.Error:
+				line.classList.add('error');
+				break;
+		}
+		var date = model.get("timedate");
+		var dateContainer = document.createElement("span");
+		dateContainer.classList.add("date");
+		dateContainer.textContent = date.getHours() + ":" + date.getMinutes();
+
+		var messageContainer = document.createElement('span');
+		messageContainer.classList.add("message");
+		dateContainer.textContent = model.get("message");
+
+		line.appendChild(dateContainer).appendChild(messageContainer);
+
+		this.el.appendChild(line);
+
+		window.setTimeout(function() {
+			line.classList.remove("new");
+			console.log("TIMEOUT!");
+		}, 12000);
 	},
 
 	render: function() {
