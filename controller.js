@@ -5,14 +5,14 @@ var Controller = (function () {
 	var session = new Session();
 	var logs = new Logs();
 	session.on("login-successful", function(model, data, options) {
-		logs.log("Login successful!", logs.model.Success);
+		logs.log("Login successful!", LogSeveritiesEnum.Success);
 	});
 	session.on("login-failed", function(model, data, options) {
 		var code = data.code;
 		if(typeof data.message === 'string') {
-			logs.log("Login failed: " + data.message, logs.model.Error);
+			logs.log("Login failed: " + data.message, LogSeveritiesEnum.Error);
 		} else {
-			logs.log("Login failed: " + code, logs.model.Error);
+			logs.log("Login failed: " + code, LogSeveritiesEnum.Error);
 		}
 		// TODO: if "fail", message could be an hash of messages
 	});

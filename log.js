@@ -1,8 +1,12 @@
-var Log = Backbone.Model.extend({
+var LogSeveritiesEnum = {
 	Error: 3,
 	Warning: 2,
 	Info: 1,
-	Success: 0,
+	Success: 0
+};
+
+var Log = Backbone.Model.extend({
+	defaults: LogSeveritiesEnum,
 
 	'initialize': function() {
 		this.set("timedate", new Date());
@@ -16,6 +20,7 @@ var Log = Backbone.Model.extend({
 	//}
 });
 
+// collections don't support default values or anything similar, just because.
 var Logs = Backbone.Collection.extend({
 	MAX: 100,
 
