@@ -120,6 +120,14 @@ var LogoutView = TemplateView.extend({
 var LogsView = TemplateView.extend({
 	viewName: 'logs',
 
+	dateFormatter: (function() {
+		// wrapping in the "anonymous function calling itself" thing just to limit the scope of the "noinspection" commment,
+		// since PHPStorm 2017 still hasn't heard of the Intl JS extension.
+		//noinspection JSUnresolvedVariable,JSUnresolvedFunction
+		return new Intl.DateTimeFormat('it-IT', {hour: 'numeric', minute: 'numeric', second: 'numeric'});
+		// TODO: cram the language constant somewhere else (where? app.js and controller.js are loaded after this file...)
+	})(),
+
 	'initialize': function() {
 		this.listenTo(this.model, 'add', this.added);
 	},
@@ -145,7 +153,8 @@ var LogsView = TemplateView.extend({
 		var date = model.get("timedate");
 		var dateContainer = document.createElement("span");
 		dateContainer.classList.add("date");
-		dateContainer.textContent = date.getHours() + ":" + date.getMinutes();
+		//noinspection JSUnresolvedFunction
+		dateContainer.textContent = this.dateFormatter.format(date);
 
 		var messageContainer = document.createElement('span');
 		messageContainer.classList.add("message");
