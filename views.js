@@ -126,7 +126,6 @@ var LogsView = TemplateView.extend({
 
 	added: function(model /*, collection, options*/) {
 		var line = document.createElement("div");
-		line.setAttribute("id", "log-" + model.get("id"));
 		line.classList.add("new");
 		switch(model.get("severity")) {
 			default:
@@ -147,9 +146,10 @@ var LogsView = TemplateView.extend({
 
 		var messageContainer = document.createElement('span');
 		messageContainer.classList.add("message");
-		dateContainer.textContent = model.get("message");
+		messageContainer.textContent = model.get("message");
 
-		line.appendChild(dateContainer).appendChild(messageContainer);
+		line.appendChild(dateContainer);
+		line.appendChild(messageContainer);
 
 		this.el.appendChild(line);
 

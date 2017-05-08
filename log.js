@@ -7,11 +7,12 @@ var Log = Backbone.Model.extend({
 		this.set("timedate", new Date());
 	},
 
-	sync: function() {},
+	sync: function() {}
 
-	id: function() {
-		return this.get("timedate") + this.cid;
-	}
+	// this works according to documentation, but doesn't according to empirical evidence.
+	//id: function() {
+	//	return this.get("timedate") + this.cid;
+	//}
 });
 
 var Logs = Backbone.Collection.extend({
