@@ -2,6 +2,7 @@ var Log = Backbone.Model.extend({
 	Error: 3,
 	Warning: 2,
 	Info: 1,
+	Success: 0,
 
 	'initialize': function() {
 		this.set("timedate", new Date());

@@ -128,6 +128,9 @@ var LogsView = TemplateView.extend({
 		var line = document.createElement("div");
 		line.classList.add("new");
 		switch(model.get("severity")) {
+			case model.Success:
+				line.classList.add('success');
+				break;
 			default:
 			case model.Info:
 				line.classList.add('info');
