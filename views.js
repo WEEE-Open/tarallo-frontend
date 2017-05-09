@@ -189,18 +189,20 @@ var ItemView = TemplateView.extend({
 	},
 
 	'initialize': function() {
-		this.listenTo(this.model, 'change:features', this.setFeatures);
+		this.listenTo(this.model, 'change:features', this.showFeatures);
+		this.listenTo(this.model, 'change:code', this.showCode);
 	},
 
 	render: function() {
 	    this.readTemplate();
 	    this.el.classList.add("item");
-	    this.setFeatures(this.model);
+	    this.showCode(this.model);
+	    this.showFeatures(this.model);
 	    return this;
 	},
 
 	// TODO: according to official documentation, this is the correct signature. Let's see if it's really this or something else completely random and undocumented.
-	setFeatures: function(model /*, this, options*/) {
+	showFeatures: function(model /*, this, options*/) {
 		var featuresContainer = this._getFeaturesContainer();
 		var features = model.get("features");
 		var newElement, nameElement, valueElement;
@@ -219,7 +221,13 @@ var ItemView = TemplateView.extend({
 
 			nameElement.textContent = keys[i];
 			valueElement.textContent = features(keys[i]);
+			featuresContainer.appendChild(newElement);
 		}
+	},
+
+	showCode: function(model /*, this, options*/) {
+		var codeContainer = this._getCodeContainer();
+		codeContainer.textContent(model.get("code"));
 	},
 
 	_getFeaturesContainer: function() {
