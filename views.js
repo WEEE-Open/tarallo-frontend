@@ -223,8 +223,16 @@ var ItemView = TemplateView.extend({
 	},
 
 	_getFeaturesContainer: function() {
+		return this._getContainer("features");
+	},
+
+	_getCodeContainer: function() {
+		return this._getContainer("code");
+	},
+
+	_getContainer: function(theClass) {
 		for(var i = 0; i < this.el.children.length; i++) {
-			if(this.el.children[i].className === "features") {
+			if(this.el.children[i].className === theClass) {
 				return this.el.children[i];
 			}
 		}
