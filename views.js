@@ -176,3 +176,58 @@ var LogsView = TemplateView.extend({
 		return this;
 	}
 });
+
+/**
+ * Pass:
+ * - "model": an Item
+ */
+var ItemView = TemplateView.extend({
+	viewName: 'item',
+
+	id: function() {
+		return this.viewName + '-view-' + this.model.id
+	},
+
+	'initialize': function() {
+		this.listenTo(this.model, 'change:features', this.setFeatures);
+	},
+
+	render: function() {
+	    this.readTemplate();
+	    this.el.classList.add("item");
+	    this.setFeatures(this.model);
+	    return this;
+	},
+
+	// TODO: according to official documentation, this is the correct signature. Let's see if it's really this or something else completely random and undocumented.
+	setFeatures: function(model /*, this, options*/) {
+		var featuresContainer = this._getFeaturesContainer();
+		var features = model.get("features");
+		var newElement, nameElement, valueElement;
+
+		var keys = Object.keys(features);
+		for(var i = 0; i < keys.length; i++) {
+			newElement = document.createElement("div");
+			newElement.classList.add("feature");
+			// TODO: autosuggest values
+			nameElement = document.createElement("span");
+			nameElement.classList.add("name");
+			valueElement = document.createElement("span");
+			valueElement.classList.add("value");
+			newElement.appendChild(nameElement);
+			newElement.appendChild(valueElement);
+
+			nameElement.textContent = keys[i];
+			valueElement.textContent = features(keys[i]);
+		}
+	},
+
+	_getFeaturesContainer: function() {
+		for(var i = 0; i < this.el.children.length; i++) {
+			if(this.el.children[i].className === "features") {
+				return this.el.children[i];
+			}
+		}
+		return null;
+	}
+});
