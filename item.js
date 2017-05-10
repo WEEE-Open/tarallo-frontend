@@ -34,3 +34,9 @@ var Item = Backbone.Model.extend({
 		alert('SYNC! ' + method + " " + model + " " + options);
 	}
 });
+
+var Items = Backbone.Collection.extend({
+	model: Item,
+
+	sync: function() {}
+});
