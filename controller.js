@@ -3,16 +3,16 @@ var Controller = (function () {
 
 	var pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	var session = new Session();
-	var logs = new Logs();
+	var logs = Log.list;
 	session.on("login-successful", function(model, data, options) {
-		logs.log("Login successful!", LogSeveritiesEnum.Success);
+		new Log("Login successful!", Log.Success);
 	});
 	session.on("login-failed", function(model, data, options) {
 		var code = data.code;
 		if(typeof data.message === 'string') {
-			logs.log("Login failed: " + data.message, LogSeveritiesEnum.Error);
+			new Log("Login failed: " + data.message, Log.Error);
 		} else {
-			logs.log("Login failed: " + code, LogSeveritiesEnum.Error);
+			new Log("Login failed: " + code, Log.Error);
 		}
 		// TODO: if "fail", message could be an hash of messages
 	});

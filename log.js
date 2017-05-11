@@ -1,42 +1,42 @@
-var LogSeveritiesEnum = {
-	Error: 3,
-	Warning: 2,
-	Info: 1,
-	Success: 0
+function Log(message, severity) {
+	console.log("NEW LOG");
+	this.message = message;
+	this.severity = this._parseSeverity(severity);
+	this.timedate = new Date();
+	this.add();
+}
+
+Log.Error = Log.prototype.Error = 3;
+Log.Warning = Log.prototype.Warning = 2;
+Log.Info = Log.prototype.Info = 1;
+Log.Success = Log.prototype.Success = 0;
+Log.prototype._parseSeverity = function(severity) {
+	if(typeof severity !== "number") {
+		return Log.Info;
+	}
+	switch(severity) {
+		case Log.Error:
+		case Log.Warning:
+		case Log.Info:
+		case Log.Success:
+			return severity;
+			break;
+		default:
+			return Log.Info;
+			break;
+	}
 };
 
-var Log = Backbone.Model.extend({
-	defaults: LogSeveritiesEnum,
+/**
+ * Every log message
+ * @type {Array}
+ */
+Log.list = Log.prototype.list = []; // TODO: WHY doesn't this work if I invert the first 2 assignments(?)?
 
-	'initialize': function() {
-		this.set("timedate", new Date());
-	},
-
-	sync: function() {}
-
-	// this works according to documentation, but doesn't according to empirical evidence.
-	//id: function() {
-	//	return this.get("timedate") + this.cid;
-	//}
-});
-
-// collections don't support default values or anything similar, just because.
-var Logs = Backbone.Collection.extend({
-	MAX: 100,
-
-	model: Log,
-
-	comparator: "timedate",
-
-	sync: function() {},
-
-	log: function(message, severity) {
-		if(typeof severity !== "number") {
-			severity = Log.Info;
-		}
-		if(this.length >= this.MAX) {
-			this.shift();
-		}
-		this.add({"message": message, "severity": severity});
+Log.prototype.add = function() {
+	console.log("ADD");
+	if(this.list.length >= 100) {
+		this.list.shift();
 	}
-});
+	this.list.push(this);
+};
