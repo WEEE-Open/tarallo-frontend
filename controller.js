@@ -1,20 +1,29 @@
-var Controller = (function () {
+const Controller = (function () {
 	"use strict";
 
-	var pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
-	var session = new Session();
-	var logs = [];
-	var rootView = null;
+	const rootView = null;
+
+	let trigger = function(that, event) {
+		if(rootView !== null) {
+			rootView.trigger(that, event);
+		}
+	};
+
+	// logs.add("foo", Log.Error, trigger)
+
+	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
+	const session = new Session();
+	const logs = new Logs(trigger);
 
 	session.on("login-successful", function(model, data, options) {
-		new Logs("Login successful!", Logs.Success);
+		logs.add("Login successful!", logs.Success);
 	});
 	session.on("login-failed", function(model, data, options) {
 		var code = data.code;
 		if(typeof data.message === 'string') {
-			new Logs("Login failed: " + data.message, Logs.Error);
+			logs.add("Login failed: " + data.message, logs.Error);
 		} else {
-			new Logs("Login failed: " + code, Logs.Error);
+			logs.add("Login failed: " + code, logs.Error);
 		}
 		// TODO: if "fail", message could be an hash of messages
 	});

@@ -1,42 +1,73 @@
 /**
- * Every log message
+ * Single log message
+ * @private
  */
-class Logs {
+class Log {
 	static Error = 3;
 	static Warning = 2;
 	static Info = 1;
 	static Success = 0;
 
-	_logs = [];
+	constructor(message, severity) {
+		this.message = message;
+		// TODO: MDN says this is the correct way, PHPStorm doesn't warn of anything if I just do this._parseSeverity()...
+		this.severity = this.constructor._parseSeverity(severity);
+		this.timedate = new Date();
+	}
 
 	static _parseSeverity(severity) {
 		if(typeof severity !== "number") {
-			return Logs.Info;
+			return this.constructor.Info;
 		}
 		switch(severity) {
-			case Logs.Error:
-			case Logs.Warning:
-			case Logs.Info:
-			case Logs.Success:
+			case this.constructor.Error:
+			case this.constructor.Warning:
+			case this.constructor.Info:
+			case this.constructor.Success:
 				return severity;
 				break;
 			default:
-				return Logs.Info;
+				return this.constructor.Info;
 				break;
 		}
 	}
+}
 
-	add(message, severity, controller) {
-		this.message = message;
-		this.severity = Logs._parseSeverity(severity);
-		this.timedate = new Date();
 
+/**
+ * Every log message
+ */
+class Logs extends FrameworkObject {
+	/**
+	 * Logged messages
+	 * @type {Array}
+	 * @private
+	 */
+	_logs = [];
+
+	/**
+	 * Add a new message
+	 *
+	 * @param message
+	 * @param severity
+	 */
+	add(message, severity) {
+		let newLog = new Log(message, severity);
 		if(this._logs.length >= 100) {
-			// TODO: this or a string?
-			controller.trigger(this, 'pop');
 			this._logs.shift();
+			this.trigger('shift');
 		}
-		controller.trigger(this, 'push');
-		this._logs.push(this);
+		this._logs.push(newLog);
+		this.trigger('push');
+	}
+
+	/**
+	 * clear all
+	 * close all
+	 * clc
+	 */
+	clear() {
+		this._logs.length = 0;
+		this.trigger('clear');
 	}
 }
