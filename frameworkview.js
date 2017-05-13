@@ -10,7 +10,7 @@ class FrameworkView {
 	}
 
 	static fromTemplate(name) {
-		this.el = document.getElementById("template-" + name).content.cloneNode(true);
+		return document.getElementById("template-" + name).content.cloneNode(true);
 	}
 
 	/**

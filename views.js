@@ -1,6 +1,6 @@
 class LoginView extends FrameworkView {
 	/**
-	 * Shows current log messages.
+	 * Shows a login form and log messages.
 	 *
 	 * @param {HTMLElement} element an HTML element
 	 * @param {Logs} logs
@@ -9,7 +9,7 @@ class LoginView extends FrameworkView {
 	 */
 	constructor(element, logs, session) {
 		super(element);
-		this.logsView = new LogsView(logs);
+		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
 		this.session = session;
 		this.el.querySelector('#login-login').addEventListener('click', this.login.bind(this));
 	}
@@ -64,6 +64,12 @@ class LogoutView extends FrameworkView {
 }
 
 class LogsView extends FrameworkView {
+	/**
+	 * Shows log messages.
+	 *
+	 * @param {HTMLElement} element
+	 * @param {Logs} logs
+	 */
 	constructor(element, logs) {
 		super(element);
 		this.logs = logs;

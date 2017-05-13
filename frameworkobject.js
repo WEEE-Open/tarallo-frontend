@@ -4,7 +4,7 @@ class FrameworkObject {
 	 */
 	constructor(trigger) {
 		if(typeof trigger !== 'function') {
-			throw new Error('trigger must be a function');
+			throw new TypeError('trigger must be a function');
 		}
 		this.trigger = trigger.bind(null, this);
 	}
