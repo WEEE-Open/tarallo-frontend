@@ -129,7 +129,8 @@ class LogsView extends FrameworkView {
 		line.appendChild(dateContainer);
 		line.appendChild(messageContainer);
 
-		this.el.appendChild(line);
+		this.el.insertBefore(line, this.el.firstChild);
+		// to bottom: this.el.appendChild(line);
 
 		window.setTimeout(function() {
 			line.classList.remove("new");
