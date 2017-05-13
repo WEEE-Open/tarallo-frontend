@@ -9,8 +9,6 @@ const Controller = (function () {
 		}
 	};
 
-	// logs.add("foo", Log.Error, trigger)
-
 	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	const session = new Session();
 	const logs = new Logs(trigger);

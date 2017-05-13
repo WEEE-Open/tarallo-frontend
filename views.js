@@ -1,164 +1,105 @@
-/**
- * Do not use directly
- */
-var TemplateView = Backbone.NativeView.extend({
-	tagName: 'div',
-
-	id: function() {
-		return this.viewName + '-view'
-	},
-
-	templateId: function() {
-		return this.viewName + '-template'
-	},
-
-	readTemplate: function() {
-		this.el.appendChild(document.getElementById(this.templateId()).content.cloneNode(true));
+class LoginView extends FrameworkView {
+	/**
+	 * Shows current log messages.
+	 *
+	 * @param {HTMLElement} element an HTML element
+	 * @param {Logs} logs
+	 * @param {Session} session
+	 * @see FrameworkView.constructor
+	 */
+	constructor(element, logs, session) {
+		super(element);
+		this.logsView = new LogsView(logs);
+		this.session = session;
+		this.el.querySelector('#login-login').addEventListener('click', this.login.bind(this));
 	}
 
-	// Basic correct implementation of render():
-	// 'render': function() {
-	//    this.readTemplate();
-	//    return this;
-	// },
-});
-
-/**
- * Pass:
- * - "model": Session model
- * - "logs": Logs collection
- */
-var LoginView = TemplateView.extend({
-	viewName: 'login',
-
-	logView: null,
-
-	'initialize': function(options) {
-		this.logs = options.logs;
-		this.listenTo(this.model, 'invalid', this.loginError);
-	},
-
-	render: function() {
-		this.logView = new LogsView({"model": this.logs}).render();
-		this.readTemplate();
-		this.el.appendChild(this.logView.el);
-		return this;
-	},
-
-	remove: function() {
-		this.logView.remove();
-		//console.log("removed logView!");
-		Backbone.View.prototype.remove.apply(this);
-	},
-
-	loginError: function(model, error) {
-		this.get("logs").log(error);
-	},
-
-	events: {
-		'click #login-login': 'login'
-	},
-
-	login: function(e) {
+	login(e) {
 		e.preventDefault();
-		var thisView = this;
-		this.model.set('username', this.el.querySelector('#login-username').value);
-		this.model.set('password', this.el.querySelector('#login-password').value);
-		this.model.login({"success": function(model, data, options) {
-			thisView.model.trigger("login-successful", model, data, options);
-		}, "error": function(model, data, options) {
-			thisView.model.trigger("login-failed", model, data, options);
-		}, "complete": function() {
-			console.log("complete!");
-		}});
+		this.session.tryLogin(this.el.querySelector('#login-username').value, this.el.querySelector('#login-password').value);
 	}
 
-});
+	trigger(that, event) {
+		this.logsView.trigger(that, event);
+	}
+}
 
-/**
- * Pass:
- * - "model": Session model
- */
-var LogoutView = TemplateView.extend({
-	viewName: 'logout',
 
-	'initialize': function() {
-		this.listenTo(this.model, 'sync', this.whoami);
-	},
-
-	render: function() {
-		this.readTemplate();
+class LogoutView extends FrameworkView {
+	/**
+	 * Shows which user is currently logged in, and a logout button.
+	 *
+	 * @param {HTMLElement} element
+	 * @param {Session} session
+	 * @see FrameworkView.constructor
+	 */
+	constructor(element, session) {
+		super(element);
+		this.session = session;
+		this.el.querySelector('#logout-logout').addEventListener('click', this.logout.bind(this));
+		this.messageArea = this.el.querySelector('#logout-alreadyloggedmessage');
 		this.whoami();
-		return this;
-	},
-
-	whoami: function() {
-		var area = this.el.querySelector('#logout-alreadyloggedmessage');
-		var message;
-		if(this.model.get('username') === null) {
-			message = 'Not currently logged in';
-		} else {
-			message = 'Logged in as ' + this.model.get('username');
-		}
-		area.textContent = message;
-	},
-
-	events: {
-		'click #logout-logout': 'logout'
-	},
-
-	logout: function(e) {
-		e.preventDefault();
-		this.model.logout();
 	}
-});
 
-/**
- * Pass:
- * - "model": Logs collection
- */
-var LogsView = TemplateView.extend({
-	viewName: 'logs',
+	whoami() {
+		let message;
+		if(typeof this.session.username === 'string') {
+			message = 'Logged in as ' + this.session.username;
+		} else {
+			message = 'Not currently logged in';
+		}
+		this.messageArea.textContent = message;
+	}
 
-	dateFormatter: (function() {
-		// wrapping in the "anonymous function calling itself" thing just to limit the scope of the "noinspection" commment,
-		// since PHPStorm 2017 still hasn't heard of the Intl JS extension.
-		//noinspection JSUnresolvedVariable,JSUnresolvedFunction
-		return new Intl.DateTimeFormat('it-IT', {hour: 'numeric', minute: 'numeric', second: 'numeric'});
-		// TODO: cram the language constant somewhere else (where? app.js and controller.js are loaded after this file...)
-	})(),
+	logout(e) {
+		e.preventDefault();
+		this.session.logout();
+	}
 
-	'initialize': function() {
-		this.listenTo(this.model, 'add', this.added);
-	},
+	trigger(that, event) {
+		if(that === this.session && event === 'logout') {
+			this.whoami();
+		}
+	}
+}
 
-	added: function(model /*, collection, options*/) {
-		var line = document.createElement("div");
+class LogsView extends FrameworkView {
+	constructor(element, logs) {
+		super(element);
+		this.logs = logs;
+		// TODO: pass locale via parameters when actually needed
+		// (locale could be a FrameworkObject, so changes would be propagated via events)
+		//noinspection JSUnresolvedFunction,JSUnresolvedVariable
+		this.dateFormatter = new Intl.DateTimeFormat('it-IT', {hour: 'numeric', minute: 'numeric', second: 'numeric'});
+	}
+
+	pushed() {
+		let newLog = this.logs.getLast();
+		let line = document.createElement("div");
 		line.classList.add("new");
-		switch(model.get("severity")) {
-			case model.get("Success"):
+		switch(newLog.severity) {
+			case newLog.constructor.Success:
 				line.classList.add('success');
 				break;
 			default:
-			case model.get("Info"):
+			case newLog.constructor.Info:
 				line.classList.add('info');
 				break;
-			case model.get("Warning"):
+			case newLog.constructor.Warning:
 				line.classList.add('warning');
 				break;
-			case model.get("Error"):
+			case newLog.constructor.Error:
 				line.classList.add('error');
 				break;
 		}
-		var date = model.get("timedate");
-		var dateContainer = document.createElement("span");
+		let dateContainer = document.createElement("span");
 		dateContainer.classList.add("date");
 		//noinspection JSUnresolvedFunction
-		dateContainer.textContent = this.dateFormatter.format(date);
+		dateContainer.textContent = this.dateFormatter.format(newLog.timedate);
 
-		var messageContainer = document.createElement('span');
+		let messageContainer = document.createElement('span');
 		messageContainer.classList.add("message");
-		messageContainer.textContent = model.get("message");
+		messageContainer.textContent = newLog.message;
 
 		line.appendChild(dateContainer);
 		line.appendChild(messageContainer);
@@ -167,83 +108,101 @@ var LogsView = TemplateView.extend({
 
 		window.setTimeout(function() {
 			line.classList.remove("new");
-			console.log("TIMEOUT!");
 		}, 12000);
-	},
-
-	render: function() {
-		//this.readTemplate();
-		return this;
 	}
-});
 
-/**
+	shifted() {
+		if(this.el.firstElementChild) {
+			this.el.removeChild(this.el.firstElementChild);
+		}
+	}
+
+	cleared() {
+		while(this.el.firstElementChild) {
+			this.el.removeChild(this.el.firstElementChild);
+		}
+	}
+
+	trigger(that, event) {
+		if(that === this.logs) {
+			if(event === 'push') {
+				this.pushed();
+			} else if(event === 'shift') {
+				this.shifted();
+			} else if(event === 'clear') {
+				this.cleared();
+			}
+		}
+	}
+}
+
+/*
  * Pass:
  * - "model": an Item
  */
-var ItemView = TemplateView.extend({
-	viewName: 'item',
-
-	id: function() {
-		return this.viewName + '-view-' + this.model.id
-	},
-
-	'initialize': function() {
-		this.listenTo(this.model, 'change:features', this.showFeatures);
-		this.listenTo(this.model, 'change:code', this.showCode);
-	},
-
-	render: function() {
-	    this.readTemplate();
-	    this.el.classList.add("item");
-	    this.showCode(this.model);
-	    this.showFeatures(this.model);
-	    return this;
-	},
-
-	// TODO: according to official documentation, this is the correct signature. Let's see if it's really this or something else completely random and undocumented.
-	showFeatures: function(model /*, this, options*/) {
-		var featuresContainer = this._getFeaturesContainer();
-		var features = model.get("features");
-		var newElement, nameElement, valueElement;
-
-		var keys = Object.keys(features);
-		for(var i = 0; i < keys.length; i++) {
-			newElement = document.createElement("div");
-			newElement.classList.add("feature");
-			// TODO: autosuggest values
-			nameElement = document.createElement("span");
-			nameElement.classList.add("name");
-			valueElement = document.createElement("span");
-			valueElement.classList.add("value");
-			newElement.appendChild(nameElement);
-			newElement.appendChild(valueElement);
-
-			nameElement.textContent = keys[i];
-			valueElement.textContent = features(keys[i]);
-			featuresContainer.appendChild(newElement);
-		}
-	},
-
-	showCode: function(model /*, this, options*/) {
-		var codeContainer = this._getCodeContainer();
-		codeContainer.textContent(model.get("code"));
-	},
-
-	_getFeaturesContainer: function() {
-		return this._getContainer("features");
-	},
-
-	_getCodeContainer: function() {
-		return this._getContainer("code");
-	},
-
-	_getContainer: function(theClass) {
-		for(var i = 0; i < this.el.children.length; i++) {
-			if(this.el.children[i].className === theClass) {
-				return this.el.children[i];
-			}
-		}
-		return null;
-	}
-});
+// var ItemView = TemplateView.extend({
+// 	viewName: 'item',
+//
+// 	id: function() {
+// 		return this.viewName + '-view-' + this.model.id
+// 	},
+//
+// 	'initialize': function() {
+// 		this.listenTo(this.model, 'change:features', this.showFeatures);
+// 		this.listenTo(this.model, 'change:code', this.showCode);
+// 	},
+//
+// 	render: function() {
+// 	    this.readTemplate();
+// 	    this.el.classList.add("item");
+// 	    this.showCode(this.model);
+// 	    this.showFeatures(this.model);
+// 	    return this;
+// 	},
+//
+// 	// TODO: according to official documentation, this is the correct signature. Let's see if it's really this or something else completely random and undocumented.
+// 	showFeatures: function(model /*, this, options*/) {
+// 		var featuresContainer = this._getFeaturesContainer();
+// 		var features = model.get("features");
+// 		var newElement, nameElement, valueElement;
+//
+// 		var keys = Object.keys(features);
+// 		for(var i = 0; i < keys.length; i++) {
+// 			newElement = document.createElement("div");
+// 			newElement.classList.add("feature");
+// 			// TODO: autosuggest values
+// 			nameElement = document.createElement("span");
+// 			nameElement.classList.add("name");
+// 			valueElement = document.createElement("span");
+// 			valueElement.classList.add("value");
+// 			newElement.appendChild(nameElement);
+// 			newElement.appendChild(valueElement);
+//
+// 			nameElement.textContent = keys[i];
+// 			valueElement.textContent = features(keys[i]);
+// 			featuresContainer.appendChild(newElement);
+// 		}
+// 	},
+//
+// 	showCode: function(model /*, this, options*/) {
+// 		var codeContainer = this._getCodeContainer();
+// 		codeContainer.textContent(model.get("code"));
+// 	},
+//
+// 	_getFeaturesContainer: function() {
+// 		return this._getContainer("features");
+// 	},
+//
+// 	_getCodeContainer: function() {
+// 		return this._getContainer("code");
+// 	},
+//
+// 	_getContainer: function(theClass) {
+// 		for(var i = 0; i < this.el.children.length; i++) {
+// 			if(this.el.children[i].className === theClass) {
+// 				return this.el.children[i];
+// 			}
+// 		}
+// 		return null;
+// 	}
+// });
