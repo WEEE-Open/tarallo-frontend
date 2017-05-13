@@ -9,10 +9,11 @@ class LoginView extends FrameworkView {
 	 */
 	constructor(element, logs, session) {
 		super(element);
-		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
+		this.logs = logs;
 		this.session = session;
 		this.el.appendChild(document.getElementById("template-login").content.cloneNode(true));
 		this.el.querySelector('#login-login').addEventListener('click', this.login.bind(this));
+		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
 	}
 
 	login(e) {
@@ -21,6 +22,23 @@ class LoginView extends FrameworkView {
 	}
 
 	trigger(that, event) {
+		if(that === this.session) {
+			switch(event) {
+				case 'success':
+					this.logs.add("Login successful!", Log.Success);
+					return;
+				case 'error':
+				case 'validation-failed':
+					// TODO: better code & message handling (for i18n)
+					if(typeof this.session.lastErrorDetails === 'string') {
+						this.logs.add("Login failed: " + this.session.lastErrorDetails, Log.Error);
+					} else {
+						this.logs.add("Login failed: " + this.session.lastError, Log.Error);
+					}
+					return;
+			}
+		}
+
 		this.logsView.trigger(that, event);
 	}
 }

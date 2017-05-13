@@ -2,33 +2,35 @@ template {
     display: none;
 }
 
-#logs-view {
+.logs {
     margin: 1em 0;
+    height: 7em; /* (1 em + 0.2 em + 0.2 em) × number of lines */
+    overflow: scroll;
 }
 
-#logs-view div {
+.logs div {
     padding: 0.2em 0.2em;
     transition: color 1.2s ease-in, background-color 1.2s ease-in;
 }
 
-#logs-view .info.new {
+.logs .info.new {
     color: #00529B;
     background-color: #BDE5F8;
 }
-#logs-view .success.new {
+.logs .success.new {
     color: #4F8A10;
     background-color: #DFF2BF;
 }
-#logs-view .warning.new {
+.logs .warning.new {
     color: #9F6000;
     background-color: #FEEFB3;
 }
 
-#logs-view .error.new {
+.logs .error.new {
     color: #D8000C;
     background-color: #FFBABA;
 }
 
-#logs-view .date {
+.logs .date {
     margin-right: 1em;
 }

@@ -20,11 +20,11 @@ class Session extends FrameworkObject {
 		this.lastErrorDetails = null;
 	}
 
-	validate() {
-		if(typeof this.username !== 'string' || this.username.length === 0) {
+	static validate(username, password) {
+		if(typeof username !== 'string' || username.length === 0) {
 			return "missing-username";
 		}
-		if(typeof this.password !== 'string' || this.password.length === 0) {
+		if(typeof password !== 'string' || password.length === 0) {
 			return "missing-password";
 		}
 	}
@@ -49,11 +49,13 @@ class Session extends FrameworkObject {
 	}
 
 	login(username, password) {
-		let message = this.validate(username, password);
+		let message = Session.validate(username, password);
 		if(typeof message === 'undefined') {
 			this.send(username, password);
 		} else {
-			this.trigger('validation-failed', message);
+			this.lastError = 'validation-error';
+			this.lastErrorDetails = message;
+			this.trigger('validation-failed');
 		}
 	}
 
