@@ -6,17 +6,17 @@
 </head>
 <link type="text/css" media="all" rel="stylesheet" href="main.css">
 <body>
-<template id="login-template">
+<template id="template-login">
 	<label>Username: <input id="login-username" type="text"></label>
 	<label>Password: <input id="login-password" type="password"></label>
 	<input type="submit" value="VAI." id="login-login">
 	<div class="logs"></div>
 </template>
-<template id="logout-template">
+<template id="template-logout">
 	<span id="logout-alreadyloggedmessage"></span>
 	<input type="button" value="logout" id="logout-logout">
 </template>
-<template id="item-template">
+<template id="template-item">
 	<div class="row"><label>Code: <input type="text" name="code"></label></div>
 	<div class="features"></div>
 </template>
@@ -47,6 +47,7 @@
 <script src="log.js"></script>
 <script src="item.js"></script>
 <script src="session.js"></script>
+<script src="views.js"></script>
 <script src="controller.js"></script>
 <script src="app.js"></script>
 </body>

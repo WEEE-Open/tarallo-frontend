@@ -1,18 +1,24 @@
 class Session extends FrameworkObject {
-	/**
-	 * Current username, or null if logged out
-	 *
-	 * @type {string|null}
-	 */
-	username = null;
-	/**
-	 * Current password, or null if unknown or logged out
-	 *
-	 * @type {string|null}
-	 */
-	password = null;
-	lastError = null;
-	lastErrorDetails = null;
+	constructor(trigger) {
+		super(trigger);
+
+		/**
+		 * Current username, or null if logged out
+		 *
+		 * @type {string|null}
+		 */
+		this.username = null;
+		/**
+		 * Current password, or null if unknown or logged out
+		 *
+		 * @type {string|null}
+		 */
+		this.password = null;
+		/** @type {string|null} */
+		this.lastError = null;
+		/** @type {*|null} */
+		this.lastErrorDetails = null;
+	}
 
 	validate() {
 		if(typeof this.username !== 'string' || this.username.length === 0) {
@@ -34,6 +40,8 @@ class Session extends FrameworkObject {
 			function() {
 				this.username = username;
 				this.password = password;
+				this.lastError = null;
+				this.lastErrorDetails = null;
 				this.trigger('success');
 			}.bind(this));
 		req.send(JSON.stringify({username: username, password: password}));

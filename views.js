@@ -11,12 +11,13 @@ class LoginView extends FrameworkView {
 		super(element);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
 		this.session = session;
+		this.el.appendChild(document.getElementById("template-login").content.cloneNode(true));
 		this.el.querySelector('#login-login').addEventListener('click', this.login.bind(this));
 	}
 
 	login(e) {
 		e.preventDefault();
-		this.session.tryLogin(this.el.querySelector('#login-username').value, this.el.querySelector('#login-password').value);
+		this.session.login(this.el.querySelector('#login-username').value, this.el.querySelector('#login-password').value);
 	}
 
 	trigger(that, event) {

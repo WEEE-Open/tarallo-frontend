@@ -1,7 +1,7 @@
 class FrameworkView {
 	/**
 	 * Pass some container element in which the view should be rendered.
-	 * New element, already existing element, cloned element returned by View.fromTemplate, anything is acceptable.
+	 * New element, already existing element, cloned element returned from HTML template, anything is acceptable.
 	 *
 	 * @param {HTMLElement} element an HTML element
 	 */

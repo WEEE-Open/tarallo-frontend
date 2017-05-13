@@ -5,32 +5,6 @@
  * @see Logs.add
  */
 class Log {
-	static Error = 3;
-	static Warning = 2;
-	static Info = 1;
-	static Success = 0;
-
-	/**
-	 * Severity of the log message.
-	 *
-	 * @type {number}
-	 * @see Log.Error
-	 * @see Log.Warning
-	 * @see Log.Info
-	 * @see Log.Success
-	 */
-	severity = 1;
-	/**
-	 * Log message. Hopefully string or null or undefined, but could be anything else.
-	 */
-	message;
-	/**
-	 * Date and time.
-	 *
-	 * @type {Date}
-	 */
-	timedate;
-
 	/**
 	 * Do not use directly, use Logs.add() instead.
 	 *
@@ -40,9 +14,25 @@ class Log {
 	 * @see Logs.add
 	 */
 	constructor(message, severity) {
-		this.message = message;
-		// TODO: MDN says this is the correct way, PHPStorm doesn't warn of anything if I just do this._parseSeverity()...
+		/**
+		 * Severity of the log message.
+		 *
+		 * @type {number}
+		 * @see Log.Error
+		 * @see Log.Warning
+		 * @see Log.Info
+		 * @see Log.Success
+		 */
 		this.severity = this.constructor._parseSeverity(severity);
+		/**
+		 * Log message. Hopefully string or null or undefined, but could be anything else.
+		 */
+		this.message = message;
+		/**
+		 * Date and time.
+		 *
+		 * @type {Date}
+		 */
 		this.timedate = new Date();
 	}
 
@@ -64,17 +54,45 @@ class Log {
 	}
 }
 
+Object.defineProperty(Log, 'Error', {
+	value: 3,
+	writable : false,
+	enumerable : true,
+	configurable : false
+});
+Object.defineProperty(Log, 'Warning', {
+	value: 2,
+	writable : false,
+	enumerable : true,
+	configurable : false
+});
+Object.defineProperty(Log, 'Info', {
+	value: 1,
+	writable : false,
+	enumerable : true,
+	configurable : false
+});
+Object.defineProperty(Log, 'Success', {
+	value: 0,
+	writable : false,
+	enumerable : true,
+	configurable : false
+});
 
 /**
  * Every log message
  */
 class Logs extends FrameworkObject {
-	/**
-	 * Logged messages
-	 * @type {Array}
-	 * @private
-	 */
-	_logs = [];
+	constructor(trigger) {
+		super(trigger);
+
+		/**
+		 * Logged messages
+		 * @type {Array}
+		 * @private
+		 */
+		this._logs = [];
+	}
 
 	/**
 	 * Add a new message
