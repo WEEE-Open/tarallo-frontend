@@ -55,16 +55,23 @@ const Controller = (function () {
 
 		add: function() {
 			alert("a(s)dd");
-		}
+		},
 
+		execute: function(callback, args, name) {
+			while(container.firstChild) {
+				container.removeChild(container.firstChild);
+			}
+			if(callback) {
+				// IT'S A FUNCTION. IT HAS AN APPLY METHOD. PHPSTORM PLS.
+				//noinspection JSUnresolvedFunction
+				callback.apply(this, args);
+			}
+		}
 	});
 
+
 	function goTo(mainView) {
-		if(rootView !== null) {
-			container.removeChild(rootView.el);
-		}
 		rootView = mainView;
-		container.appendChild(mainView.el);
 	}
 
 	const TIMEOUT = 30000;
