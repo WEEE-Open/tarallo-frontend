@@ -5,7 +5,7 @@ template {
 .logs {
     margin: 1em 0;
     height: 7em; /* (1 em + 0.2 em + 0.2 em) × number of lines */
-    overflow: scroll;
+    overflow: auto;
     resize: vertical;
 }
 
