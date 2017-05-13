@@ -9,9 +9,9 @@ class FrameworkView {
 		this.el = element;
 	}
 
-	static fromTemplate(name) {
-		return document.getElementById("template-" + name).content.cloneNode(true);
-	}
+	//static fromTemplate(name) {
+	//	return document.getElementById("template-" + name).content.cloneNode(true);
+	//}
 
 	/**
 	 * Implement this function: consume any necessary event, pass others down to subviews.
