@@ -1,8 +1,14 @@
 class Item extends FrameworkObject {
 	constructor(trigger) {
 		super(trigger);
+		this.featuresCount = 0;
 		this.features = {};
+		this.defaultFeaturesCount = 0;
 		this.defaultFeatures = {};
+		/**
+		 * Unique code
+		 * @type {string|null}
+		 */
 		this.code = null;
 	}
 
@@ -17,11 +23,13 @@ class Item extends FrameworkObject {
 	setFeature(name, value) {
 		if(value === null) {
 			delete this.features[name];
+			this.featuresCount--;
 			return true;
 		}
 
 		if(Item.isValidFeatureName(name)) {
 			this.features[name] = value;
+			this.featuresCount++;
 			return true;
 		} else {
 			return false;
@@ -39,11 +47,13 @@ class Item extends FrameworkObject {
 	setDefaultFeature(name, value) {
 		if(value === null) {
 			delete this.defaultFeatures[name];
+			this.defaultFeaturesCount--;
 			return true;
 		}
 
 		if(Item.isValidFeatureName(name)) {
 			this.defaultFeatures[name] = value;
+			this.defaultFeaturesCount++;
 			return true;
 		} else {
 			return false;

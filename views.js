@@ -162,73 +162,80 @@ class LogsView extends FrameworkView {
 	}
 }
 
-/*
- * Pass:
- * - "model": an Item
- */
-// var ItemView = TemplateView.extend({
-// 	viewName: 'item',
-//
-// 	id: function() {
-// 		return this.viewName + '-view-' + this.model.id
-// 	},
-//
-// 	'initialize': function() {
-// 		this.listenTo(this.model, 'change:features', this.showFeatures);
-// 		this.listenTo(this.model, 'change:code', this.showCode);
-// 	},
-//
-// 	render: function() {
-// 	    this.readTemplate();
-// 	    this.el.classList.add("item");
-// 	    this.showCode(this.model);
-// 	    this.showFeatures(this.model);
-// 	    return this;
-// 	},
-//
-// 	// TODO: according to official documentation, this is the correct signature. Let's see if it's really this or something else completely random and undocumented.
-// 	showFeatures: function(model /*, this, options*/) {
-// 		var featuresContainer = this._getFeaturesContainer();
-// 		var features = model.get("features");
-// 		var newElement, nameElement, valueElement;
-//
-// 		var keys = Object.keys(features);
-// 		for(var i = 0; i < keys.length; i++) {
-// 			newElement = document.createElement("div");
-// 			newElement.classList.add("feature");
-// 			// TODO: autosuggest values
-// 			nameElement = document.createElement("span");
-// 			nameElement.classList.add("name");
-// 			valueElement = document.createElement("span");
-// 			valueElement.classList.add("value");
-// 			newElement.appendChild(nameElement);
-// 			newElement.appendChild(valueElement);
-//
-// 			nameElement.textContent = keys[i];
-// 			valueElement.textContent = features(keys[i]);
-// 			featuresContainer.appendChild(newElement);
-// 		}
-// 	},
-//
-// 	showCode: function(model /*, this, options*/) {
-// 		var codeContainer = this._getCodeContainer();
-// 		codeContainer.textContent(model.get("code"));
-// 	},
-//
-// 	_getFeaturesContainer: function() {
-// 		return this._getContainer("features");
-// 	},
-//
-// 	_getCodeContainer: function() {
-// 		return this._getContainer("code");
-// 	},
-//
-// 	_getContainer: function(theClass) {
-// 		for(var i = 0; i < this.el.children.length; i++) {
-// 			if(this.el.children[i].className === theClass) {
-// 				return this.el.children[i];
-// 			}
-// 		}
-// 		return null;
-// 	}
-// });
+class ItemView extends FrameworkView {
+
+	/**
+	 * View and edit an item.
+	 *
+	 * @param {HTMLElement} element
+	 * @param {Item} item
+	 */
+	constructor(element, item) {
+		super(element);
+		this.item = item;
+		this.el.appendChild(document.getElementById("template-login").content.cloneNode(true));
+
+		this.codeElement = this.el.querySelector(':not(.subitem) .code');
+		this.featuresElement = this.el.querySelector(':not(.subitem) .features');
+		this.defaultFeaturesElement = this.el.querySelector(':not(.subitem) .defaultfeatures');
+		this.insideElement = this.el.querySelector(':not(.subitem) .inside');
+
+		if(item.code !== null) {
+			this.showCode(item.code);
+			this.freezeCode();
+		}
+		if(item.featuresCount > 0) {
+			this.showFeatures();
+		}
+		if(item.defaultFeaturesCount > 0) {
+			this.showDefaultFeatures();
+		}
+	}
+
+	//static search(where, classname) {
+	//	for(let i = 0; i < where.length; i++) {
+	//		if(where[i].classList.contains(classname)) {
+	//			return where[i];
+	//		}
+	//	}
+	//}
+
+	showFeatures() {
+		ItemView._showFeatures(this.item.features, this.featuresElement);
+	}
+
+	showDefaultFeatures() {
+		ItemView._showFeatures(this.item.defaultFeatures, this.defaultFeaturesElement);
+	}
+
+	static _showFeatures(featuresOrDefaultFeatures, where) {
+		let features = featuresOrDefaultFeatures;
+		let newElement, nameElement, valueElement;
+
+		let keys = Object.keys(features);
+		for(let i = 0; i < keys.length; i++) {
+			newElement = document.createElement("div");
+			newElement.classList.add("feature");
+			// TODO: autosuggest values
+			nameElement = document.createElement("span");
+			nameElement.classList.add("name");
+			valueElement = document.createElement("span");
+			valueElement.classList.add("value");
+			newElement.appendChild(nameElement);
+			newElement.appendChild(valueElement);
+
+			nameElement.textContent = keys[i];
+			valueElement.textContent = features(keys[i]);
+			where.appendChild(newElement);
+		}
+	}
+
+	showCode(code) {
+		this.codeElement.value = code;
+	}
+
+	freezeCode() {
+		this.codeElement.disabled = true;
+	}
+
+}
