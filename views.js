@@ -209,24 +209,25 @@ class ItemView extends FrameworkView {
 	}
 
 	static _showFeatures(featuresOrDefaultFeatures, where) {
-		let features = featuresOrDefaultFeatures;
 		let newElement, nameElement, valueElement;
 
-		let keys = Object.keys(features);
-		for(let i = 0; i < keys.length; i++) {
-			newElement = document.createElement("div");
-			newElement.classList.add("feature");
-			// TODO: autosuggest values
-			nameElement = document.createElement("span");
-			nameElement.classList.add("name");
-			valueElement = document.createElement("span");
-			valueElement.classList.add("value");
-			newElement.appendChild(nameElement);
-			newElement.appendChild(valueElement);
+		for(let name in featuresOrDefaultFeatures) {
+			// hasOwnProperty is probably useless
+			if(featuresOrDefaultFeatures.hasOwnProperty(name)) {
+				newElement = document.createElement("div");
+				newElement.classList.add("feature");
+				// TODO: autosuggest values
+				nameElement = document.createElement("span");
+				nameElement.classList.add("name");
+				valueElement = document.createElement("span");
+				valueElement.classList.add("value");
+				newElement.appendChild(nameElement);
+				newElement.appendChild(valueElement);
 
-			nameElement.textContent = keys[i];
-			valueElement.textContent = features(keys[i]);
-			where.appendChild(newElement);
+				nameElement.textContent = name;
+				valueElement.textContent = featuresOrDefaultFeatures[name];
+				where.appendChild(newElement);
+			}
 		}
 	}
 
