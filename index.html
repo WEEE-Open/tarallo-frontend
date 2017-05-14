@@ -20,11 +20,9 @@
 	<div class="row"><label>Code: <input type="text" name="code"></label></div>
 	<div class="features"></div>
 </template>
-<div id="header">
-	<h1>T.A.R.A.L.L.O.</h1>
-	<p>Trabiccolo Amministrazione Rottami e Assistenza, Legalmente-noto-come L'inventario Opportuno</p>
+<template id="template-navigation">
 	<nav id="navigation">
-		<form id="search" onclick="alert('Da implementare.');">
+		<form id="search">
 			<div id="search-input-0">
 				<label>Cerca: <input type="search"></label>
 				<label>Nel campo: <input type="search"></label>
@@ -38,6 +36,25 @@
 		<button>Nuovo</button>
 		<button>Logout</button>
 	</nav>
+</template>
+<template id="template-newitem">
+	<!--<button class="delete">-</button>-->
+	<label>Codice: <input data-field="code" type="text"></label>
+	<p><label>Campo: <input type="text"></label><button>Aggiungi campo</button></p>
+	<div class="features">
+
+	</div>
+	<div class="defaultfeatures">
+
+	</div>
+	<button>Aggiungi oggetto all'interno</button>
+	<div class="inside">
+
+	</div>
+</template>
+<div id="header">
+	<h1>T.A.R.A.L.L.O.</h1>
+	<p>Trabiccolo Amministrazione Rottami e Assistenza, Legalmente-noto-come L'inventario Opportuno</p>
 </div>
 <div id="views"></div>
 <script src="node_modules/underscore/underscore.js"></script>
