@@ -173,7 +173,7 @@ class ItemView extends FrameworkView {
 	constructor(element, item) {
 		super(element);
 		this.item = item;
-		this.el.appendChild(document.getElementById("template-login").content.cloneNode(true));
+		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
 
 		this.codeElement = this.el.querySelector(':not(.subitem) .code');
 		this.featuresElement = this.el.querySelector(':not(.subitem) .features');

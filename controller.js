@@ -42,7 +42,7 @@ const Controller = (function () {
 		},
 
 		logout: function() {
-			goTo(new LogoutView(document.getElementById('views'), session).render());
+			goTo(new LogoutView(document.getElementById('views'), session));
 		},
 
 		list: function(location, page) {
@@ -54,7 +54,9 @@ const Controller = (function () {
 		},
 
 		add: function() {
-			alert("a(s)dd");
+			// TODO: use a proxy, store somewhere
+			let item = new Item(trigger);
+			goTo(new ItemView(document.getElementById('views'), item))
 		},
 
 		execute: function(callback, args, name) {
