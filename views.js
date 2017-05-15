@@ -231,6 +231,12 @@ class ItemView extends FrameworkView {
 		}
 	}
 
+	static newContainer() {
+		let container = document.createElement("div");
+		container.classList.add("item");
+		return container;
+	}
+
 	showCode(code) {
 		this.codeElement.value = code;
 	}

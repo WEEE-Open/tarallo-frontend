@@ -56,7 +56,9 @@ const Controller = (function () {
 		add: function() {
 			// TODO: use a proxy, store somewhere
 			let item = new Item(trigger);
-			goTo(new ItemView(document.getElementById('views'), item))
+			let container = ItemView.newContainer();
+			document.getElementById('views').appendChild(container);
+			goTo(new ItemView(container, item))
 		},
 
 		execute: function(callback, args, name) {

@@ -35,3 +35,14 @@ template {
 .logs .date {
     margin-right: 1em;
 }
+
+.item {
+    border: 0.1em solid black;
+    padding: 0.5em;
+}
+
+.item > .features, .item > .defaultfeatures, .item > .subitem {
+    margin: 0.25em 0;
+    padding: 0.5em;
+    border: 0.1em dashed #3c3c3c;
+}
