@@ -5,6 +5,8 @@ class Item extends FrameworkObject {
 		this.features = {};
 		this.defaultFeaturesCount = 0;
 		this.defaultFeatures = {};
+		this.insideCount = 0;
+		this.inside = [];
 		/**
 		 * Unique code
 		 * @type {string|null}
@@ -58,6 +60,47 @@ class Item extends FrameworkObject {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Insert an Item
+	 *
+	 * @param {Item} other item to be place inside
+	 */
+	addInside(other) {
+		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
+		this.inside.push(other);
+		this.insideCount++;
+	}
+
+	/**
+	 * Remove an Item. Beware of the O(n) complexity.
+	 *
+	 * @param {Item} other item to be removed
+	 * @returns {boolean} true if found and removed, false if not found
+	 */
+	removeInside(other) {
+		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
+		let pos = this.inside.indexOf(other);
+		if(pos > -1) {
+			let old = this.inside.splice(pos, 1);
+			old.setParent(null);
+			this.insideCount--;
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Set parent of an Item. null means "no parent".
+	 * This is the immediate parent, available to and visibile on the client, not the real parent that the item may have
+	 * somewhere in the database.
+	 *
+	 * @param {Item|null} item
+	 */
+	setParent(item) {
+
 	}
 
 	/**
