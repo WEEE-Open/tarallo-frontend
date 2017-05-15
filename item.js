@@ -5,7 +5,6 @@ class Item extends FrameworkObject {
 		this.features = {};
 		this.defaultFeaturesCount = 0;
 		this.defaultFeatures = {};
-		this.insideCount = 0;
 		this.inside = [];
 		/**
 		 * Unique code
@@ -70,7 +69,6 @@ class Item extends FrameworkObject {
 	addInside(other) {
 		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
 		this.inside.push(other);
-		this.insideCount++;
 	}
 
 	/**
@@ -85,7 +83,6 @@ class Item extends FrameworkObject {
 		if(pos > -1) {
 			let old = this.inside.splice(pos, 1);
 			old.setParent(null);
-			this.insideCount--;
 			return true;
 		} else {
 			return false;

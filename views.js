@@ -173,6 +173,7 @@ class ItemView extends FrameworkView {
 	constructor(element, item) {
 		super(element);
 		this.item = item;
+		this.subitems = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
 
 		this.codeElement = this.el.querySelector(':not(.subitem) .code');
@@ -190,6 +191,9 @@ class ItemView extends FrameworkView {
 		if(item.defaultFeaturesCount > 0) {
 			this.showDefaultFeatures();
 		}
+		if(item.inside.length > 0) {
+			this.showInsideItems();
+		}
 	}
 
 	//static search(where, classname) {
@@ -206,6 +210,23 @@ class ItemView extends FrameworkView {
 
 	showDefaultFeatures() {
 		ItemView._showFeatures(this.item.defaultFeatures, this.defaultFeaturesElement);
+	}
+
+	showInsideItems() {
+		let subitem, container;
+		this.removeInsideItems();
+		for(let i = 0; i < this.item.inside.length; i++) {
+			subitem = this.item.inside[i];
+			container = ItemView.newContainer();
+			this.subitems.push(new ItemView(container, subitem));
+			this.el.appendChild(container);
+		}
+	}
+
+	removeInsideItems() {
+		while(this.insideElement.lastElementChild) {
+			this.insideElement.removeChild(this.insideElement.lastElementChild);
+		}
 	}
 
 	static _showFeatures(featuresOrDefaultFeatures, where) {
