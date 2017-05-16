@@ -246,7 +246,7 @@ class ItemView extends FrameworkView {
 			if(this.item.features.hasOwnProperty(name)) {
 				newElement = document.createElement("div");
 				newElement.classList.add("feature");
-				// TODO: autosuggest values
+
 				nameElement = document.createElement("span");
 				nameElement.classList.add("name");
 
@@ -257,6 +257,7 @@ class ItemView extends FrameworkView {
 				deleteButton = document.createElement("button");
 				deleteButton.classList.add("featuredeletebutton");
 				deleteButton.classList.add("freezable");
+				deleteButton.textContent = "-";
 
 				newElement.appendChild(deleteButton);
 				newElement.appendChild(nameElement);
