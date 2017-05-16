@@ -22,6 +22,9 @@ class Item extends FrameworkObject {
 	 * @returns {boolean} operation succeeded or not (fails only if creating a feature with an invalid name, delete always succeeds)
 	 */
 	setFeature(name, value) {
+		if(!Item.isValidFeatureName(name)) {
+			throw new Error(name + ' is not a feature name');
+		}
 		if(value === null) {
 			delete this.features[name];
 			this.featuresCount--;
@@ -46,6 +49,9 @@ class Item extends FrameworkObject {
 	 * @see this.setFeature
 	 */
 	setDefaultFeature(name, value) {
+		if(!Item.isValidFeatureName(name)) {
+			throw new Error(name + ' is not a feature name');
+		}
 		if(value === null) {
 			delete this.defaultFeatures[name];
 			this.defaultFeaturesCount--;
