@@ -173,6 +173,7 @@ class ItemView extends FrameworkView {
 	constructor(element, item) {
 		super(element);
 		this.item = item;
+		this.frozen = false;
 		this.subitems = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
 
@@ -196,6 +197,30 @@ class ItemView extends FrameworkView {
 		}
 	}
 
+	/**
+	 * Set item as non-editable.
+	 *
+	 * @see this.unfreeze
+	 */
+	freeze() {
+		this.freezeCode();
+		ItemView._disableInputs(this.featuresElement, true);
+		//ItemView._disableInputs(this.defaultFeaturesElement, true);
+		this.frozen = true;
+	}
+
+	/**
+	 * Set item as editable again (except for the code)
+	 *
+	 * @see this.freeze
+	 */
+	unfreeze() {
+		ItemView._disableInputs(this.featuresElement, false);
+		// TODO: default features shouldn't be editable anyway, freeze/unfreeze the "default item" field only (which doesn't exist yet)
+		//ItemView._disableInputs(this.defaultFeaturesElement, false);
+		this.frozen = false;
+	}
+
 	//static search(where, classname) {
 	//	for(let i = 0; i < where.length; i++) {
 	//		if(where[i].classList.contains(classname)) {
@@ -209,7 +234,7 @@ class ItemView extends FrameworkView {
 	}
 
 	showDefaultFeatures() {
-		ItemView._showFeatures(this.item.defaultFeatures, this.defaultFeaturesElement);
+		ItemView._showFeatures(this.item.defaultFeatures, this.defaultFeaturesElement, true);
 	}
 
 	showInsideItems() {
@@ -229,26 +254,50 @@ class ItemView extends FrameworkView {
 		}
 	}
 
-	static _showFeatures(featuresOrDefaultFeatures, where) {
+	/**
+	 * Display all features from an object.
+	 *
+	 * @param {object} features object of features or default features
+	 * @param {HTMLElement} element container for the features
+	 * @param {boolean} disabled true to disable input field (default false)
+	 * @private
+	 */
+	static _showFeatures(features, element, disabled) {
+		disabled = disabled || false;
 		let newElement, nameElement, valueElement;
 
-		for(let name in featuresOrDefaultFeatures) {
+		for(let name in features) {
 			// hasOwnProperty is probably useless
-			if(featuresOrDefaultFeatures.hasOwnProperty(name)) {
+			if(features.hasOwnProperty(name)) {
 				newElement = document.createElement("div");
 				newElement.classList.add("feature");
 				// TODO: autosuggest values
-				nameElement = document.createElement("input");
+				nameElement = document.createElement("span");
 				nameElement.classList.add("name");
 				valueElement = document.createElement("input");
 				valueElement.classList.add("value");
+				valueElement.disabled = disabled;
 				newElement.appendChild(nameElement);
 				newElement.appendChild(valueElement);
 
-				nameElement.value = name;
-				valueElement.value = featuresOrDefaultFeatures[name];
-				where.appendChild(newElement);
+				nameElement.textContent = name;
+				valueElement.value = features[name];
+				element.appendChild(newElement);
 			}
+		}
+	}
+
+	/**
+	 * Disable or re-enable input elements inside element.
+	 *
+	 * @param {HTMLElement} element container of input elements
+	 * @param {boolean} disabled true to disable, false to enable
+	 * @private
+	 */
+	static _disableInputs(element, disabled) {
+		let inputs = element.querySelectorAll('input');
+		for(let i = 0; i < inputs.length; i++) {
+			inputs[i].disabled = disabled;
 		}
 	}
 

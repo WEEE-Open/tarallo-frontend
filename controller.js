@@ -34,7 +34,26 @@ const Controller = (function () {
 		},
 
 		test: function() {
-			alert('Pagina "test"');
+			let item = new Item(trigger);
+			item.setDefaultFeature("frequency-hz", 12);
+			item.setDefaultFeature("brand", "Intelllll");
+			item.setDefaultFeature("name", "Atom-ic crap N123");
+			item.setFeature("works", "yes");
+			item.setCode("CPU-666");
+			let container = ItemView.newContainer();
+			let theview = new ItemView(container, item);
+			goTo(theview);
+
+			let button = document.createElement("button");
+			document.getElementById('views').appendChild(container).appendChild(button);
+			button.textContent = "(s)congela";
+			button.onclick = function() {
+				if(theview.frozen) {
+					theview.unfreeze();
+				} else {
+					theview.freeze();
+				}
+			};
 		},
 
 		login: function() {
