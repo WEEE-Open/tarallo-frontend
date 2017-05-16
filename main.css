@@ -50,3 +50,17 @@ template {
     padding: 0.5em;
     border: 0.1em dashed #3c3c3c;
 }
+
+.item > .features input, .item > .defaultfeatures input {
+    border: 0.1em solid #ccc;
+    border-radius: 0.3em;
+    margin: 0.1em;
+    padding: 0.5em;
+    background: rgba(0,0,0,0);
+
+}
+
+.item > .features input:disabled, .item > .defaultfeatures input:disabled {
+    border: 0.1em solid rgba(0,0,0,0);
+    margin: 0.1em;
+}
