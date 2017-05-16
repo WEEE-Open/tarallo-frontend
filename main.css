@@ -1,3 +1,7 @@
+* {
+    box-sizing: content-box;
+}
+
 template {
     display: none;
 }
