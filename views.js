@@ -238,15 +238,15 @@ class ItemView extends FrameworkView {
 				newElement = document.createElement("div");
 				newElement.classList.add("feature");
 				// TODO: autosuggest values
-				nameElement = document.createElement("span");
+				nameElement = document.createElement("input");
 				nameElement.classList.add("name");
-				valueElement = document.createElement("span");
+				valueElement = document.createElement("input");
 				valueElement.classList.add("value");
 				newElement.appendChild(nameElement);
 				newElement.appendChild(valueElement);
 
-				nameElement.textContent = name;
-				valueElement.textContent = featuresOrDefaultFeatures[name];
+				nameElement.value = name;
+				valueElement.value = featuresOrDefaultFeatures[name];
 				where.appendChild(newElement);
 			}
 		}
