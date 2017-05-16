@@ -204,9 +204,15 @@ class ItemView extends FrameworkView {
 	 */
 	freeze() {
 		this.freezeCode();
-		ItemView._disableInputs(this.featuresElement, true);
-		//ItemView._disableInputs(this.defaultFeaturesElement, true);
+		this._toggleInputs(true);
 		this.frozen = true;
+	}
+
+	_toggleInputs(disabled) {
+		let inputs = this.el.querySelectorAll(':not(.subitem) input.freezable, :not(.subitem) button.freezable');
+		for(let i = 0; i < inputs.length; i++) {
+			inputs[i].disabled = disabled;
+		}
 	}
 
 	/**
@@ -215,9 +221,7 @@ class ItemView extends FrameworkView {
 	 * @see this.freeze
 	 */
 	unfreeze() {
-		ItemView._disableInputs(this.featuresElement, false);
-		// TODO: default features shouldn't be editable anyway, freeze/unfreeze the "default item" field only (which doesn't exist yet)
-		//ItemView._disableInputs(this.defaultFeaturesElement, false);
+		this._toggleInputs(false);
 		this.frozen = false;
 	}
 
@@ -229,12 +233,69 @@ class ItemView extends FrameworkView {
 	//	}
 	//}
 
+	/**
+	 * Display features from the item, in editable format. Use freeze() to make them not editable.
+	 *
+	 * @see this.freeze
+	 */
 	showFeatures() {
-		ItemView._showFeatures(this.item.features, this.featuresElement);
+		let newElement, nameElement, valueElement, deleteButton;
+
+		for(let name in this.item.features) {
+			// hasOwnProperty is probably useless
+			if(this.item.features.hasOwnProperty(name)) {
+				newElement = document.createElement("div");
+				newElement.classList.add("feature");
+				// TODO: autosuggest values
+				nameElement = document.createElement("span");
+				nameElement.classList.add("name");
+
+				valueElement = document.createElement("input");
+				valueElement.classList.add("value");
+				valueElement.classList.add("freezable");
+
+				deleteButton = document.createElement("button");
+				deleteButton.classList.add("featuredeletebutton");
+				deleteButton.classList.add("freezable");
+
+				newElement.appendChild(deleteButton);
+				newElement.appendChild(nameElement);
+				newElement.appendChild(valueElement);
+
+				nameElement.textContent = name;
+				valueElement.value = this.item.features[name];
+				this.featuresElement.appendChild(newElement);
+			}
+		}
 	}
 
+	/**
+	 * Display default features. These are never editable.
+	 */
 	showDefaultFeatures() {
-		ItemView._showFeatures(this.item.defaultFeatures, this.defaultFeaturesElement, true);
+		// looks very much like showFeatures, but there are many subtle differences, using a single function didn't work too well...
+		let newElement, nameElement, valueElement;
+
+		for(let name in this.item.defaultFeatures) {
+			if(this.item.defaultFeatures.hasOwnProperty(name)) {
+				newElement = document.createElement("div");
+				newElement.classList.add("feature");
+
+				nameElement = document.createElement("span");
+				nameElement.classList.add("name");
+
+				valueElement = document.createElement("input");
+				valueElement.classList.add("value");
+				valueElement.disabled = true;
+
+				newElement.appendChild(nameElement);
+				newElement.appendChild(valueElement);
+
+				nameElement.textContent = name;
+				valueElement.value = this.item.defaultFeatures[name];
+				this.defaultFeaturesElement.appendChild(newElement);
+			}
+		}
 	}
 
 	showInsideItems() {
@@ -251,62 +312,6 @@ class ItemView extends FrameworkView {
 	removeInsideItems() {
 		while(this.insideElement.lastElementChild) {
 			this.insideElement.removeChild(this.insideElement.lastElementChild);
-		}
-	}
-
-	/**
-	 * Display all features from an object.
-	 *
-	 * @param {object} features object of features or default features
-	 * @param {HTMLElement} element container for the features
-	 * @param {boolean=false} disabled true to disable input field (default false)
-	 * @private
-	 */
-	static _showFeatures(features, element, disabled) {
-		disabled = disabled || false;
-		let newElement, nameElement, valueElement, deleteButton;
-
-		for(let name in features) {
-			// hasOwnProperty is probably useless
-			if(features.hasOwnProperty(name)) {
-				newElement = document.createElement("div");
-				newElement.classList.add("feature");
-				// TODO: autosuggest values
-				nameElement = document.createElement("span");
-				nameElement.classList.add("name");
-
-				valueElement = document.createElement("input");
-				valueElement.classList.add("value");
-				valueElement.classList.add("freezable");
-				valueElement.disabled = disabled;
-
-				deleteButton = document.createElement("button");
-				deleteButton.classList.add("featuredeletebutton");
-				deleteButton.classList.add("freezable");
-				deleteButton.disabled = disabled;
-
-				newElement.appendChild(deleteButton);
-				newElement.appendChild(nameElement);
-				newElement.appendChild(valueElement);
-
-				nameElement.textContent = name;
-				valueElement.value = features[name];
-				element.appendChild(newElement);
-			}
-		}
-	}
-
-	/**
-	 * Disable or re-enable input elements inside element.
-	 *
-	 * @param {HTMLElement} element container of input elements
-	 * @param {boolean} disabled true to disable, false to enable
-	 * @private
-	 */
-	static _disableInputs(element, disabled) {
-		let inputs = element.querySelectorAll('freezable');
-		for(let i = 0; i < inputs.length; i++) {
-			inputs[i].disabled = disabled;
 		}
 	}
 

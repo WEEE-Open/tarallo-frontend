@@ -35,16 +35,16 @@
 </template>
 <template id="template-item">
 	<!--<button class="delete">-</button>-->
-	<label>Codice: <input class="code freezable" type="text"></label>
+	<label>Codice: <input class="code" type="text"></label>
 	<div class="features">
 
 	</div>
-	<p><label>Campo: <input type="text"></label><button class="addfield">Aggiungi campo</button></p>
+	<p class="freezable-controls"><label>Campo: <input type="text" class="freezable"></label><button class="addfield freezable">Aggiungi campo</button></p>
 	<div class="defaultfeatures">
 
 	</div>
-	<p><label>Oggetto di default: <input type="text"></label><button class="setdefault">Imposta</button></p>
-	<button>Aggiungi oggetto all'interno</button>
+	<p class="freezable-controls"><label>Oggetto di default: <input type="text"></label><button class="setdefault freezable">Imposta</button></p>
+	<button class="freezable">Aggiungi oggetto all'interno</button>
 	<div class="inside subitem">
 
 	</div>
