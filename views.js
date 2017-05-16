@@ -259,12 +259,12 @@ class ItemView extends FrameworkView {
 	 *
 	 * @param {object} features object of features or default features
 	 * @param {HTMLElement} element container for the features
-	 * @param {boolean} disabled true to disable input field (default false)
+	 * @param {boolean=false} disabled true to disable input field (default false)
 	 * @private
 	 */
 	static _showFeatures(features, element, disabled) {
 		disabled = disabled || false;
-		let newElement, nameElement, valueElement;
+		let newElement, nameElement, valueElement, deleteButton;
 
 		for(let name in features) {
 			// hasOwnProperty is probably useless
@@ -274,9 +274,18 @@ class ItemView extends FrameworkView {
 				// TODO: autosuggest values
 				nameElement = document.createElement("span");
 				nameElement.classList.add("name");
+
 				valueElement = document.createElement("input");
 				valueElement.classList.add("value");
+				valueElement.classList.add("freezable");
 				valueElement.disabled = disabled;
+
+				deleteButton = document.createElement("button");
+				deleteButton.classList.add("featuredeletebutton");
+				deleteButton.classList.add("freezable");
+				deleteButton.disabled = disabled;
+
+				newElement.appendChild(deleteButton);
 				newElement.appendChild(nameElement);
 				newElement.appendChild(valueElement);
 
@@ -295,7 +304,7 @@ class ItemView extends FrameworkView {
 	 * @private
 	 */
 	static _disableInputs(element, disabled) {
-		let inputs = element.querySelectorAll('input');
+		let inputs = element.querySelectorAll('freezable');
 		for(let i = 0; i < inputs.length; i++) {
 			inputs[i].disabled = disabled;
 		}
