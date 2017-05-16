@@ -195,6 +195,23 @@ class ItemView extends FrameworkView {
 		if(item.inside.length > 0) {
 			this.showInsideItems();
 		}
+
+		this.featuresElement.addEventListener('click', ItemView.featureClick.bind(this));
+	}
+
+	/**
+	 *
+	 * @param {Event} event
+	 */
+	static featureClick(event) {
+		/**
+		 * @var {HTMLElement} this
+		 */
+		if(event.target.classList.contains("featuredeletebutton")) {
+			// plainly unreadable.
+			this.item.setFeature(event.target.parentElement.querySelector('.name').dataset.name, null);
+			event.target.parentElement.parentElement.removeChild(event.target.parentElement);
+		}
 	}
 
 	/**
@@ -239,35 +256,43 @@ class ItemView extends FrameworkView {
 	 * @see this.freeze
 	 */
 	showFeatures() {
-		let newElement, nameElement, valueElement, deleteButton;
+		let newElement;
 
 		for(let name in this.item.features) {
 			// hasOwnProperty is probably useless
 			if(this.item.features.hasOwnProperty(name)) {
-				newElement = document.createElement("div");
-				newElement.classList.add("feature");
-
-				nameElement = document.createElement("span");
-				nameElement.classList.add("name");
-
-				valueElement = document.createElement("input");
-				valueElement.classList.add("value");
-				valueElement.classList.add("freezable");
-
-				deleteButton = document.createElement("button");
-				deleteButton.classList.add("featuredeletebutton");
-				deleteButton.classList.add("freezable");
-				deleteButton.textContent = "-";
-
-				newElement.appendChild(deleteButton);
-				newElement.appendChild(nameElement);
-				newElement.appendChild(valueElement);
-
-				nameElement.textContent = name;
-				valueElement.value = this.item.features[name];
+				newElement = ItemView.createFeatureElement(name, this.item.features[name]);
 				this.featuresElement.appendChild(newElement);
 			}
 		}
+	}
+
+	static createFeatureElement(name, value) {
+		let newElement, nameElement, valueElement, deleteButton;
+		newElement = document.createElement("div");
+		newElement.classList.add("feature");
+
+		nameElement = document.createElement("span");
+		nameElement.classList.add("name");
+		nameElement.dataset.name = name;
+
+		valueElement = document.createElement("input");
+		valueElement.classList.add("value");
+		valueElement.classList.add("freezable");
+
+		deleteButton = document.createElement("button");
+		deleteButton.classList.add("featuredeletebutton");
+		deleteButton.classList.add("freezable");
+		deleteButton.textContent = "-";
+
+		newElement.appendChild(deleteButton);
+		newElement.appendChild(nameElement);
+		newElement.appendChild(valueElement);
+
+		nameElement.textContent = name;
+		valueElement.value = value;
+
+		return newElement;
 	}
 
 	/**

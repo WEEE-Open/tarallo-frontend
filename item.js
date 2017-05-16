@@ -19,30 +19,35 @@ class Item extends FrameworkObject {
 	 *
 	 * @param {string} name feature name
 	 * @param {string|int|null} value feature value, null to delete
-	 * @returns {boolean} operation succeeded or not (fails only if creating a feature with an invalid name, delete always succeeds)
+	 * @returns {boolean} anything actually changed (false if deleting non-existing features, etc...)
 	 */
 	setFeature(name, value) {
 		if(!Item.isValidFeatureName(name)) {
 			throw new Error(name + ' is not a feature name');
 		}
 		if(value === null) {
-			delete this.features[name];
-			this.featuresCount--;
-			return true;
-		}
-
-		if(Item.isValidFeatureName(name)) {
-			this.features[name] = value;
-			this.featuresCount++;
-			return true;
+			if(typeof this.features[name] === 'undefined') {
+				return false;
+			} else {
+				delete this.features[name];
+				this.featuresCount--;
+				return true;
+			}
 		} else {
-			return false;
+			if(this.features[name] === value) {
+				return false;
+			} else {
+				this.features[name] = value;
+				this.featuresCount++;
+				return true;
+			}
 		}
 	}
 
 	/**
 	 * Same as setFeature, but for default features.
 	 *
+	 * @todo copy this.setFeature
 	 * @param name
 	 * @param value
 	 * @return {boolean}
