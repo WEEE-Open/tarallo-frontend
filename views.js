@@ -222,6 +222,7 @@ class ItemView extends FrameworkView {
 	freeze() {
 		this.freezeCode();
 		this._toggleInputs(true);
+		this._toggleControls(true);
 		this.frozen = true;
 	}
 
@@ -232,6 +233,17 @@ class ItemView extends FrameworkView {
 		}
 	}
 
+	_toggleControls(disabled) {
+		let controls = this.el.querySelectorAll(':not(.subitem) .freezable-controls');
+		for(let i = 0; i < controls.length; i++) {
+			if(disabled) {
+				controls[i].classList.add("disabled");
+			} else {
+				controls[i].classList.remove("disabled");
+			}
+		}
+	}
+
 	/**
 	 * Set item as editable again (except for the code)
 	 *
@@ -239,6 +251,7 @@ class ItemView extends FrameworkView {
 	 */
 	unfreeze() {
 		this._toggleInputs(false);
+		this._toggleControls(false);
 		this.frozen = false;
 	}
 
@@ -283,6 +296,7 @@ class ItemView extends FrameworkView {
 		deleteButton = document.createElement("button");
 		deleteButton.classList.add("featuredeletebutton");
 		deleteButton.classList.add("freezable");
+		deleteButton.classList.add("freezable-controls");
 		deleteButton.textContent = "-";
 
 		newElement.appendChild(deleteButton);
