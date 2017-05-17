@@ -399,12 +399,12 @@ class ItemView extends FrameworkView {
 	}
 
 	_toggleFeatureInput() {
-		if(!this.featureDatalistAvailable()) {
-			this.featureInputElement.placeholder = "Caricamento in corso...";
-			this.featureInputElement.disabled = true;
-		} else {
+		if(this.featureDatalistAvailable()) {
 			this.featureInputElement.placeholder = "";
 			this.featureInputElement.disabled = false;
+		} else {
+			this.featureInputElement.placeholder = "Caricamento in corso...";
+			this.featureInputElement.disabled = true;
 		}
 	}
 }
