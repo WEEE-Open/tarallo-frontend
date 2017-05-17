@@ -39,7 +39,12 @@
 	<div class="features">
 
 	</div>
-	<p class="freezable-controls"><label>Campo: <input type="text" class="freezable"></label><button class="addfield freezable">Aggiungi campo</button></p>
+	<p class="freezable-controls">
+		<label>Campo:
+			<input type="text" list="featurelist" class="freezable featuretextbox">
+		</label>
+		<button class="addfield freezable">Aggiungi campo</button>
+	</p>
 	<div class="defaultfeatures">
 
 	</div>
@@ -53,6 +58,7 @@
 	<h1>T.A.R.A.L.L.O.</h1>
 	<p>Trabiccolo Amministrazione Rottami e Assistenza, Legalmente-noto-come L'inventario Opportuno</p>
 </div>
+<datalist id="featurelist"></datalist>
 <div id="views"></div>
 <script src="node_modules/underscore/underscore.js"></script>
 <script src="node_modules/backbone/backbone.js"></script>

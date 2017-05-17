@@ -181,6 +181,8 @@ class ItemView extends FrameworkView {
 		this.featuresElement = this.el.querySelector(':not(.subitem) .features');
 		this.defaultFeaturesElement = this.el.querySelector(':not(.subitem) .defaultfeatures');
 		this.insideElement = this.el.querySelector(':not(.subitem) .inside');
+		this.datalistElement = document.getElementById("featurelist");
+		this.featureInputElement = this.el.querySelector(":not(.subitem) .featuretextbox");
 
 		if(item.code !== null) {
 			this.showCode(item.code);
@@ -195,6 +197,9 @@ class ItemView extends FrameworkView {
 		if(item.inside.length > 0) {
 			this.showInsideItems();
 		}
+
+		this._toggleFeatureInput();
+		this.populateFeatureDatalist();
 
 		this.featuresElement.addEventListener('click', ItemView.featureClick.bind(this));
 	}
@@ -223,6 +228,7 @@ class ItemView extends FrameworkView {
 		this.freezeCode();
 		this._toggleInputs(true);
 		this._toggleControls(true);
+		this._toggleFeatureInput();
 		this.frozen = true;
 	}
 
@@ -252,6 +258,7 @@ class ItemView extends FrameworkView {
 	unfreeze() {
 		this._toggleInputs(false);
 		this._toggleControls(false);
+		this._toggleFeatureInput();
 		this.frozen = false;
 	}
 
@@ -369,4 +376,35 @@ class ItemView extends FrameworkView {
 		this.codeElement.disabled = true;
 	}
 
+	populateFeatureDatalist() {
+		if(!this.featureDatalistAvailable()) {
+			// TODO: set data-requested=true, fetch via XHR, use callback to populate (even if page changes, it will still work), remove data-requested only if XHR fails, don't send more requests if data-requested == true
+			let features = {"frequency-hz": "Frequenza", "color": "Colore", "example": "Esempio"};
+
+			for(let f in features) {
+				if(features.hasOwnProperty(f)) {
+					let option = document.createElement("option");
+					option.dataset.value = f;
+					option.textContent = features[f];
+					this.datalistElement.appendChild(option);
+				}
+			}
+		}
+	}
+
+	featureDatalistAvailable() {
+		// TODO: null, undefined or what?
+		// TODO: why is PHPStorm complaining that "request" is unresolved? Obviously it is, but a few lines above the same thing works...............
+		return !!this.datalistElement.firstChild;
+	}
+
+	_toggleFeatureInput() {
+		if(!this.featureDatalistAvailable()) {
+			this.featureInputElement.placeholder = "Caricamento in corso...";
+			this.featureInputElement.disabled = true;
+		} else {
+			this.featureInputElement.placeholder = "";
+			this.featureInputElement.disabled = false;
+		}
+	}
 }
