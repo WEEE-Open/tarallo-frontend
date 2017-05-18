@@ -76,3 +76,7 @@ template {
 .item .freezable-controls.disabled {
     display: none;
 }
+
+.defaultfeatures .feature.duplicate {
+    text-decoration: line-through;
+}

@@ -189,11 +189,12 @@ class ItemView extends FrameworkView {
 			this.showCode(item.code);
 			this.freezeCode();
 		}
-		if(item.featuresCount > 0) {
-			this.showFeatures();
-		}
+		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
 			this.showDefaultFeatures();
+		}
+		if(item.featuresCount > 0) {
+			this.showFeatures();
 		}
 		if(item.inside.length > 0) {
 			this.showInsideItems();
@@ -215,7 +216,9 @@ class ItemView extends FrameworkView {
 			// plainly unreadable.
 			event.stopPropagation();
 			event.preventDefault();
-			this.item.setFeature(event.target.parentElement.querySelector('.name').dataset.name, null);
+			let name = event.target.parentElement.querySelector('.name').dataset.name;
+			this.item.setFeature(name, null);
+			this.setDefaultFeatureDuplicate(name, false); // TODO: use a proxy?
 			event.target.parentElement.parentElement.removeChild(event.target.parentElement);
 		}
 	}
@@ -230,10 +233,7 @@ class ItemView extends FrameworkView {
 		event.preventDefault();
 		let select = event.target.parentElement.querySelector("select");
 		if(select.value !== '') {
-			let featureElement = this.createFeatureElement(select.value, '');
-			if(featureElement !== null) {
-				this.featuresElement.appendChild(featureElement);
-			}
+			this.appendFeatureElement(select.value, '');
 		}
 	}
 
@@ -245,13 +245,13 @@ class ItemView extends FrameworkView {
 	featureInput(event) {
 		event.stopPropagation();
 		event.preventDefault();
+		// TODO: "undefined" happens somewhere around here
 		if(event.target.value === "") {
 			this.item.setFeature(event.target.dataset.name, null);
 		} else {
 			this.item.setFeature(event.target.dataset.name, event.target.value);
 		}
 	}
-
 
 	/**
 	 * Set item as non-editable.
@@ -300,33 +300,59 @@ class ItemView extends FrameworkView {
 	 * @see this.freeze
 	 */
 	showFeatures() {
-		let newElement;
-
 		for(let name in this.item.features) {
 			// hasOwnProperty is probably useless
 			if(this.item.features.hasOwnProperty(name)) {
-				newElement = this.createFeatureElement(name, this.item.features[name]);
-				this.featuresElement.appendChild(newElement);
+				this.appendFeatureElement(name, this.item.features[name]);
 			}
 		}
 	}
 
 	/**
-	 * Create a row in the feature box.
+	 * Tries to append a new row in the feature box. Does nothing if that feature already exists.
+	 * Also marks default features as duplicates, if needed.
 	 *
 	 * @param {string} name feature name
 	 * @param {string} value feature value
-	 * @return {Element|null} new element or null if already present
+	 * @see this._createFeatureElement
 	 */
-	createFeatureElement(name, value) {
+	appendFeatureElement(name, value) {
 		let features = this.featuresElement.querySelectorAll(".name");
 		let i = features.length;
 		while(i--) {
 			if(features[i].dataset.name === name) {
-				return null;
+				return;
 			}
 		}
 
+		this.featuresElement.appendChild(this._createFeatureElement(name, value));
+		this.setDefaultFeatureDuplicate(name, true);
+	}
+
+	/**
+	 *
+	 * @param name
+	 * @param duplicate
+	 */
+	setDefaultFeatureDuplicate(name, duplicate) {
+		let span = this.defaultFeaturesElement.querySelector('.name[data-name="' + name + '"]');
+		if(span !== null) {
+			if(duplicate) {
+				span.parentNode.classList.add("duplicate");
+			} else {
+				span.parentNode.classList.remove("duplicate");
+			}
+		}
+	}
+
+	/**
+	 * Create a row for the feature box and return it.
+	 *
+	 * @param {string} name feature name
+	 * @param {string} value feature value
+	 * @return {Element} new element
+	 */
+	_createFeatureElement(name, value) {
 		let newElement, nameElement, valueElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
@@ -369,6 +395,7 @@ class ItemView extends FrameworkView {
 
 				nameElement = document.createElement("span");
 				nameElement.classList.add("name");
+				nameElement.dataset.name = name;
 
 				valueElement = document.createElement("input");
 				valueElement.classList.add("value");
@@ -377,7 +404,7 @@ class ItemView extends FrameworkView {
 				newElement.appendChild(nameElement);
 				newElement.appendChild(valueElement);
 
-				nameElement.textContent = name;
+				nameElement.textContent = typeof this.language.features[name] === 'undefined' ? name : this.language.features[name];
 				valueElement.value = this.item.defaultFeatures[name];
 				this.defaultFeaturesElement.appendChild(newElement);
 			}
