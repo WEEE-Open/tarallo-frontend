@@ -169,10 +169,12 @@ class ItemView extends FrameworkView {
 	 *
 	 * @param {HTMLElement} element
 	 * @param {Item} item
+	 * @param {Translations} language
 	 */
-	constructor(element, item) {
+	constructor(element, item, language) {
 		super(element);
 		this.item = item;
+		this.language = language;
 		this.frozen = false;
 		this.subitems = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
@@ -182,7 +184,6 @@ class ItemView extends FrameworkView {
 		this.defaultFeaturesElement = this.el.querySelector(':not(.subitem) .defaultfeatures');
 		this.insideElement = this.el.querySelector(':not(.subitem) .inside');
 		this.datalistElement = document.getElementById("featurelist");
-		this.featureInputElement = this.el.querySelector(":not(.subitem) .featuretextbox");
 
 		if(item.code !== null) {
 			this.showCode(item.code);
@@ -198,7 +199,6 @@ class ItemView extends FrameworkView {
 			this.showInsideItems();
 		}
 
-		this._toggleFeatureInput();
 		this.populateFeatureDatalist();
 
 		this.featuresElement.addEventListener('click', ItemView.featureClick.bind(this));
@@ -228,7 +228,6 @@ class ItemView extends FrameworkView {
 		this.freezeCode();
 		this._toggleInputs(true);
 		this._toggleControls(true);
-		this._toggleFeatureInput();
 		this.frozen = true;
 	}
 
@@ -258,7 +257,6 @@ class ItemView extends FrameworkView {
 	unfreeze() {
 		this._toggleInputs(false);
 		this._toggleControls(false);
-		this._toggleFeatureInput();
 		this.frozen = false;
 	}
 
@@ -377,14 +375,12 @@ class ItemView extends FrameworkView {
 	}
 
 	populateFeatureDatalist() {
-		if(!this.featureDatalistAvailable()) {
-			// TODO: set data-requested=true, fetch via XHR, use callback to populate (even if page changes, it will still work), remove data-requested only if XHR fails, don't send more requests if data-requested == true
-			let features = {"frequency-hz": "Frequenza", "color": "Colore", "example": "Esempio"};
-
+		if(!this.featureDatalistPopulated()) {
+			let features = this.language.features;
 			for(let f in features) {
 				if(features.hasOwnProperty(f)) {
 					let option = document.createElement("option");
-					option.dataset.value = f;
+					option.value = f;
 					option.textContent = features[f];
 					this.datalistElement.appendChild(option);
 				}
@@ -392,19 +388,16 @@ class ItemView extends FrameworkView {
 		}
 	}
 
-	featureDatalistAvailable() {
-		// TODO: null, undefined or what?
-		// TODO: why is PHPStorm complaining that "request" is unresolved? Obviously it is, but a few lines above the same thing works...............
+	featureDatalistPopulated() {
 		return !!this.datalistElement.firstChild;
 	}
 
-	_toggleFeatureInput() {
-		if(this.featureDatalistAvailable()) {
-			this.featureInputElement.placeholder = "";
-			this.featureInputElement.disabled = false;
-		} else {
-			this.featureInputElement.placeholder = "Caricamento in corso...";
-			this.featureInputElement.disabled = true;
+	trigger(that, event) {
+		if(that === this.language) {
+			if(event === 'change') {
+				// TODO: update view
+			}
 		}
 	}
+
 }

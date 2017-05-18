@@ -13,9 +13,11 @@ const Controller = (function () {
 	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	const session = new Session(trigger);
 	const logs = new Logs(trigger);
+	const traslations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't impossible because functions inside router won't see it.
 
 	/* session.fetch(); */
 
+	//noinspection ES6ModulesDependencies
 	let router = Backbone.Router.extend({
 		routes: {
 			"": "home",
@@ -41,7 +43,7 @@ const Controller = (function () {
 			item.setFeature("works", "yes");
 			item.setCode("CPU-666");
 			let container = ItemView.newContainer();
-			let theview = new ItemView(container, item);
+			let theview = new ItemView(container, item, traslations);
 			goTo(theview);
 
 			let button = document.createElement("button");
@@ -77,10 +79,10 @@ const Controller = (function () {
 			let item = new Item(trigger);
 			let container = ItemView.newContainer();
 			document.getElementById('views').appendChild(container);
-			goTo(new ItemView(container, item))
+			goTo(new ItemView(container, item, traslations))
 		},
 
-		execute: function(callback, args, name) {
+		'execute': function(callback, args /*, name*/) {
 			while(container.firstChild) {
 				container.removeChild(container.firstChild);
 			}
