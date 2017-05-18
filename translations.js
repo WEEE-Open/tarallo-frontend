@@ -25,7 +25,8 @@ Object.defineProperty(Translations.it, 'features', {
 		"brand": "Marca",
 		"model": "Modello",
 		"frequency-hz": "Frequenza",
-		"color": "Colore"
+		"color": "Colore",
+		"works": "Funziona"
 	},
 	writable: false,
 	enumerable: true,

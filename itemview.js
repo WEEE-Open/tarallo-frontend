@@ -160,7 +160,23 @@ class ItemView extends FrameworkView {
 			}
 		}
 
-		this.featuresElement.appendChild(this._createFeatureElement(name, value));
+		let parent, newElement = this._createFeatureElement(name, value);
+		let translation = typeof this.language.features[name] === 'undefined' ? name : this.language.features[name];
+		let inserted = false;
+
+		// TODO: implement binary search to insert in O(n·logn) time, currently it's O(n²). Or don't, who cares for small n.
+		let translatedNames = this.featuresElement.querySelectorAll(".name");
+		for(i = 0; i < translatedNames.length; i++) {
+			if(translation < translatedNames[i].textContent) {
+				parent = translatedNames[i].parentElement;
+				this.featuresElement.insertBefore(newElement, parent);
+				inserted = true;
+				break;
+			}
+		}
+		if(!inserted) {
+			this.featuresElement.appendChild(newElement);
+		}
 		this.setDefaultFeatureDuplicate(name, true);
 	}
 
