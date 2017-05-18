@@ -260,14 +260,6 @@ class ItemView extends FrameworkView {
 		this.frozen = false;
 	}
 
-	//static search(where, classname) {
-	//	for(let i = 0; i < where.length; i++) {
-	//		if(where[i].classList.contains(classname)) {
-	//			return where[i];
-	//		}
-	//	}
-	//}
-
 	/**
 	 * Display features from the item, in editable format. Use freeze() to make them not editable.
 	 *
@@ -349,7 +341,7 @@ class ItemView extends FrameworkView {
 		for(let i = 0; i < this.item.inside.length; i++) {
 			subitem = this.item.inside[i];
 			container = ItemView.newContainer();
-			this.subitems.push(new ItemView(container, subitem));
+			this.subitems.push(new ItemView(container, subitem, this.language));
 			this.el.appendChild(container);
 		}
 	}
