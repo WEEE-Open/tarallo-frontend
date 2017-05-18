@@ -1,6 +1,7 @@
 class FrameworkObject {
 	/**
-	 * @param {Function} trigger(this, event)
+	 * @param {Function} trigger - function(this, event)
+	 * @see FrameworkView.trigger
 	 */
 	constructor(trigger) {
 		if(typeof trigger !== 'function') {
