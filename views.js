@@ -183,7 +183,7 @@ class ItemView extends FrameworkView {
 		this.featuresElement = this.el.querySelector(':not(.subitem) .features');
 		this.defaultFeaturesElement = this.el.querySelector(':not(.subitem) .defaultfeatures');
 		this.insideElement = this.el.querySelector(':not(.subitem) .inside');
-		this.datalistElement = document.getElementById("featurelist");
+		this.selectFeatureElement = this.el.querySelector(":not(.subitem) .featuretextbox");
 
 		if(item.code !== null) {
 			this.showCode(item.code);
@@ -199,25 +199,59 @@ class ItemView extends FrameworkView {
 			this.showInsideItems();
 		}
 
-		this.populateFeatureDatalist();
-
-		this.featuresElement.addEventListener('click', ItemView.featureClick.bind(this));
+		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
+		this.featuresElement.addEventListener('input', this.featureInput.bind(this));
+		this.el.querySelector('.addfield').addEventListener('click', this.addFeatureClick.bind(this));
+		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
 	}
 
 	/**
+	 * Handler for clicking anywhere in the feature box (delete features)
 	 *
 	 * @param {Event} event
 	 */
-	static featureClick(event) {
-		/**
-		 * @var {HTMLElement} this
-		 */
+	featureClick(event) {
 		if(event.target.classList.contains("featuredeletebutton")) {
 			// plainly unreadable.
+			event.stopPropagation();
+			event.preventDefault();
 			this.item.setFeature(event.target.parentElement.querySelector('.name').dataset.name, null);
 			event.target.parentElement.parentElement.removeChild(event.target.parentElement);
 		}
 	}
+
+	/**
+	 * Handler for the "add feature" button
+	 *
+	 * @param {Event} event
+	 */
+	addFeatureClick(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		let select = event.target.parentElement.querySelector("select");
+		if(select.value !== '') {
+			let featureElement = this.createFeatureElement(select.value, '');
+			if(featureElement !== null) {
+				this.featuresElement.appendChild(featureElement);
+			}
+		}
+	}
+
+	/**
+	 * Handler for changing a feature value
+	 *
+	 * @param {Event} event
+	 */
+	featureInput(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		if(event.target.value === "") {
+			this.item.setFeature(event.target.dataset.name, null);
+		} else {
+			this.item.setFeature(event.target.dataset.name, event.target.value);
+		}
+	}
+
 
 	/**
 	 * Set item as non-editable.
@@ -271,13 +305,28 @@ class ItemView extends FrameworkView {
 		for(let name in this.item.features) {
 			// hasOwnProperty is probably useless
 			if(this.item.features.hasOwnProperty(name)) {
-				newElement = ItemView.createFeatureElement(name, this.item.features[name]);
+				newElement = this.createFeatureElement(name, this.item.features[name]);
 				this.featuresElement.appendChild(newElement);
 			}
 		}
 	}
 
-	static createFeatureElement(name, value) {
+	/**
+	 * Create a row in the feature box.
+	 *
+	 * @param {string} name feature name
+	 * @param {string} value feature value
+	 * @return {Element|null} new element or null if already present
+	 */
+	createFeatureElement(name, value) {
+		let features = this.featuresElement.querySelectorAll(".name");
+		let i = features.length;
+		while(i--) {
+			if(features[i].dataset.name === name) {
+				return null;
+			}
+		}
+
 		let newElement, nameElement, valueElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
@@ -300,7 +349,7 @@ class ItemView extends FrameworkView {
 		newElement.appendChild(nameElement);
 		newElement.appendChild(valueElement);
 
-		nameElement.textContent = name;
+		nameElement.textContent = typeof this.language.features[name] === 'undefined' ? name : this.language.features[name];
 		valueElement.value = value;
 
 		return newElement;
@@ -366,22 +415,27 @@ class ItemView extends FrameworkView {
 		this.codeElement.disabled = true;
 	}
 
-	populateFeatureDatalist() {
-		if(!this.featureDatalistPopulated()) {
-			let features = this.language.features;
-			for(let f in features) {
-				if(features.hasOwnProperty(f)) {
-					let option = document.createElement("option");
-					option.value = f;
-					option.textContent = features[f];
-					this.datalistElement.appendChild(option);
-				}
+	/**
+	 * Populate the dropdown. Useful for not filling read-only pages with a million option tags.
+	 *
+	 * @param {boolean} force repopulate if already populated or not
+	 */
+	static populateFeatureDropdown(force) {
+		force = force || false;
+		if(!force && !!this.selectFeatureElement.lastElementChild) {
+			return;
+		}
+		while(this.selectFeatureElement.lastElementChild) {
+			this.selectFeatureElement.removeChild(this.selectFeatureElement.lastElementChild);
+		}
+		for(let f in this.language.features) {
+			if(this.language.features.hasOwnProperty(f)) {
+				let option = document.createElement("option");
+				option.value = f;
+				option.textContent = this.language.features[f];
+				this.selectFeatureElement.appendChild(option);
 			}
 		}
-	}
-
-	featureDatalistPopulated() {
-		return !!this.datalistElement.firstChild;
 	}
 
 	trigger(that, event) {
