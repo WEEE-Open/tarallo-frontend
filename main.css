@@ -50,7 +50,7 @@ template {
     margin: 0;
 }
 
-.item > .features, .item > .defaultfeatures, .item > .subitem {
+.item > .features, .item > .defaultfeatures, .item > .inside {
     margin: 0.25em 0;
     padding: 0.5em;
     border: 0.1em dashed #3c3c3c;
