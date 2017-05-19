@@ -3,23 +3,26 @@ class ItemView extends FrameworkView {
 	/**
 	 * View and edit an item.
 	 *
-	 * @param {HTMLElement} element
-	 * @param {Item} item
-	 * @param {Translations} language
+	 * @param {HTMLElement} element - Container element
+	 * @param {Item} item - Item to view
+	 * @param {Translations} language - Language for translated strings
+	 * @param {int=0} depth - Depth of current item. Used by recursion (subitems)
 	 */
-	constructor(element, item, language) {
+	constructor(element, item, language, depth) {
 		super(element);
 		this.item = item;
 		this.language = language;
 		this.frozen = false;
+		this.depth = typeof depth === 'undefined' ? 0 : depth;
+		this.notInside = ':not([data-depth="' + (this.depth + 1) + '"])';
 		this.subViews = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
 
-		this.codeElement = this.el.querySelector(':not(.subitem) .code');
-		this.featuresElement = this.el.querySelector(':not(.subitem) .features');
-		this.defaultFeaturesElement = this.el.querySelector(':not(.subitem) .defaultfeatures');
-		this.insideElement = this.el.querySelector(':not(.subitem) .inside');
-		this.selectFeatureElement = this.el.querySelector(":not(.subitem) .featuretextbox");
+		this.codeElement = this.el.querySelector(this.notInside + ' .code');
+		this.featuresElement = this.el.querySelector(this.notInside + ' .features');
+		this.defaultFeaturesElement = this.el.querySelector(this.notInside + ' .defaultfeatures');
+		this.insideElement = this.el.querySelector(this.notInside + ' .inside');
+		this.selectFeatureElement = this.el.querySelector(this.notInside + ' .featuretextbox');
 
 		if(item.code !== null) {
 			this.showCode(item.code);
@@ -38,8 +41,8 @@ class ItemView extends FrameworkView {
 
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
 		this.featuresElement.addEventListener('input', this.featureInput.bind(this));
-		this.el.querySelector(':not(.subitem) .addfield').addEventListener('click', this.addFeatureClick.bind(this));
-		this.el.querySelector(':not(.subitem) .additem').addEventListener('click', this.addItemClick.bind(this));
+		this.el.querySelector(this.notInside + ' .addfield').addEventListener('click', this.addFeatureClick.bind(this));
+		this.el.querySelector(this.notInside + ' .additem').addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
 	}
 
@@ -74,12 +77,6 @@ class ItemView extends FrameworkView {
 		}
 	}
 
-	static createContainer() {
-		let container = document.createElement("div");
-		container.classList.add("item");
-		return container;
-	}
-
 	/**
 	 * Handler for the "add item" button
 	 *
@@ -88,11 +85,20 @@ class ItemView extends FrameworkView {
 	addItemClick(event) {
 		event.stopPropagation();
 		event.preventDefault();
-		let container = ItemView.createContainer();
 		let item = new Item(this.trigger);
+		this.addInside(item);
+	}
+
+	/**
+	 * Create a container, attach a view and add it to the current view, for the supplied item.
+	 *
+	 * @param {Item} item - an item
+	 */
+	addInside(item) {
+		let container = this.createSubitemContainer();
 		this.item.addInside(item);
 
-		let view = new ItemView(container, item, this.language);
+		let view = new ItemView(container, item, this.language, this.depth + 1);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
 	}
@@ -125,14 +131,14 @@ class ItemView extends FrameworkView {
 	}
 
 	_toggleInputs(disabled) {
-		let inputs = this.el.querySelectorAll(':not(.subitem) input.freezable, :not(.subitem) button.freezable');
+		let inputs = this.el.querySelectorAll(this.notInside + ' input.freezable, ' + this.notInside + ' button.freezable');
 		for(let i = 0; i < inputs.length; i++) {
 			inputs[i].disabled = disabled;
 		}
 	}
 
 	_toggleControls(disabled) {
-		let controls = this.el.querySelectorAll(':not(.subitem) .freezable-controls');
+		let controls = this.el.querySelectorAll(this.notInside + ' .freezable-controls');
 		for(let i = 0; i < controls.length; i++) {
 			if(disabled) {
 				controls[i].classList.add("disabled");
@@ -288,13 +294,11 @@ class ItemView extends FrameworkView {
 	}
 
 	showInsideItems() {
-		let subitem, container;
+		let subitem;
 		this.removeInsideItems();
 		for(let i = 0; i < this.item.inside.length; i++) {
 			subitem = this.item.inside[i];
-			container = ItemView.newContainer();
-			this.subitems.push(new ItemView(container, subitem, this.language));
-			this.el.appendChild(container);
+			this.addInside(subitem);
 		}
 	}
 
@@ -304,6 +308,24 @@ class ItemView extends FrameworkView {
 		}
 	}
 
+	/**
+	 * Create a container element with the correct depth.
+	 *
+	 * @return {HTMLElement} container
+	 */
+	createSubitemContainer() {
+		let container = ItemView.newContainer();
+		container.dataset.depth = this.depth + 1;
+		return container;
+	}
+
+	/**
+	 * Create a top-level container element and return it.
+	 *
+	 * Do not use for subitems!
+	 *
+	 * @return {HTMLElement} container
+	 */
 	static newContainer() {
 		let container = document.createElement("div");
 		container.classList.add("item");
