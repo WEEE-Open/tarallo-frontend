@@ -78,7 +78,7 @@ template {
     padding-right: 0.1em;
 }
 
-.item .freezable-controls.disabled {
+.item .freezable-hide.disabled, .item .freezable-hide:disabled {
     display: none;
 }
 

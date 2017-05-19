@@ -6,23 +6,24 @@ class ItemView extends FrameworkView {
 	 * @param {HTMLElement} element - Container element
 	 * @param {Item} item - Item to view
 	 * @param {Translations} language - Language for translated strings
-	 * @param {int=0} depth - Depth of current item. Used by recursion (subitems)
 	 */
-	constructor(element, item, language, depth) {
+	constructor(element, item, language) {
 		super(element);
 		this.item = item;
 		this.language = language;
 		this.frozen = false;
-		this.depth = typeof depth === 'undefined' ? 0 : depth;
-		this.notInside = ':not([data-depth="' + (this.depth + 1) + '"])';
 		this.subViews = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
 
-		this.codeElement = this.el.querySelector(this.notInside + ' .code');
-		this.featuresElement = this.el.querySelector(this.notInside + ' .features');
-		this.defaultFeaturesElement = this.el.querySelector(this.notInside + ' .defaultfeatures');
-		this.insideElement = this.el.querySelector(this.notInside + ' .inside');
-		this.selectFeatureElement = this.el.querySelector(this.notInside + ' .featuretextbox');
+		// querySelector uses depth-first search, so as long as these are before .inside there should be no problem.
+		// also, no subitems should exist at this stage...
+		this.codeElement = this.el.querySelector('.code');
+		this.featuresElement = this.el.querySelector('.features');
+		this.defaultFeaturesElement = this.el.querySelector('.defaultfeatures');
+		this.insideElement = this.el.querySelector('.inside');
+		this.selectFeatureElement = this.el.querySelector('.featuretextbox');
+		let addFieldButton = this.el.querySelector('.addfield');
+		let addItemButton = this.el.querySelector('.additem');
 
 		if(item.code !== null) {
 			this.showCode(item.code);
@@ -41,8 +42,8 @@ class ItemView extends FrameworkView {
 
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
 		this.featuresElement.addEventListener('input', this.featureInput.bind(this));
-		this.el.querySelector(this.notInside + ' .addfield').addEventListener('click', this.addFeatureClick.bind(this));
-		this.el.querySelector(this.notInside + ' .additem').addEventListener('click', this.addItemClick.bind(this));
+		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
+		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
 	}
 
@@ -95,10 +96,10 @@ class ItemView extends FrameworkView {
 	 * @param {Item} item - an item
 	 */
 	addInside(item) {
-		let container = this.createSubitemContainer();
+		let container = ItemView.newContainer();
 		this.item.addInside(item);
 
-		let view = new ItemView(container, item, this.language, this.depth + 1);
+		let view = new ItemView(container, item, this.language);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
 	}
@@ -125,26 +126,32 @@ class ItemView extends FrameworkView {
 	 */
 	freeze() {
 		this.freezeCode();
-		this._toggleInputs(true);
-		this._toggleControls(true);
+		this._toggleFreezable(true);
 		this.frozen = true;
 	}
 
-	_toggleInputs(disabled) {
-		let inputs = this.el.querySelectorAll(this.notInside + ' input.freezable, ' + this.notInside + ' button.freezable');
-		for(let i = 0; i < inputs.length; i++) {
-			inputs[i].disabled = disabled;
-		}
+	_toggleFreezable(disabled) {
+		this.__toggleFreezable(this.el, disabled);
 	}
 
-	_toggleControls(disabled) {
-		let controls = this.el.querySelectorAll(this.notInside + ' .freezable-controls');
-		for(let i = 0; i < controls.length; i++) {
-			if(disabled) {
-				controls[i].classList.add("disabled");
-			} else {
-				controls[i].classList.remove("disabled");
+	__toggleFreezable(el, disabled) {
+		let elements = el.children;
+		for(let i = 0; i < elements.length; i++) {
+			if(elements[i].classList.contains("inside")) {
+				continue;
 			}
+			if((elements[i].tagName === 'INPUT' || elements[i].tagName === 'BUTTON') && elements[i].classList.contains("freezable")) {
+				elements[i].disabled = disabled;
+				continue;
+			}
+			if(elements[i].classList.contains('freezable-hide')) {
+				if(disabled) {
+					elements[i].classList.add('disabled');
+				} else {
+					elements[i].classList.remove('disabled');
+				}
+			}
+			this.__toggleFreezable(elements[i], disabled);
 		}
 	}
 
@@ -154,8 +161,7 @@ class ItemView extends FrameworkView {
 	 * @see this.freeze
 	 */
 	unfreeze() {
-		this._toggleInputs(false);
-		this._toggleControls(false);
+		this._toggleFreezable(false);
 		this.frozen = false;
 	}
 
@@ -250,7 +256,7 @@ class ItemView extends FrameworkView {
 		deleteButton = document.createElement("button");
 		deleteButton.classList.add("featuredeletebutton");
 		deleteButton.classList.add("freezable");
-		deleteButton.classList.add("freezable-controls");
+		deleteButton.classList.add("freezable-hide");
 		deleteButton.textContent = "-";
 
 		newElement.appendChild(deleteButton);
@@ -306,17 +312,6 @@ class ItemView extends FrameworkView {
 		while(this.insideElement.lastElementChild) {
 			this.insideElement.removeChild(this.insideElement.lastElementChild);
 		}
-	}
-
-	/**
-	 * Create a container element with the correct depth.
-	 *
-	 * @return {HTMLElement} container
-	 */
-	createSubitemContainer() {
-		let container = ItemView.newContainer();
-		container.dataset.depth = this.depth + 1;
-		return container;
 	}
 
 	/**
