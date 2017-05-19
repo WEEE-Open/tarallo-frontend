@@ -43,6 +43,11 @@ template {
 .item {
     border: 0.1em solid black;
     padding: 0.5em;
+    margin: 0.5em 0 0 0;
+}
+
+.item:first-of-type {
+    margin: 0;
 }
 
 .item > .features, .item > .defaultfeatures, .item > .subitem {

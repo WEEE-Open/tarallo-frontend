@@ -12,7 +12,7 @@ class ItemView extends FrameworkView {
 		this.item = item;
 		this.language = language;
 		this.frozen = false;
-		this.subitems = [];
+		this.subViews = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
 
 		this.codeElement = this.el.querySelector(':not(.subitem) .code');
@@ -38,7 +38,8 @@ class ItemView extends FrameworkView {
 
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
 		this.featuresElement.addEventListener('input', this.featureInput.bind(this));
-		this.el.querySelector('.addfield').addEventListener('click', this.addFeatureClick.bind(this));
+		this.el.querySelector(':not(.subitem) .addfield').addEventListener('click', this.addFeatureClick.bind(this));
+		this.el.querySelector(':not(.subitem) .additem').addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
 	}
 
@@ -71,6 +72,29 @@ class ItemView extends FrameworkView {
 		if(select.value !== '') {
 			this.appendFeatureElement(select.value, '');
 		}
+	}
+
+	static createContainer() {
+		let container = document.createElement("div");
+		container.classList.add("item");
+		return container;
+	}
+
+	/**
+	 * Handler for the "add item" button
+	 *
+	 * @param {Event} event
+	 */
+	addItemClick(event) {
+		event.stopPropagation();
+		event.preventDefault();
+		let container = ItemView.createContainer();
+		let item = new Item(this.trigger);
+		this.item.addInside(item);
+
+		let view = new ItemView(container, item, this.language);
+		this.subViews.push(view);
+		this.insideElement.appendChild(container);
 	}
 
 	/**
