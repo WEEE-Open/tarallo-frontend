@@ -197,7 +197,7 @@ class ItemView extends FrameworkView {
 		}
 
 		let parent, newElement = this._createFeatureElement(name, value);
-		let translation = typeof this.language.features[name] === 'undefined' ? name : this.language.features[name];
+		let translation = this.language.get(name, this.language.features);
 		let inserted = false;
 
 		// TODO: implement binary search to insert in O(n·logn) time, currently it's O(n²). Or don't, who cares for small n.
@@ -263,7 +263,7 @@ class ItemView extends FrameworkView {
 		newElement.appendChild(nameElement);
 		newElement.appendChild(valueElement);
 
-		nameElement.textContent = typeof this.language.features[name] === 'undefined' ? name : this.language.features[name];
+		nameElement.textContent = this.language.get(name, this.language.features);
 		valueElement.value = value;
 
 		return newElement;
@@ -292,7 +292,7 @@ class ItemView extends FrameworkView {
 				newElement.appendChild(nameElement);
 				newElement.appendChild(valueElement);
 
-				nameElement.textContent = typeof this.language.features[name] === 'undefined' ? name : this.language.features[name];
+				nameElement.textContent = this.language.get(name, this.language.features);
 				valueElement.value = this.item.defaultFeatures[name];
 				this.defaultFeaturesElement.appendChild(newElement);
 			}
@@ -353,7 +353,18 @@ class ItemView extends FrameworkView {
 				let option = document.createElement("option");
 				option.value = f;
 				option.textContent = this.language.features[f];
-				this.selectFeatureElement.appendChild(option);
+
+				let inserted = false;
+				for(let i = 0; i < this.selectFeatureElement.length; i++) {
+					if(option.textContent < this.selectFeatureElement[i].textContent) {
+						this.selectFeatureElement.insertBefore(option, this.selectFeatureElement[i]);
+						inserted = true;
+						break;
+					}
+				}
+				if(!inserted) {
+					this.selectFeatureElement.appendChild(option);
+				}
 			}
 		}
 	}
