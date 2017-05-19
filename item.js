@@ -7,6 +7,20 @@ class Item extends FrameworkObject {
 		this.defaultFeatures = {};
 		this.inside = [];
 		/**
+		 * Current parent, available right here and right now, not the real one that may be in the database.
+		 * Null if none.
+		 *
+		 * @type {null|Item}
+		 */
+		this.parent = null;
+		/**
+		 * Already exists on the server.
+		 * If it exists, code cannot be changed anymore.
+		 *
+		 * @type {boolean}
+		 */
+		this.exists = false;
+		/**
 		 * Unique code
 		 * @type {string|null}
 		 */
@@ -80,6 +94,7 @@ class Item extends FrameworkObject {
 	addInside(other) {
 		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
 		this.inside.push(other);
+		other._setParent(this);
 	}
 
 	/**
@@ -93,7 +108,7 @@ class Item extends FrameworkObject {
 		let pos = this.inside.indexOf(other);
 		if(pos > -1) {
 			let old = this.inside.splice(pos, 1);
-			old.setParent(null);
+			old._setParent(null);
 			return true;
 		} else {
 			return false;
@@ -107,8 +122,19 @@ class Item extends FrameworkObject {
 	 *
 	 * @param {Item|null} item
 	 */
-	setParent(item) {
+	_setParent(item) {
+		this.parent = item;
+		return this;
+	}
 
+	/**
+	 * Mark Item as existing on the server. Once it does, code cannot be changed anymore.
+	 *
+	 * @return {Item} this
+	 */
+	setExisting() {
+		this.exists = true;
+		return this;
 	}
 
 	/**
@@ -118,6 +144,9 @@ class Item extends FrameworkObject {
 	 * @return {boolean}
 	 */
 	setCode(code) {
+		if(this.exists) {
+			throw new Error('Too late, code cannot be changed');
+		}
 		if(Item.isValidCode(code)) {
 			this.code = code;
 			return true;
