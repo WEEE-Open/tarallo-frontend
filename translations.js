@@ -17,6 +17,11 @@ class Translations extends FrameworkObject {
 		}
 		this.trigger('change');
 	}
+
+	//noinspection JSMethodCanBeStatic
+	get(string, map) {
+		return typeof map[string] === 'undefined' ? string : map[string];
+	}
 }
 Object.defineProperty(Translations, 'it', {value: {}});
 
