@@ -3,8 +3,12 @@ const Controller = (function () {
 
 	let rootView = null;
 	let container = document.getElementById('views');
+	let routerInstance;
 
 	let trigger = function(that, event) {
+		if(that === session && event === 'success') {
+			routerInstance.navigate("", {"trigger": true});
+		}
 		if(rootView !== null) {
 			rootView.trigger(that, event);
 		}
@@ -13,9 +17,7 @@ const Controller = (function () {
 	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	const session = new Session(trigger);
 	const logs = new Logs(trigger);
-	const translations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't impossible because functions inside router won't see it.
-
-	/* session.fetch(); */
+	const translations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't possible because functions inside router won't see it.
 
 	//noinspection ES6ModulesDependencies
 	let router = Backbone.Router.extend({
@@ -49,7 +51,7 @@ const Controller = (function () {
 			item.setCode("CPU-666");
 			let container = ItemView.newContainer();
 			let theview = new ItemView(container, item, translations);
-			goTo(theview);
+			rootView = theview;
 
 			let button = document.createElement("button");
 			document.getElementById('views').appendChild(container).appendChild(button);
@@ -64,11 +66,11 @@ const Controller = (function () {
 		},
 
 		login: function() {
-			goTo(new LoginView(document.getElementById('views'), logs, session));
+			rootView = new LoginView(document.getElementById('views'), logs, session);
 		},
 
 		logout: function() {
-			goTo(new LogoutView(document.getElementById('views'), session));
+			rootView = new LogoutView(document.getElementById('views'), session);
 		},
 
 		list: function(location, page) {
@@ -80,9 +82,8 @@ const Controller = (function () {
 		},
 
 		add: function() {
-			let view = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
-			document.getElementById('views').appendChild(view.el);
-			goTo(view);
+			rootView = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
+			document.getElementById('views').appendChild(rootView.el);
 		},
 
 		'execute': function(callback, args /*, name*/) {
@@ -97,10 +98,8 @@ const Controller = (function () {
 		}
 	});
 
-
-	function goTo(mainView) {
-		rootView = mainView;
-	}
+	routerInstance = new router();
+	Backbone.history.start();
 
 	const TIMEOUT = 30000;
 
