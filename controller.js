@@ -18,6 +18,7 @@ const Controller = (function () {
 	const session = new Session(trigger);
 	const logs = new Logs(trigger);
 	const translations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't possible because functions inside router won't see it.
+	const transaction = new Transaction(trigger);
 
 	//noinspection ES6ModulesDependencies
 	let router = Backbone.Router.extend({
@@ -35,7 +36,7 @@ const Controller = (function () {
 		},
 
 		home: function() {
-			alert("FUNZIONA.");
+			rootView = new NavigationView(container, logs, session, transaction, translations);
 		},
 
 		view: function() {
@@ -49,12 +50,12 @@ const Controller = (function () {
 			item.setDefaultFeature("name", "Atom-ic crap N123");
 			item.setFeature("works", "yes");
 			item.setCode("CPU-666");
-			let container = ItemView.newContainer();
+			let itemContainer = ItemView.newContainer();
 			let theview = new ItemView(container, item, translations);
 			rootView = theview;
 
 			let button = document.createElement("button");
-			document.getElementById('views').appendChild(container).appendChild(button);
+			container.appendChild(itemContainer).appendChild(button);
 			button.textContent = "(s)congela";
 			button.onclick = function() {
 				if(theview.frozen) {
@@ -66,11 +67,11 @@ const Controller = (function () {
 		},
 
 		login: function() {
-			rootView = new LoginView(document.getElementById('views'), logs, session);
+			rootView = new LoginView(container, logs, session);
 		},
 
 		logout: function() {
-			rootView = new LogoutView(document.getElementById('views'), session);
+			rootView = new LogoutView(container, session);
 		},
 
 		list: function(location, page) {
@@ -83,7 +84,7 @@ const Controller = (function () {
 
 		add: function() {
 			rootView = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
-			document.getElementById('views').appendChild(rootView.el);
+			container.appendChild(rootView.el);
 		},
 
 		'execute': function(callback, args /*, name*/) {
