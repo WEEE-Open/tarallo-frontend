@@ -85,3 +85,7 @@ template {
 .defaultfeatures .feature.duplicate {
     text-decoration: line-through;
 }
+
+.itemdeletebutton {
+    float: right;
+}

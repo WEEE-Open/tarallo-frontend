@@ -108,7 +108,7 @@ class Item extends FrameworkObject {
 		let pos = this.inside.indexOf(other);
 		if(pos > -1) {
 			let old = this.inside.splice(pos, 1);
-			old._setParent(null);
+			old[0]._setParent(null);
 			return true;
 		} else {
 			return false;

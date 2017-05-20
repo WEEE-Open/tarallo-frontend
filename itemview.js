@@ -1,16 +1,20 @@
 class ItemView extends FrameworkView {
-
 	/**
 	 * View and edit an item.
 	 *
 	 * @param {HTMLElement} element - Container element
 	 * @param {Item} item - Item to view
 	 * @param {Translations} language - Language for translated strings
+	 * @param {ItemView|null=} parentItemView - parent view for subitems, null if it's a root element
 	 */
-	constructor(element, item, language) {
+	constructor(element, item, language, parentItemView) {
 		super(element);
 		this.item = item;
 		this.language = language;
+		/**
+		 * @type {ItemView|null}
+		 */
+		this.parentItemView = parentItemView ? parentItemView : null;
 		this.frozen = false;
 		this.subViews = [];
 		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
@@ -22,12 +26,16 @@ class ItemView extends FrameworkView {
 		this.defaultFeaturesElement = this.el.querySelector('.defaultfeatures');
 		this.insideElement = this.el.querySelector('.inside');
 		this.selectFeatureElement = this.el.querySelector('.featuretextbox');
+		this.deleteItemButton = this.el.querySelector('.itemdeletebutton');
 		let addFieldButton = this.el.querySelector('.addfield');
 		let addItemButton = this.el.querySelector('.additem');
 
 		if(item.code !== null) {
 			this.showCode(item.code);
+		}
+		if(item.exists) {
 			this.freezeCode();
+			this.freezeDelete();
 		}
 		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
@@ -45,6 +53,7 @@ class ItemView extends FrameworkView {
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
+		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
 	}
 
 	/**
@@ -99,7 +108,7 @@ class ItemView extends FrameworkView {
 		let container = ItemView.newContainer();
 		this.item.addInside(item);
 
-		let view = new ItemView(container, item, this.language);
+		let view = new ItemView(container, item, this.language, this);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
 	}
@@ -126,6 +135,7 @@ class ItemView extends FrameworkView {
 	 */
 	freeze() {
 		this.freezeCode();
+		this.freezeDelete();
 		this._toggleFreezable(true);
 		this.frozen = true;
 	}
@@ -333,6 +343,48 @@ class ItemView extends FrameworkView {
 
 	freezeCode() {
 		this.codeElement.disabled = true;
+	}
+
+	freezeDelete() {
+		this.deleteItemButton.disabled = true;
+	}
+
+	/**
+	 * Handler for clicking the "delete item" button.
+	 * Deleting a root element is ignored, the event keeps propagating.
+	 *
+	 * @param {Event} event
+	 */
+	deleteItemClick(event) {
+		if(this.parentItemView === null) {
+			return;
+		}
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		if(this.item.exists) {
+			throw Error('Cannot delete items that already exist');
+		}
+
+		/**
+		 * For some absurd reason, PHPStorm insists this is an Item,
+		 * ignoring all the JSDoc, and keeps suggesting Item methods.
+		 *
+		 * @type {ItemView|null}
+		 */
+		this.parentItemView.deleteItemInside(this);
+	}
+
+	/**
+	 * Delete a subitem via its ItemView.
+	 *
+	 * @param {ItemView} removeThis - item view to delete
+	 */
+	deleteItemInside(removeThis) {
+		this.item.removeInside(removeThis.item);
+		this.insideElement.removeChild(removeThis.el);
+		removeThis.parentItemView = null;
 	}
 
 	/**
