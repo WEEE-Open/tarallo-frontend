@@ -5,7 +5,7 @@ class ItemView extends FrameworkView {
 	 * @param {HTMLElement} element - Container element
 	 * @param {Item} item - Item to view
 	 * @param {Translations} language - Language for translated strings
-	 * @param {ItemView|null=} parentItemView - parent view for subitems, null if it's a root element
+	 * @param {ItemView|null=null} parentItemView - parent view for subitems, null if it's a root element
 	 */
 	constructor(element, item, language, parentItemView) {
 		super(element);

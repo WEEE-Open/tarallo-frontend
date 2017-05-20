@@ -161,3 +161,50 @@ class LogsView extends FrameworkView {
 		}
 	}
 }
+
+class LocationView extends FrameworkView {
+	/**
+	 * Show items inside a specific location, and also a breadcrumb for navigation.
+	 *
+	 * @param {HTMLElement} element - an HTML element
+	 * @param {string|string[]} path - array of items representing a path, or single item if there's only one ancestor
+	 * @param {Translations} language - Language for translated strings
+	 */
+	constructor(element, path, language) {
+		super(element);
+		/** @type {ItemView[]} */
+		this.itemViews = [];
+		this.language = language;
+		this.contentsElement = this.el.querySelector('.contents');
+
+		if(typeof path === 'string') {
+			path = [path];
+		}
+		this.path = path;
+
+		this.contentsElement.addEventListener('click', this.handleClick.bind(this));
+	}
+
+	/**
+	 * Insert an Item in this view. Will create an ItemView and store it inside.
+	 *
+	 * @param {Item} item - to be added inside.
+	 */
+	addItem(item) {
+		for(let i = 0; i < this.itemViews.length; i++) {
+			if(this.itemViews[i].item === this.item) {
+				throw Error('Item already inserted');
+			}
+		}
+
+		let container = ItemView.newContainer();
+		let view = new ItemView(container, item, this.language, null);
+		this.contentsElement.appendChild(container);
+		this.itemViews.push(view);
+	}
+
+	trigger(that, event) {
+
+	}
+
+}
