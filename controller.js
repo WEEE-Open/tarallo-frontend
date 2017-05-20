@@ -30,17 +30,12 @@ const Controller = (function () {
 			"add": "add",
 			"search": "search",
 			"search/:page": "search",
-			"location/:location": "list",
-			"location/:location/:page": "list",
+			"list/:location": "list",
 			"view/:code": "view"
 		},
 
 		home: function() {
 			rootView = new NavigationView(container, logs, session, transaction, translations);
-		},
-
-		view: function() {
-			alert("VISUALIZZA.");
 		},
 
 		test: function() {
@@ -74,8 +69,14 @@ const Controller = (function () {
 			rootView = new LogoutView(container, session);
 		},
 
-		list: function(location, page) {
-			alert(location + ", " + page);
+		list: function(location) {
+			// TODO: tearing down the entire page and re-rendering an exact copy every time looks like a waste...
+			rootView = new NavigationView(container, logs, session, transaction, translations);
+			rootView.addLocation(/* TODO: path or what? */);
+		},
+
+		view: function(code) {
+			rootView = new NavigationView(container, logs, session, transaction, translations);
 		},
 
 		search: function(page) {
