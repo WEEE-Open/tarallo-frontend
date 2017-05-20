@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress HtmlUnknownAnchorTarget -->
 <html lang="it">
 <head>
 	<meta charset="UTF-8">
@@ -16,7 +17,7 @@
 	<span id="logout-alreadyloggedmessage"></span>
 	<input type="button" value="logout" id="logout-logout">
 </template>
-<template id="template-navigation">
+<template id="template-navigation-old">
 	<nav id="navigation">
 		<form id="search">
 			<div id="search-input-0">
@@ -59,11 +60,21 @@
 	<nav class="breadcrumbs"></nav>
 	<div class="contents"></div>
 </template>
+<template id="template-navigation">
+	<nav>
+		<a href="#/">Home</a>
+		<a href="#/add">Add new</a>
+		<a href="#/search">Search</a>
+		<label>Code: <input type="text"></label>
+		<button class="viewitembutton">View item</button>
+		<button class="viewcontentsbutton">View contents</button>
+	</nav>
+	<div class="logs"></div>
+</template>
 <div id="header">
 	<h1>T.A.R.A.L.L.O.</h1>
 	<p>Trabiccolo Amministrazione Rottami e Assistenza, Legalmente-noto-come L'inventario Opportuno</p>
 </div>
-<datalist id="featurelist"></datalist>
 <div id="views"></div>
 <script src="node_modules/underscore/underscore.js"></script>
 <script src="node_modules/backbone/backbone.js"></script>
@@ -73,6 +84,7 @@
 <script src="item.js"></script>
 <script src="session.js"></script>
 <script src="translations.js"></script>
+<script src="transaction.js"></script>
 <script src="views.js"></script>
 <script src="itemview.js"></script>
 <script src="controller.js"></script>

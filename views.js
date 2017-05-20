@@ -190,6 +190,7 @@ class LocationView extends FrameworkView {
 	}
 
 	handleClick() {
+		// TODO: implement (and determine why it's not working)
 		alert("CLICK");
 	}
 
@@ -229,4 +230,15 @@ class LocationView extends FrameworkView {
 
 	}
 
+}
+
+class NavigationView extends FrameworkView {
+	constructor(el, logs, session, transaction, translations) {
+		super(el);
+		let template = document.getElementById('template-navigation').content.cloneNode(true);
+
+		this.logsView = new LogsView(template.querySelector('.logs'), logs);
+
+		this.el.appendChild(template);
+	}
 }
