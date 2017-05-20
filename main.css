@@ -89,3 +89,7 @@ template {
 .itemdeletebutton {
     float: right;
 }
+
+.wip {
+    display: none;
+}

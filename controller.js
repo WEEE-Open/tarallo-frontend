@@ -13,7 +13,7 @@ const Controller = (function () {
 	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 	const session = new Session(trigger);
 	const logs = new Logs(trigger);
-	const traslations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't impossible because functions inside router won't see it.
+	const translations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't impossible because functions inside router won't see it.
 
 	/* session.fetch(); */
 
@@ -28,11 +28,16 @@ const Controller = (function () {
 			"search": "search",
 			"search/:page": "search",
 			"location/:location": "list",
-			"location/:location/:page": "list"
+			"location/:location/:page": "list",
+			"view/:code": "view"
 		},
 
 		home: function() {
 			alert("FUNZIONA.");
+		},
+
+		view: function() {
+			alert("VISUALIZZA.");
 		},
 
 		test: function() {
@@ -43,7 +48,7 @@ const Controller = (function () {
 			item.setFeature("works", "yes");
 			item.setCode("CPU-666");
 			let container = ItemView.newContainer();
-			let theview = new ItemView(container, item, traslations);
+			let theview = new ItemView(container, item, translations);
 			goTo(theview);
 
 			let button = document.createElement("button");
@@ -75,11 +80,9 @@ const Controller = (function () {
 		},
 
 		add: function() {
-			// TODO: use a proxy, store somewhere
-			let item = new Item(trigger);
-			let container = ItemView.newContainer();
-			document.getElementById('views').appendChild(container);
-			goTo(new ItemView(container, item, traslations))
+			let view = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
+			document.getElementById('views').appendChild(view.el);
+			goTo(view);
 		},
 
 		'execute': function(callback, args /*, name*/) {

@@ -173,16 +173,24 @@ class LocationView extends FrameworkView {
 	constructor(element, path, language) {
 		super(element);
 		/** @type {ItemView[]} */
+		this.el.appendChild(document.getElementById("template-location").content.cloneNode(true));
 		this.itemViews = [];
 		this.language = language;
 		this.contentsElement = this.el.querySelector('.contents');
+		this.navigationElement = this.el.querySelector('.breadcrumbs');
 
 		if(typeof path === 'string') {
 			path = [path];
 		}
 		this.path = path;
 
+		this.createBreadcrumbs();
+
 		this.contentsElement.addEventListener('click', this.handleClick.bind(this));
+	}
+
+	handleClick() {
+		alert("CLICK");
 	}
 
 	/**
@@ -204,6 +212,20 @@ class LocationView extends FrameworkView {
 	}
 
 	trigger(that, event) {
+
+	}
+
+	createBreadcrumbs() {
+		for(let i = 0; i < this.path.length; i++) {
+			if(i !== 0) {
+				this.navigationElement.appendChild(document.createTextNode(" > "));
+			}
+			let piece = document.createElement("a");
+			piece.href = "#/location/" + this.path[i];
+			piece.textContent = this.path[i];
+			this.navigationElement.appendChild(piece);
+		}
+
 
 	}
 
