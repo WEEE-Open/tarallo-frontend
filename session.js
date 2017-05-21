@@ -30,8 +30,7 @@ class Session extends FrameworkObject {
 	}
 
 	send(username, password) {
-		let req = Controller.POST('/Login');
-		Controller.reqSetHandler(req,
+		let req = Controller.POST('/Login',
 			function(code, message) {
 				this.lastError = code;
 				this.lastErrorDetails = message;
@@ -44,8 +43,8 @@ class Session extends FrameworkObject {
 				this.lastErrorDetails = null;
 				this.trigger('success');
 			}.bind(this));
-		req.send(JSON.stringify({username: username, password: password}));
 		this.trigger('sent');
+		req.send(JSON.stringify({username: username, password: password}));
 	}
 
 	login(username, password) {
@@ -61,5 +60,27 @@ class Session extends FrameworkObject {
 
 	logout() {
 		this.send(null, null);
+	}
+
+	restore() {
+		let req = Controller.GET('/Session',
+			function(code, message) {
+				this.lastError = code;
+				this.lastErrorDetails = message;
+				this.trigger('error');
+			}.bind(this),
+			function(data) {
+				if(data.username === null) {
+					this.trigger('restore-invalid');
+				} else if(typeof data.username === 'string') {
+					this.username = data.username;
+					this.trigger('restore-valid');
+				} else {
+					this.lastError = "malformed-response";
+					this.lastErrorDetails = "Missing 'username' in response";
+					this.trigger('error');
+				}
+			}.bind(this));
+		req.send();
 	}
 }

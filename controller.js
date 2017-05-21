@@ -1,7 +1,6 @@
 const Controller = (function () {
 	"use strict";
 
-	let root = new rootView();
 	let routerInstance;
 	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
 
@@ -71,14 +70,11 @@ const Controller = (function () {
 		add: function() {
 			root = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
 			container.appendChild(root.el);
-		},
-
-		'execute': function(callback, args /*, name*/) {
-
 		}
 	});
 
 	routerInstance = new router();
+	let root = new rootView(routerInstance);
 	Backbone.history.start();
 
 	const TIMEOUT = 30000;
@@ -86,27 +82,37 @@ const Controller = (function () {
 	/**
 	 * @param path URL parameter (e.g. /Login)
 	 * @return XMLHttpRequest
+	 * @see Controller.reqSetHandler
+	 *
+	 * @param {Function} onfail function(code, message)
+	 * @param {Function} onsuccess function(data), data is decoded JSON
 	 */
-	function POST(path) {
+	function POST(path, onfail, onsuccess) {
 		let req = new XMLHttpRequest();
 		req.open("POST", pathPrefix + path, true);
 		req.setRequestHeader('Accept', 'application/json');
 		req.setRequestHeader('Content-Type', 'application/json');
 		req.withCredentials = true;
 		req.timeout = TIMEOUT;
+		this.reqSetHandler(req, onfail, onsuccess);
 		return req;
 	}
 
 	/**
 	 * @param path URL parameter (e.g. /Login)
 	 * @return XMLHttpRequest
+	 * @see Controller.reqSetHandler
+	 *
+	 * @param {Function} onfail function(code, message)
+	 * @param {Function} onsuccess function(data), data is decoded JSON
 	 */
-	function GET(path) {
+	function GET(path, onfail, onsuccess) {
 		let req = new XMLHttpRequest();
 		req.open("GET", pathPrefix + path, true);
 		req.setRequestHeader('Accept', 'application/json');
 		req.withCredentials = true;
 		req.timeout = TIMEOUT;
+		this.reqSetHandler(req, onfail, onsuccess);
 		return req;
 	}
 
@@ -122,11 +128,11 @@ const Controller = (function () {
 	 * "malformed-response" for malformed JSend response (missing keys)
 	 * "response-error" JSend "error" ("message" contains the error message)
 	 * "response-fail" JSend "fail" ("message" contains an hash of error messages or null)
-	 * "http-code": got another code (contained in "message") instead of 200
+	 * "http-status": got another code (contained in "message") instead of 200
 	 *
 	 * @param xhr XMLHttpRequest
-	 * @param onfail function(code, message)
-	 * @param onsuccess function(data), data is decoded JSON
+	 * @param {Function} onfail function(code, message)
+	 * @param {Function} onsuccess function(data), data is decoded JSON
 	 */
 	function reqSetHandler(xhr, onfail, onsuccess) {
 		xhr.addEventListener("load", function() {
@@ -160,7 +166,7 @@ const Controller = (function () {
 					onfail("response-fail", json.data);
 				}
 			} else {
-				onfail("http-code", xhr.status);
+				onfail("http-status", xhr.status);
 			}
 		});
 		xhr.addEventListener("error", function() {
