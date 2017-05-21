@@ -3,6 +3,9 @@ class rootView extends FrameworkView {
 		let body = document.getElementById("body");
 		super(body);
 
+		this.state = 'root';
+		this.trigger = this.trigger.bind(this);
+
 		this.session = new Session(this.trigger);
 		this.logs = new Logs(this.trigger);
 		this.translations = new Translations(this.trigger, 'it-IT'); // TODO: make variable. Which isn't possible because functions inside router won't see it.
@@ -12,6 +15,9 @@ class rootView extends FrameworkView {
 		this.container = rootView.createViewHolder();
 		this.el.appendChild(this.container);
 		this.currentViews = [];
+
+		// triggers can be fired from this point on
+		this.session.restore();
 	}
 
 	static createHeader() {
@@ -38,16 +44,83 @@ class rootView extends FrameworkView {
 		}
 	}
 
-	home() {
-		this.currentViews.push(new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations));
+	/**
+	 * Perform state transition
+	 *
+	 * @param {String} state
+	 */
+	changeState(state) {
+		if(state === this.state) {
+			// Yay!
+			return;
+		}
+
+		switch(state) {
+			case 'login':
+				this._login();
+				break;
+			case 'logout':
+				this._logout();
+				break;
+			case 'home':
+				rootView.clearContents(this.container);
+				// TODO: delete current views to prevent unnoticed memory leaks?
+				this.currentViews = [];
+				this._home();
+				break;
+			default:
+				throw Error('Unknown state ' + state);
+				break;
+		}
+
+		this.state = state;
 	}
 
-	login() {
+	_logout() {
+		this.logs.clear();
+		this.session.logout();
+	}
+
+	_login() {
 		this.currentViews.push(new LoginView(this.container, this.logs, this.session));
 	}
 
-	trigger(that, event) {
+	_home() {
+		this.currentViews.push(new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations));
+	}
 
+	trigger(that, event) {
+		if(that === this.session) {
+			switch(event) {
+				case 'restore-valid':
+					if(this.state === 'login' || this.state === 'root') {
+						this.changeState('home');
+					}
+					break;
+				case 'restore-invalid':
+					if(this.state !== 'login') {
+						this.logs.add("Not logged in", Log.Warning);
+					}
+					this.changeState('login');
+					break;
+				case 'restore-error':
+					// TODO: better message
+					this.logs.add('Error: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, Log.Error);
+					this.changeState('login');
+					break;
+				case 'success':
+					if(this.state === 'logout') {
+						this.logs.add('Logout successful, bye', Log.Success);
+						this.changeState('login');
+					} else if(this.state === 'login') {
+						this.changeState('home');
+					}
+			}
+		}
+
+		for(let i = 0; i < this.currentViews.length; i++) {
+			this.currentViews[i].trigger(that, event);
+		}
 	}
 }
 
@@ -78,7 +151,7 @@ class LoginView extends FrameworkView {
 		if(that === this.session) {
 			switch(event) {
 				case 'success':
-					this.logs.add("Login successful!", Log.Success);
+					this.logs.add('Login successful. Welcome, ' + this.session.username, Log.Success);
 					return;
 				case 'error':
 				case 'validation-failed':
