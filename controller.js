@@ -1,24 +1,9 @@
 const Controller = (function () {
 	"use strict";
 
-	let rootView = null;
-	let container = document.getElementById('views');
+	let root = new rootView();
 	let routerInstance;
-
-	let trigger = function(that, event) {
-		if(that === session && event === 'success') {
-			routerInstance.navigate("", {"trigger": true});
-		}
-		if(rootView !== null) {
-			rootView.trigger(that, event);
-		}
-	};
-
 	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
-	const session = new Session(trigger);
-	const logs = new Logs(trigger);
-	const translations = new Translations(trigger, 'it-IT'); // TODO: make variable. Which isn't possible because functions inside router won't see it.
-	const transaction = new Transaction(trigger);
 
 	//noinspection ES6ModulesDependencies
 	let router = Backbone.Router.extend({
@@ -35,7 +20,7 @@ const Controller = (function () {
 		},
 
 		home: function() {
-			rootView = new NavigationView(container, logs, session, transaction, translations);
+			root.home();
 		},
 
 		test: function() {
@@ -47,7 +32,7 @@ const Controller = (function () {
 			item.setCode("CPU-666");
 			let itemContainer = ItemView.newContainer();
 			let theview = new ItemView(container, item, translations);
-			rootView = theview;
+			root = theview;
 
 			let button = document.createElement("button");
 			container.appendChild(itemContainer).appendChild(button);
@@ -62,21 +47,21 @@ const Controller = (function () {
 		},
 
 		login: function() {
-			rootView = new LoginView(container, logs, session);
+			root.login();
 		},
 
 		logout: function() {
-			rootView = new LogoutView(container, session);
+			root = new LogoutView(container, session);
 		},
 
 		list: function(location) {
 			// TODO: tearing down the entire page and re-rendering an exact copy every time looks like a waste...
-			rootView = new NavigationView(container, logs, session, transaction, translations);
-			rootView.addLocation(/* TODO: path or what? */);
+			root = new NavigationView(container, logs, session, transaction, translations);
+			root.addLocation(/* TODO: path or what? */);
 		},
 
 		view: function(code) {
-			rootView = new NavigationView(container, logs, session, transaction, translations);
+			root = new NavigationView(container, logs, session, transaction, translations);
 		},
 
 		search: function(page) {
@@ -84,19 +69,12 @@ const Controller = (function () {
 		},
 
 		add: function() {
-			rootView = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
-			container.appendChild(rootView.el);
+			root = new LocationView(document.createElement("div"), ['Polito', 'Chernobyl', 'ArmadioL'], translations);
+			container.appendChild(root.el);
 		},
 
 		'execute': function(callback, args /*, name*/) {
-			while(container.firstChild) {
-				container.removeChild(container.firstChild);
-			}
-			if(callback) {
-				// IT'S A FUNCTION. IT HAS AN APPLY METHOD. PHPSTORM PLS.
-				//noinspection JSUnresolvedFunction
-				callback.apply(this, args);
-			}
+
 		}
 	});
 

@@ -1,3 +1,56 @@
+class rootView extends FrameworkView {
+	constructor() {
+		let body = document.getElementById("body");
+		super(body);
+
+		this.session = new Session(this.trigger);
+		this.logs = new Logs(this.trigger);
+		this.translations = new Translations(this.trigger, 'it-IT'); // TODO: make variable. Which isn't possible because functions inside router won't see it.
+		this.transaction = new Transaction(this.trigger);
+
+		this.el.appendChild(rootView.createHeader());
+		this.container = rootView.createViewHolder();
+		this.el.appendChild(this.container);
+		this.currentViews = [];
+	}
+
+	static createHeader() {
+		let header = document.createElement("header");
+		let h1 = document.createElement("h1");
+		// TODO: this allows translating strings...
+		h1.textContent = "T.A.R.A.L.L.O.";
+		let p = document.createElement("p");
+		p.textContent = "Trabiccolo Amministrazione Rottami e Assistenza, Legalmente-noto-come L'inventario Opportuno";
+		header.appendChild(h1);
+		header.appendChild(p);
+		return header;
+	}
+
+	static createViewHolder() {
+		let div = document.createElement("div");
+		div.id = "view";
+		return div;
+	}
+
+	static clearContents(container) {
+		while(container.firstChild) {
+			container.removeChild(container.firstChild);
+		}
+	}
+
+	home() {
+		this.currentViews.push(new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations));
+	}
+
+	login() {
+		this.currentViews.push(new LoginView(this.container, this.logs, this.session));
+	}
+
+	trigger(that, event) {
+
+	}
+}
+
 class LoginView extends FrameworkView {
 	/**
 	 * Shows a login form and log messages.
