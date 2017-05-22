@@ -59,11 +59,11 @@ class rootView extends FrameworkView {
 		switch(state) {
 			case 'login':
 				this._login();
-				this.router.navigate('/login');
+				this.router.navigate('#/login');
 				break;
 			case 'logout':
 				this._logout();
-				this.router.navigate('/logout');
+				this.router.navigate('#/logout');
 				break;
 			case 'home':
 				rootView.clearContents(this.container);
@@ -189,6 +189,7 @@ class LogoutView extends FrameworkView {
 	constructor(element, session) {
 		super(element);
 		this.session = session;
+		this.el.appendChild(document.getElementById('template-logout').content.cloneNode(true));
 		this.el.querySelector('.logoutbutton').addEventListener('click', this.logout.bind(this));
 		this.messageArea = this.el.querySelector('.logoutmessage');
 		this.whoami();
@@ -379,7 +380,14 @@ class NavigationView extends FrameworkView {
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session);
 	}
 
+	/**
+	 * Handles navigation.
+	 *
+	 * @param {Event} event - click on the #main navigation element
+	 */
 	handleNavigation(event) {
+		// TODO: do something, make links work (= place "#/login" and similiar in href, as a fallback)
+		event.preventDefault();
 		let classes = event.target.classList;
 		if(classes.contains('homebutton')) {
 
