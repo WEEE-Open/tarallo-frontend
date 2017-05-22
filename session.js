@@ -43,11 +43,11 @@ class Session extends FrameworkObject {
 				this.lastErrorDetails = null;
 				this.trigger('success');
 			}.bind(this));
-		this.trigger('sent');
 		req.send(JSON.stringify({username: username, password: password}));
 	}
 
 	login(username, password) {
+		//this.trigger('login');
 		let message = Session.validate(username, password);
 		if(typeof message === 'undefined') {
 			this.send(username, password);
@@ -59,6 +59,7 @@ class Session extends FrameworkObject {
 	}
 
 	logout() {
+		this.trigger('logout');
 		this.send(null, null);
 	}
 

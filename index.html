@@ -14,8 +14,8 @@
 	<div class="logs"></div>
 </template>
 <template id="template-logout">
-	<span id="logout-alreadyloggedmessage"></span>
-	<input type="button" value="logout" id="logout-logout">
+	<span class="logoutmessage"></span>
+	<input type="button" value="logout" class="logoutbutton">
 </template>
 <template id="template-navigation-old">
 	<nav id="navigation">
@@ -61,10 +61,11 @@
 	<div class="contents"></div>
 </template>
 <template id="template-navigation">
-	<nav>
-		<a href="#/">Home</a>
-		<a href="#/add">Add new</a>
-		<a href="#/search">Search</a>
+	<div class="logoutview"></div>
+	<nav id="main">
+		<a class="homebutton">Home</a>
+		<a class="addnewbutton">Add new</a>
+		<a class="searchbutton">Search</a>
 		<label>Code: <input type="text"></label>
 		<button class="viewitembutton">View item</button>
 		<button class="viewcontentsbutton">View contents</button>

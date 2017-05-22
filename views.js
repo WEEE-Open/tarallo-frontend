@@ -83,7 +83,6 @@ class rootView extends FrameworkView {
 
 	_logout() {
 		this.logs.clear();
-		this.session.logout();
 	}
 
 	_login() {
@@ -120,6 +119,10 @@ class rootView extends FrameworkView {
 					} else if(this.state === 'login') {
 						this.changeState('home');
 					}
+					break;
+				case 'logout':
+					this.changeState('logout');
+					break;
 			}
 		}
 
@@ -186,8 +189,8 @@ class LogoutView extends FrameworkView {
 	constructor(element, session) {
 		super(element);
 		this.session = session;
-		this.el.querySelector('#logout-logout').addEventListener('click', this.logout.bind(this));
-		this.messageArea = this.el.querySelector('#logout-alreadyloggedmessage');
+		this.el.querySelector('.logoutbutton').addEventListener('click', this.logout.bind(this));
+		this.messageArea = this.el.querySelector('.logoutmessage');
 		this.whoami();
 	}
 
@@ -203,6 +206,7 @@ class LogoutView extends FrameworkView {
 
 	logout(e) {
 		e.preventDefault();
+		e.stopPropagation();
 		this.session.logout();
 	}
 
@@ -371,5 +375,22 @@ class NavigationView extends FrameworkView {
 		this.logsView = new LogsView(template.querySelector('.logs'), logs);
 
 		this.el.appendChild(template);
+		this.el.querySelector('#main').addEventListener('click', this.handleNavigation.bind(this));
+		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session);
+	}
+
+	handleNavigation(event) {
+		let classes = event.target.classList;
+		if(classes.contains('homebutton')) {
+
+		} else if(classes.contains('addnewbutton')) {
+
+		} else if(classes.contains('searchbutton')) {
+
+		} else if(classes.contains('viewitembutton')) {
+
+		} else if(classes.contains('viewcontentsbutton')) {
+
+		}
 	}
 }
