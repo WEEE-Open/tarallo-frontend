@@ -57,28 +57,36 @@ class rootView extends FrameworkView {
 		}
 
 		switch(state) {
-			case 'login':
-				this._login();
-				this.router.navigate('#/login');
-				break;
 			case 'logout':
 				this._logout();
 				this.router.navigate('#/logout');
+				this.state = state;
+				this.changeState('login');
+				break;
+			case 'login':
+				switch(this.state) {
+					case 'root':
+						this._login();
+						break;
+					default:
+						rootView.clearContents(this.container);
+						break;
+				}
+				this.router.navigate('#/login');
+				this.state = state;
 				break;
 			case 'home':
 				rootView.clearContents(this.container);
 				// TODO: delete current views to prevent unnoticed memory leaks?
 				this.currentViews = [];
 				this._home();
-				this.router.navigate('');
+				this.router.navigate('#/');
+				this.state = state;
 				break;
 			default:
 				throw Error('Unknown state ' + state);
 				break;
 		}
-
-
-		this.state = state;
 	}
 
 	_logout() {
