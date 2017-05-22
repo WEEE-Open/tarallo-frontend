@@ -114,9 +114,11 @@ class rootView extends FrameworkView {
 					break;
 				case 'success':
 					if(this.state === 'logout') {
+						// TODO: WHY is none of this working in the slightest!?
 						this.logs.add('Logout successful, bye', Log.Success);
 						this.changeState('login');
 					} else if(this.state === 'login') {
+						// This one works, BTW
 						this.changeState('home');
 					}
 					break;
