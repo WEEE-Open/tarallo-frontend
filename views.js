@@ -11,11 +11,12 @@ class rootView extends FrameworkView {
 		this.logs = new Logs(this.trigger);
 		this.translations = new Translations(this.trigger, 'it-IT');
 		this.transaction = new Transaction(this.trigger);
+		this.currentItem = null;
 
 		this.el.appendChild(rootView.createHeader());
 		this.container = rootView.createViewHolder();
 		this.el.appendChild(this.container);
-		this.currentViews = [];
+		this.currentViews = []; // TODO: use single view, "currentViewInContainer" or something?
 
 		// triggers can be fired from this point on
 		this.session.restore();
@@ -39,7 +40,13 @@ class rootView extends FrameworkView {
 		return div;
 	}
 
-	static clearContents(container) {
+	clearContainer() {
+		rootView._clearContents(this.container);
+		// TODO: delete current views to prevent unnoticed memory leaks?
+		this.currentViews = [];
+	}
+
+	static _clearContents(container) {
 		while(container.firstChild) {
 			container.removeChild(container.firstChild);
 		}
@@ -67,18 +74,37 @@ class rootView extends FrameworkView {
 						this._login();
 						break;
 					default:
-						rootView.clearContents(this.container);
+						this.clearContainer();
+						this._login();
 						break;
 				}
 				this.router.navigate('#/login');
 				break;
 			case 'home':
-				rootView.clearContents(this.container);
-				// TODO: delete current views to prevent unnoticed memory leaks?
-				this.currentViews = [];
+				this.clearContainer();
 				this._home();
 				this.router.navigate('#/');
 				break;
+			case 'item':
+				switch(this.state) {
+					case 'home':
+					default:
+						this.clearContainer();
+						this._item();
+						break;
+				}
+				break;
+			//case 'content':
+			//	// TODO: when switching between content and item, recover subitem itemViews and use them.
+			//	switch(this.state) {
+			//		case 'item':
+			//		case 'home':
+			//		default:
+			//			this.clearContainer();
+			//			this._content();
+			//			break;
+			//	}
+			//	break;
 			default:
 				throw Error('Unknown state ' + state);
 				return;
@@ -97,6 +123,12 @@ class rootView extends FrameworkView {
 
 	_home() {
 		this.currentViews.push(new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations));
+	}
+
+	_item() {
+		let anotherContainer = ItemView.newContainer();
+		this.currentViews.push(this.currentViews.push(new ItemView(anotherContainer, this.currentItem, this.language)));
+		this.container.appendChild(anotherContainer);
 	}
 
 	trigger(that, event) {

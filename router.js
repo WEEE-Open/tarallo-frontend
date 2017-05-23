@@ -12,9 +12,9 @@ const Controller = (function () {
 			"test": "test",
 			"add": "add",
 			"search": "search",
-			"search/:page": "search",
-			"list/:location": "list",
-			"view/:code": "view"
+			//"search/:page": "search",
+			//"list/:location": "list",
+			//"view/:code": "view"
 		},
 
 		home: function() {
