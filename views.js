@@ -60,8 +60,6 @@ class rootView extends FrameworkView {
 			case 'logout':
 				this._logout();
 				this.router.navigate('#/logout');
-				this.state = state;
-				this.changeState('login');
 				break;
 			case 'login':
 				switch(this.state) {
@@ -73,7 +71,6 @@ class rootView extends FrameworkView {
 						break;
 				}
 				this.router.navigate('#/login');
-				this.state = state;
 				break;
 			case 'home':
 				rootView.clearContents(this.container);
@@ -81,16 +78,17 @@ class rootView extends FrameworkView {
 				this.currentViews = [];
 				this._home();
 				this.router.navigate('#/');
-				this.state = state;
 				break;
 			default:
 				throw Error('Unknown state ' + state);
-				break;
+				return;
 		}
+
+		this.state = state;
 	}
 
 	_logout() {
-		this.logs.clear();
+
 	}
 
 	_login() {
@@ -127,6 +125,11 @@ class rootView extends FrameworkView {
 						this.changeState('login');
 					} else if(this.state === 'login') {
 						// This one works, BTW
+						this.changeState('home');
+					}
+					break;
+				case 'error':
+					if(this.state === 'logout') {
 						this.changeState('home');
 					}
 					break;
