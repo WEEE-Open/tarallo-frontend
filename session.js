@@ -30,7 +30,7 @@ class Session extends FrameworkObject {
 	}
 
 	send(username, password) {
-		let req = XHR.POST('/Login',
+		let req = XHR.POST('/Session',
 			function(code, message) {
 				this.lastError = code;
 				this.lastErrorDetails = message;
@@ -60,7 +60,6 @@ class Session extends FrameworkObject {
 	}
 
 	login(username, password) {
-		//this.trigger('login');
 		let message = Session.validate(username, password);
 		if(typeof message === 'undefined') {
 			this.send(username, password);
