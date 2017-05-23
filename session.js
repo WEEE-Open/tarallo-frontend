@@ -34,15 +34,28 @@ class Session extends FrameworkObject {
 			function(code, message) {
 				this.lastError = code;
 				this.lastErrorDetails = message;
-				this.trigger('error');
+				if(username === null) {
+					this.trigger('logout-error');
+				} else {
+					this.trigger('login-error');
+				}
 			}.bind(this),
 			function() {
 				this.username = username;
 				this.password = password;
 				this.lastError = null;
 				this.lastErrorDetails = null;
-				this.trigger('success');
+				if(username === null) {
+					this.trigger('logout-success');
+				} else {
+					this.trigger('login-success');
+				}
 			}.bind(this));
+		if(username === null) {
+			this.trigger('logout-try');
+		} else {
+			this.trigger('login-try');
+		}
 		req.send(JSON.stringify({username: username, password: password}));
 	}
 
@@ -54,12 +67,11 @@ class Session extends FrameworkObject {
 		} else {
 			this.lastError = 'validation-error';
 			this.lastErrorDetails = message;
-			this.trigger('validation-failed');
+			this.trigger('validation-error');
 		}
 	}
 
 	logout() {
-		this.trigger('logout');
 		this.send(null, null);
 	}
 

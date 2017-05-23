@@ -4,6 +4,7 @@ class rootView extends FrameworkView {
 		super(body);
 
 		this.state = 'root';
+		this.prevState = 'root';
 		this.trigger = this.trigger.bind(this);
 		this.router = router;
 
@@ -16,7 +17,7 @@ class rootView extends FrameworkView {
 		this.el.appendChild(rootView.createHeader());
 		this.container = rootView.createViewHolder();
 		this.el.appendChild(this.container);
-		this.currentViews = []; // TODO: use single view, "currentViewInContainer" or something?
+		this.currentView = null;
 
 		// triggers can be fired from this point on
 		this.session.restore();
@@ -42,8 +43,8 @@ class rootView extends FrameworkView {
 
 	clearContainer() {
 		rootView._clearContents(this.container);
-		// TODO: delete current views to prevent unnoticed memory leaks?
-		this.currentViews = [];
+		// TODO: delete current view to prevent unnoticed memory leaks?
+		this.currentView = null;
 	}
 
 	static _clearContents(container) {
@@ -58,8 +59,15 @@ class rootView extends FrameworkView {
 	 * @param {String} state
 	 */
 	changeState(state) {
+		// Going where we're already
 		if(state === this.state) {
 			// Yay!
+			return;
+		}
+
+		// Going where guests can't go
+		if(this.session.username === null && state !== 'login') {
+			this.changeState('login');
 			return;
 		}
 
@@ -95,7 +103,7 @@ class rootView extends FrameworkView {
 				}
 				break;
 			//case 'content':
-			//	// TODO: when switching between content and item, recover subitem itemViews and use them.
+			//	// when switching between content and item, recover subitem itemViews and use them.
 			//	switch(this.state) {
 			//		case 'item':
 			//		case 'home':
@@ -110,7 +118,12 @@ class rootView extends FrameworkView {
 				return;
 		}
 
+		this.prevState = this.state;
 		this.state = state;
+	}
+
+	rollbackState() {
+		this.changeState(this.prevState);
 	}
 
 	_logout() {
@@ -118,16 +131,16 @@ class rootView extends FrameworkView {
 	}
 
 	_login() {
-		this.currentViews.push(new LoginView(this.container, this.logs, this.session));
+		this.currentView = new LoginView(this.container, this.logs, this.session);
 	}
 
 	_home() {
-		this.currentViews.push(new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations));
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations);
 	}
 
 	_item() {
 		let anotherContainer = ItemView.newContainer();
-		this.currentViews.push(this.currentViews.push(new ItemView(anotherContainer, this.currentItem, this.language)));
+		this.currentView = new ItemView(anotherContainer, this.currentItem, this.language);
 		this.container.appendChild(anotherContainer);
 	}
 
@@ -147,32 +160,25 @@ class rootView extends FrameworkView {
 					break;
 				case 'restore-error':
 					// TODO: better message
-					this.logs.add('Error: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, Log.Error);
+					this.logs.add('Error restoring previous session: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, Log.Error);
 					this.changeState('login');
 					break;
-				case 'success':
-					if(this.state === 'logout') {
-						this.logs.add('Logout successful, bye', Log.Success);
-						this.changeState('login');
-					} else if(this.state === 'login') {
-						// This one works, BTW
-						this.changeState('home');
-					}
+				case 'login-success':
+					this.changeState('home');
 					break;
-				case 'error':
-					if(this.state === 'logout') {
-						this.changeState('home');
-					}
-					break;
-				case 'logout':
+				case 'logout-try':
 					this.changeState('logout');
+					break;
+				case 'logout-success':
+					this.changeState('login');
+					break;
+				case 'logout-error':
+					this.rollbackState();
 					break;
 			}
 		}
 
-		for(let i = 0; i < this.currentViews.length; i++) {
-			this.currentViews[i].trigger(that, event);
-		}
+		this.currentView.trigger(that, event);
 	}
 }
 
@@ -202,12 +208,11 @@ class LoginView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.session) {
 			switch(event) {
-				case 'success':
+				case 'login-success':
 					this.logs.add('Login successful. Welcome, ' + this.session.username, Log.Success);
 					return;
-				case 'error':
-				case 'validation-failed':
-					// TODO: better code & message handling (for i18n)
+				case 'login-error':
+				case 'validation-error':
 					if(typeof this.session.lastErrorDetails === 'string') {
 						this.logs.add("Login failed: " + this.session.lastErrorDetails, Log.Error);
 					} else {
@@ -228,9 +233,10 @@ class LogoutView extends FrameworkView {
 	 *
 	 * @param {HTMLElement} element
 	 * @param {Session} session
+	 * @param {Logs} logs
 	 * @see FrameworkView.constructor
 	 */
-	constructor(element, session) {
+	constructor(element, session, logs) {
 		super(element);
 		this.session = session;
 		this.el.appendChild(document.getElementById('template-logout').content.cloneNode(true));
@@ -256,7 +262,12 @@ class LogoutView extends FrameworkView {
 	}
 
 	trigger(that, event) {
-		if(that === this.session && event === 'logout') {
+		if(that === this.session) {
+			if(event === 'logout-success') {
+				this.logs.add('Logout successful, bye', Log.Success);
+			} else if(event === 'logout-error') {
+				this.logs.add('Can\'t log out: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, Log.Error);
+			}
 			this.whoami();
 		}
 	}
