@@ -6,7 +6,7 @@ class rootView extends FrameworkView {
 		this.state = 'root';
 		this.prevState = 'root';
 		this.trigger = this.trigger.bind(this);
-		this.router = router;
+		this._router = router;
 
 		this.session = new Session(this.trigger);
 		this.logs = new Logs(this.trigger);
@@ -74,7 +74,7 @@ class rootView extends FrameworkView {
 		switch(state) {
 			case 'logout':
 				this._logout();
-				this.router.navigate('#/logout');
+				this.navigate('#/logout');
 				break;
 			case 'login':
 				switch(this.state) {
@@ -86,12 +86,12 @@ class rootView extends FrameworkView {
 						this._login();
 						break;
 				}
-				this.router.navigate('#/login');
+				this.navigate('#/login');
 				break;
 			case 'home':
 				this.clearContainer();
 				this._home();
-				this.router.navigate('#/');
+				this.navigate('#/');
 				break;
 			case 'item':
 				switch(this.state) {
@@ -124,6 +124,11 @@ class rootView extends FrameworkView {
 
 	rollbackState() {
 		this.changeState(this.prevState);
+		this.prevState = this.state; // prevents further rollbacks
+	}
+
+	navigate(url) {
+		this._router.trigger(url, {"trigger": false});
 	}
 
 	_logout() {
@@ -239,6 +244,7 @@ class LogoutView extends FrameworkView {
 	constructor(element, session, logs) {
 		super(element);
 		this.session = session;
+		this.logs = logs;
 		this.el.appendChild(document.getElementById('template-logout').content.cloneNode(true));
 		this.el.querySelector('.logoutbutton').addEventListener('click', this.logout.bind(this));
 		this.messageArea = this.el.querySelector('.logoutmessage');
