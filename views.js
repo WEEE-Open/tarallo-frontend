@@ -9,7 +9,7 @@ class rootView extends FrameworkView {
 
 		this.session = new Session(this.trigger);
 		this.logs = new Logs(this.trigger);
-		this.translations = new Translations(this.trigger, 'it-IT'); // TODO: make variable. Which isn't possible because functions inside router won't see it.
+		this.translations = new Translations(this.trigger, 'it-IT');
 		this.transaction = new Transaction(this.trigger);
 
 		this.el.appendChild(rootView.createHeader());
@@ -120,7 +120,6 @@ class rootView extends FrameworkView {
 					break;
 				case 'success':
 					if(this.state === 'logout') {
-						// TODO: WHY is none of this working in the slightest!?
 						this.logs.add('Logout successful, bye', Log.Success);
 						this.changeState('login');
 					} else if(this.state === 'login') {
@@ -241,7 +240,6 @@ class LogsView extends FrameworkView {
 	constructor(element, logs) {
 		super(element);
 		this.logs = logs;
-		// TODO: pass locale via parameters when actually needed
 		// (locale could be a FrameworkObject, so changes would be propagated via events)
 		//noinspection JSUnresolvedFunction,JSUnresolvedVariable
 		this.dateFormatter = new Intl.DateTimeFormat('it-IT', {hour: 'numeric', minute: 'numeric', second: 'numeric'});
@@ -335,11 +333,11 @@ class LocationView extends FrameworkView {
 
 		this.createBreadcrumbs();
 
-		this.contentsElement.addEventListener('click', this.handleClick.bind(this));
+		this.contentsElement.addEventListener('click', this.handleNavigation.bind(this));
 	}
 
-	handleClick() {
-		// TODO: implement (and determine why it's not working)
+	handleNavigation() {
+		// TODO: implement
 		alert("CLICK");
 	}
 

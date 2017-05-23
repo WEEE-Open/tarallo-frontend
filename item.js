@@ -61,7 +61,6 @@ class Item extends FrameworkObject {
 	/**
 	 * Same as setFeature, but for default features.
 	 *
-	 * @todo copy this.setFeature
 	 * @param name
 	 * @param value
 	 * @return {boolean}
@@ -72,17 +71,21 @@ class Item extends FrameworkObject {
 			throw new Error(name + ' is not a feature name');
 		}
 		if(value === null) {
-			delete this.defaultFeatures[name];
-			this.defaultFeaturesCount--;
-			return true;
+			if(typeof this.features[name] === 'undefined') {
+				return false;
+			} else {
+				delete this.defaultFeatures[name];
+				this.defaultFeaturesCount--;
+				return true;
+			}
 		}
 
-		if(Item.isValidFeatureName(name)) {
+		if(this.defaultFeatures[name] === value) {
+			return false;
+		} else {
 			this.defaultFeatures[name] = value;
 			this.defaultFeaturesCount++;
 			return true;
-		} else {
-			return false;
 		}
 	}
 
