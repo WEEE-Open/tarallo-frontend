@@ -10,18 +10,14 @@ class Log {
 	 *
 	 * @private
 	 * @param {string} message
-	 * @param {int} severity
+	 * @param {string} severity - S, I, W, E.
 	 * @see Logs.add
 	 */
 	constructor(message, severity) {
 		/**
-		 * Severity of the log message.
+		 * Severity of the log message. S, I, W, E.
 		 *
-		 * @type {number}
-		 * @see Log.Error
-		 * @see Log.Warning
-		 * @see Log.Info
-		 * @see Log.Success
+		 * @type {string}
 		 */
 		this.severity = this.constructor._parseSeverity(severity);
 		/**
@@ -37,47 +33,22 @@ class Log {
 	}
 
 	static _parseSeverity(severity) {
-		if(typeof severity !== "number") {
-			return this.Info;
+		if(typeof severity !== "string") {
+			return 'I';
 		}
 		switch(severity) {
-			case this.Error:
-			case this.Warning:
-			case this.Info:
-			case this.Success:
+			case 'E':
+			case 'W':
+			case 'I':
+			case 'S':
 				return severity;
 				break;
 			default:
-				return this.Info;
+				return 'I';
 				break;
 		}
 	}
 }
-
-Object.defineProperty(Log, 'Error', {
-	value: 3,
-	writable : false,
-	enumerable : true,
-	configurable : false
-});
-Object.defineProperty(Log, 'Warning', {
-	value: 2,
-	writable : false,
-	enumerable : true,
-	configurable : false
-});
-Object.defineProperty(Log, 'Info', {
-	value: 1,
-	writable : false,
-	enumerable : true,
-	configurable : false
-});
-Object.defineProperty(Log, 'Success', {
-	value: 0,
-	writable : false,
-	enumerable : true,
-	configurable : false
-});
 
 /**
  * Every log message
@@ -97,8 +68,8 @@ class Logs extends FrameworkObject {
 	/**
 	 * Add a new message
 	 *
-	 * @param message
-	 * @param severity
+	 * @param {string} message
+	 * @param {string} severity: S, I, W, E.
 	 */
 	add(message, severity) {
 		let newLog = new Log(message, severity);
@@ -108,6 +79,10 @@ class Logs extends FrameworkObject {
 		}
 		this._logs.push(newLog);
 		this.trigger('push');
+	}
+
+	getAll() {
+		return this._logs;
 	}
 
 	/**

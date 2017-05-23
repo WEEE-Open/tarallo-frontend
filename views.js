@@ -150,6 +150,10 @@ class rootView extends FrameworkView {
 	}
 
 	trigger(that, event) {
+		if(this.currentView !== null) {
+			this.currentView.trigger(that, event);
+		}
+
 		if(that === this.session) {
 			switch(event) {
 				case 'restore-valid':
@@ -159,13 +163,13 @@ class rootView extends FrameworkView {
 					break;
 				case 'restore-invalid':
 					if(this.state !== 'login') {
-						this.logs.add("Not logged in", Log.Warning);
+						this.logs.add("Not logged in", 'W');
 					}
 					this.changeState('login');
 					break;
 				case 'restore-error':
 					// TODO: better message
-					this.logs.add('Error restoring previous session: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, Log.Error);
+					this.logs.add('Error restoring previous session: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, 'E');
 					this.changeState('login');
 					break;
 				case 'login-success':
@@ -182,8 +186,6 @@ class rootView extends FrameworkView {
 					break;
 			}
 		}
-
-		this.currentView.trigger(that, event);
 	}
 }
 
@@ -214,14 +216,14 @@ class LoginView extends FrameworkView {
 		if(that === this.session) {
 			switch(event) {
 				case 'login-success':
-					this.logs.add('Login successful. Welcome, ' + this.session.username, Log.Success);
+					this.logs.add('Login successful. Welcome, ' + this.session.username, 'S');
 					return;
 				case 'login-error':
 				case 'validation-error':
 					if(typeof this.session.lastErrorDetails === 'string') {
-						this.logs.add("Login failed: " + this.session.lastErrorDetails, Log.Error);
+						this.logs.add("Login failed: " + this.session.lastErrorDetails, 'E');
 					} else {
-						this.logs.add("Login failed: " + this.session.lastError, Log.Error);
+						this.logs.add("Login failed: " + this.session.lastError, 'E');
 					}
 					return;
 			}
@@ -270,9 +272,9 @@ class LogoutView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.session) {
 			if(event === 'logout-success') {
-				this.logs.add('Logout successful, bye', Log.Success);
+				this.logs.add('Logout successful, bye', 'S');
 			} else if(event === 'logout-error') {
-				this.logs.add('Can\'t log out: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, Log.Error);
+				this.logs.add('Can\'t log out: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, 'E');
 			}
 			this.whoami();
 		}
@@ -292,35 +294,46 @@ class LogsView extends FrameworkView {
 		// (locale could be a FrameworkObject, so changes would be propagated via events)
 		//noinspection JSUnresolvedFunction,JSUnresolvedVariable
 		this.dateFormatter = new Intl.DateTimeFormat('it-IT', {hour: 'numeric', minute: 'numeric', second: 'numeric'});
+		this.addAll();
 	}
 
-	pushed() {
-		let newLog = this.logs.getLast();
+	addAll() {
+		let logsArray = this.logs.getAll();
+		for(let i = 0; i < logsArray.length; i++) {
+			this.append(logsArray[i]);
+		}
+	}
+
+	/**
+	 * Append a Log to the view and return it. Mark it as new if necessary.
+	 *
+	 * @param {Log} log - log message
+	 */
+	append(log) {
 		let line = document.createElement("div");
-		line.classList.add("new");
-		switch(newLog.severity) {
-			case newLog.constructor.Success:
+		switch(log.severity) {
+			case 'S':
 				line.classList.add('success');
 				break;
 			default:
-			case newLog.constructor.Info:
+			case 'I':
 				line.classList.add('info');
 				break;
-			case newLog.constructor.Warning:
+			case 'W':
 				line.classList.add('warning');
 				break;
-			case newLog.constructor.Error:
+			case 'E':
 				line.classList.add('error');
 				break;
 		}
 		let dateContainer = document.createElement("span");
 		dateContainer.classList.add("date");
 		//noinspection JSUnresolvedFunction
-		dateContainer.textContent = this.dateFormatter.format(newLog.timedate);
+		dateContainer.textContent = this.dateFormatter.format(log.timedate);
 
 		let messageContainer = document.createElement('span');
 		messageContainer.classList.add("message");
-		messageContainer.textContent = newLog.message;
+		messageContainer.textContent = log.message;
 
 		line.appendChild(dateContainer);
 		line.appendChild(messageContainer);
@@ -328,9 +341,17 @@ class LogsView extends FrameworkView {
 		this.el.insertBefore(line, this.el.firstChild);
 		// to bottom: this.el.appendChild(line);
 
-		window.setTimeout(function() {
-			line.classList.remove("new");
-		}, 12000);
+		if(new Date() - log.timedate < 11500) {
+			line.classList.add("new");
+			window.setTimeout(function() {
+				line.classList.remove("new");
+			}, 12000);
+		}
+	}
+
+	pushed() {
+		let newLog = this.logs.getLast();
+		this.append(newLog);
 	}
 
 	shifted() {
@@ -437,7 +458,7 @@ class NavigationView extends FrameworkView {
 
 		this.el.appendChild(template);
 		this.el.querySelector('#main').addEventListener('click', this.handleNavigation.bind(this));
-		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session);
+		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 	}
 
 	/**
@@ -460,5 +481,10 @@ class NavigationView extends FrameworkView {
 		} else if(classes.contains('viewcontentsbutton')) {
 
 		}
+	}
+
+	trigger(that, event) {
+		this.logsView.trigger(that, event);
+		this.logoutView.trigger(that, event);
 	}
 }
