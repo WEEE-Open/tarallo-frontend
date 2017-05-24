@@ -12,7 +12,14 @@ class rootView extends FrameworkView {
 		this.logs = new Logs(this.trigger);
 		this.translations = new Translations(this.trigger, 'it-IT');
 		this.transaction = new Transaction(this.trigger);
+		/**
+		 * @type {null|Item}
+		 */
 		this.currentItem = null;
+		/**
+		 * @type {null|string}
+		 */
+		this.itemCodeRequested = null;
 
 		this.el.appendChild(rootView.createHeader());
 		this.container = rootView.createViewHolder();
@@ -93,6 +100,9 @@ class rootView extends FrameworkView {
 				this._home();
 				this.navigate('#/');
 				break;
+			case 'itemloading':
+				this._itemloading();
+				break;
 			case 'item':
 				switch(this.state) {
 					case 'home':
@@ -102,17 +112,6 @@ class rootView extends FrameworkView {
 						break;
 				}
 				break;
-			//case 'content':
-			//	// when switching between content and item, recover subitem itemViews and use them.
-			//	switch(this.state) {
-			//		case 'item':
-			//		case 'home':
-			//		default:
-			//			this.clearContainer();
-			//			this._content();
-			//			break;
-			//	}
-			//	break;
 			default:
 				throw Error('Unknown state ' + state);
 				return;
@@ -147,6 +146,25 @@ class rootView extends FrameworkView {
 		let anotherContainer = ItemView.newContainer();
 		this.currentView = new ItemView(anotherContainer, this.currentItem, this.language);
 		this.container.appendChild(anotherContainer);
+	}
+
+	_itemloading() {
+		if(typeof this.itemCodeRequested !== 'string') {
+			this.rollbackState();
+			return;
+		}
+
+		// TODO: move to Item near XHR or in the factory method
+		if(!Item.isValidCode(this.itemCodeRequested)) {
+			this.log.add("Invalid item code: " + this.itemCodeRequested, 'E');
+			this.rollbackState();
+			return;
+		}
+
+		// TODO: what happens if multiple requests are started? Bad things. Do something.
+		if(this.currentItem.code !== this.itemCodeRequested) {
+			// recycle view?
+		}
 	}
 
 	trigger(that, event) {
@@ -450,14 +468,19 @@ class LocationView extends FrameworkView {
 }
 
 class NavigationView extends FrameworkView {
-	constructor(el, logs, session, transaction, translations) {
+	constructor(el, logs, session, transaction, translations, rootView) {
 		super(el);
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
 		this.logsView = new LogsView(template.querySelector('.logs'), logs);
+		/**
+		 * @var {rootView} rootView
+		 */
+		this.rootView = rootView;
 
 		this.el.appendChild(template);
-		this.el.querySelector('#main').addEventListener('click', this.handleNavigation.bind(this));
+		this.el.querySelector('#main .viewitembutton').addEventListener('click', this.handleNavigation.bind(this));
+		this.viewItemTextElement = this.el.querySelector('#main .viewitemtext');
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 	}
 
@@ -469,17 +492,11 @@ class NavigationView extends FrameworkView {
 	handleNavigation(event) {
 		// TODO: do something, make links work (= place "#/login" and similiar in href, as a fallback)
 		event.preventDefault();
-		let classes = event.target.classList;
-		if(classes.contains('homebutton')) {
-
-		} else if(classes.contains('addnewbutton')) {
-
-		} else if(classes.contains('searchbutton')) {
-
-		} else if(classes.contains('viewitembutton')) {
-
-		} else if(classes.contains('viewcontentsbutton')) {
-
+		let code = this.viewItemTextElement.value;
+		if(typeof value === 'string' && value !== '') {
+			this.logsView.logs.add("Requested item " + code, 'I');
+			this.rootView.itemCodeRequested = code;
+			this.rootView.changeState('itemloading');
 		}
 	}
 
