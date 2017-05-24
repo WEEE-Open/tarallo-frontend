@@ -4,6 +4,11 @@ class Item extends FrameworkObject {
 		this.featuresCount = 0;
 		this.features = {};
 		this.defaultFeaturesCount = 0;
+		/**
+		 * @type {null|string}
+		 */
+		this.lastErrorCode = null;
+		this.lastErrorMessage = null;
 		this.defaultFeatures = {};
 		this.inside = [];
 		/**
@@ -177,5 +182,23 @@ class Item extends FrameworkObject {
 	 */
 	static isValidCode(code) {
 		return Item.isValidFeatureName(code);
+	}
+
+	getFromServer(e) {
+		if(!Item.isValidCode(this.code)) {
+			throw Error(this.code + " isn't a valid code");
+		}
+
+		XHR.GET('/Location/' + this.code,
+			function(code, message) {
+				// TODO: determine why phpstorm doesn't like "this" even though it's bound
+				this.lastErrorCode = code;
+				this.lastErrorMessage = message;
+				this.trigger('fetch-failed');
+			}.bind(this),
+			function(data) {
+				// TODO: read data, memorize, delete old if unneeded
+				this.trigger('fetch-success');
+			}.bind(this));
 	}
 }
