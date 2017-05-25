@@ -330,6 +330,7 @@ class ItemView extends FrameworkView {
 	 * Do not use for subitems!
 	 *
 	 * @return {HTMLElement} container
+	 * @deprecated
 	 */
 	static newContainer() {
 		let container = document.createElement("div");
@@ -430,3 +431,55 @@ class ItemView extends FrameworkView {
 	}
 
 }
+
+
+class ItemLocationView extends ItemView {
+	/**
+	 * Show items inside a specific location, and also a breadcrumb for navigation.
+	 *
+	 * @param {HTMLElement} element - an HTML element
+	 * @param {Item} item - item to show
+	 * @param {string|string[]} path - array of items representing a path, or single item if there's only one ancestor
+	 * @param {Translations} language - Language for translated strings
+	 */
+	constructor(element, item, path, language) {
+		super(element, item, language, null);
+		// TODO: get path from item?
+		/** @type {ItemView[]} */
+		this.el.appendChild(document.getElementById("template-location").content.cloneNode(true));
+		this.language = language;
+		this.contentsElement = this.el.querySelector('.contents');
+		this.navigationElement = this.el.querySelector('.breadcrumbs');
+
+		if(typeof path === 'string') {
+			path = [path];
+		}
+		this.path = path;
+
+		this.createBreadcrumbs();
+
+		this.contentsElement.addEventListener('click', this.handleNavigation.bind(this));
+	}
+
+	handleNavigation() {
+		// TODO: implement
+		alert("CLICK");
+	}
+
+	createBreadcrumbs() {
+		for(let i = 0; i < this.path.length; i++) {
+			if(i !== 0) {
+				this.navigationElement.appendChild(document.createTextNode(" > "));
+			}
+			let piece = document.createElement("a");
+			piece.href = "#/location/" + this.path[i];
+			piece.textContent = this.path[i];
+			this.navigationElement.appendChild(piece);
+		}
+
+
+	}
+
+
+}
+

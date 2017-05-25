@@ -137,9 +137,7 @@ class rootView extends FrameworkView {
 	}
 
 	_item() {
-		let anotherContainer = ItemView.newContainer();
-		this.currentView = new ItemView(anotherContainer, this.currentItem, this.language);
-		this.container.appendChild(anotherContainer);
+		// TODO: what?
 	}
 
 	trigger(that, event) {
@@ -372,77 +370,6 @@ class LogsView extends FrameworkView {
 	}
 }
 
-// TODO: convert to a derived class of ItemView?
-class LocationView extends FrameworkView {
-	/**
-	 * Show items inside a specific location, and also a breadcrumb for navigation.
-	 *
-	 * @param {HTMLElement} element - an HTML element
-	 * @param {string|string[]} path - array of items representing a path, or single item if there's only one ancestor
-	 * @param {Translations} language - Language for translated strings
-	 */
-	constructor(element, path, language) {
-		super(element);
-		/** @type {ItemView[]} */
-		this.el.appendChild(document.getElementById("template-location").content.cloneNode(true));
-		this.itemViews = [];
-		this.language = language;
-		this.contentsElement = this.el.querySelector('.contents');
-		this.navigationElement = this.el.querySelector('.breadcrumbs');
-
-		if(typeof path === 'string') {
-			path = [path];
-		}
-		this.path = path;
-
-		this.createBreadcrumbs();
-
-		this.contentsElement.addEventListener('click', this.handleNavigation.bind(this));
-	}
-
-	handleNavigation() {
-		// TODO: implement
-		alert("CLICK");
-	}
-
-	/**
-	 * Insert an Item in this view. Will create an ItemView and store it inside.
-	 *
-	 * @param {Item} item - to be added inside.
-	 */
-	addItem(item) {
-		for(let i = 0; i < this.itemViews.length; i++) {
-			if(this.itemViews[i].item === this.item) {
-				throw Error('Item already inserted');
-			}
-		}
-
-		let container = ItemView.newContainer();
-		let view = new ItemView(container, item, this.language, null);
-		this.contentsElement.appendChild(container);
-		this.itemViews.push(view);
-	}
-
-	trigger(that, event) {
-
-	}
-
-	createBreadcrumbs() {
-		for(let i = 0; i < this.path.length; i++) {
-			if(i !== 0) {
-				this.navigationElement.appendChild(document.createTextNode(" > "));
-			}
-			let piece = document.createElement("a");
-			piece.href = "#/location/" + this.path[i];
-			piece.textContent = this.path[i];
-			this.navigationElement.appendChild(piece);
-		}
-
-
-	}
-
-}
-
 class NavigationView extends FrameworkView {
 	/**
 	 * @param {HTMLElement} el
@@ -450,9 +377,8 @@ class NavigationView extends FrameworkView {
 	 * @param {Session} session
 	 * @param {Transaction} transaction
 	 * @param {Translations} translations
-	 * @param {rootView} rootView
 	 */
-	constructor(el, logs, session, transaction, translations, rootView) {
+	constructor(el, logs, session, transaction, translations) {
 		super(el);
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
@@ -517,6 +443,14 @@ class NavigationView extends FrameworkView {
 	}
 
 	trigger(that, event) {
+		if(that === this.itemView.item) {
+			if(event === 'fetch-success') {
+
+			} else if(event === 'fetch-failed') {
+
+			}
+		}
+
 		this.logsView.trigger(that, event);
 		this.logoutView.trigger(that, event);
 	}
