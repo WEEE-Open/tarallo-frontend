@@ -413,7 +413,12 @@ class NavigationView extends FrameworkView {
 				}
 
 				this.inRequest(true);
-				this.itemView.item.getFromServer();
+				try {
+					this.itemView.item.getFromServer();
+				} catch(Err) {
+					this.logsView.logs.add(Err.message, 'E');
+					this.inRequest(false);
+				}
 			}
 		}
 	}
@@ -446,9 +451,11 @@ class NavigationView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.itemView.item) {
 			if(event === 'fetch-success') {
-
+				alert("SUCCESS"); // TODO: update view
+				this.inRequest(false);
 			} else if(event === 'fetch-failed') {
-
+				this.logsView.logs.add('Failed getting item: ' + this.itemView.item.lastErrorCode + ', ' + this.itemView.item.lastErrorMessage, 'E');
+				this.inRequest(false);
 			}
 		}
 
