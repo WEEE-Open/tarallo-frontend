@@ -181,12 +181,15 @@ class Item extends FrameworkObject {
 	 * @return {boolean} valid or not
 	 */
 	static isValidCode(code) {
-		return Item.isValidFeatureName(code);
+		return typeof code === 'string' &&
+			!code.startsWith('-') &&
+			!code.endsWith('-') &&
+			/^[A-Za-z0-9-]+$/.test(code);
 	}
 
-	getFromServer(e) {
+	getFromServer() {
 		if(!Item.isValidCode(this.code)) {
-			throw Error(this.code + " isn't a valid code");
+			throw Error("Invalid item code: '" +this.code + "'");
 		}
 
 		XHR.GET('/Location/' + this.code,

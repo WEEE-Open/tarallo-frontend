@@ -12,14 +12,6 @@ class rootView extends FrameworkView {
 		this.logs = new Logs(this.trigger);
 		this.translations = new Translations(this.trigger, 'it-IT');
 		this.transaction = new Transaction(this.trigger);
-		/**
-		 * @type {null|Item}
-		 */
-		this.currentItem = null;
-		/**
-		 * @type {null|string}
-		 */
-		this.itemCodeRequested = null;
 
 		this.el.appendChild(rootView.createHeader());
 		this.container = rootView.createViewHolder();
@@ -105,9 +97,10 @@ class rootView extends FrameworkView {
 				break;
 			case 'item':
 				switch(this.state) {
-					case 'home':
 					default:
 						this.clearContainer();
+						this._home();
+					case 'home': // yep, fallthrough.
 						this._item();
 						break;
 				}
@@ -119,6 +112,7 @@ class rootView extends FrameworkView {
 
 		this.prevState = this.state;
 		this.state = state;
+		this.currentView.trigger(this, 'changestate');
 	}
 
 	rollbackState() {
@@ -146,25 +140,6 @@ class rootView extends FrameworkView {
 		let anotherContainer = ItemView.newContainer();
 		this.currentView = new ItemView(anotherContainer, this.currentItem, this.language);
 		this.container.appendChild(anotherContainer);
-	}
-
-	_itemloading() {
-		if(typeof this.itemCodeRequested !== 'string') {
-			this.rollbackState();
-			return;
-		}
-
-		// TODO: move to Item near XHR or in the factory method
-		if(!Item.isValidCode(this.itemCodeRequested)) {
-			this.log.add("Invalid item code: " + this.itemCodeRequested, 'E');
-			this.rollbackState();
-			return;
-		}
-
-		// TODO: what happens if multiple requests are started? Bad things. Do something.
-		if(this.currentItem.code !== this.itemCodeRequested) {
-			// recycle view?
-		}
 	}
 
 	trigger(that, event) {
@@ -397,6 +372,7 @@ class LogsView extends FrameworkView {
 	}
 }
 
+// TODO: convert to a derived class of ItemView?
 class LocationView extends FrameworkView {
 	/**
 	 * Show items inside a specific location, and also a breadcrumb for navigation.
@@ -468,36 +444,76 @@ class LocationView extends FrameworkView {
 }
 
 class NavigationView extends FrameworkView {
+	/**
+	 * @param {HTMLElement} el
+	 * @param {Logs} logs
+	 * @param {Session} session
+	 * @param {Transaction} transaction
+	 * @param {Translations} translations
+	 * @param {rootView} rootView
+	 */
 	constructor(el, logs, session, transaction, translations, rootView) {
 		super(el);
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
 		this.logsView = new LogsView(template.querySelector('.logs'), logs);
-		/**
-		 * @var {rootView} rootView
-		 */
-		this.rootView = rootView;
 
 		this.el.appendChild(template);
-		this.el.querySelector('#main .viewitembutton').addEventListener('click', this.handleNavigation.bind(this));
+		this.viewItemButton = this.el.querySelector('#main .viewitembutton').addEventListener('click', this.handleViewItem.bind(this));
 		this.viewItemTextElement = this.el.querySelector('#main .viewitemtext');
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
+		this.itemContainer = this.el.querySelector('.locations');
+		this.itemView = null;
 	}
 
 	/**
-	 * Handles navigation.
+	 * Handles clicking the "view item" button.
 	 *
-	 * @param {Event} event - click on the #main navigation element
+	 * @param {Event} event
 	 */
-	handleNavigation(event) {
-		// TODO: do something, make links work (= place "#/login" and similiar in href, as a fallback)
+	handleViewItem(event) {
 		event.preventDefault();
 		let code = this.viewItemTextElement.value;
-		if(typeof value === 'string' && value !== '') {
-			this.logsView.logs.add("Requested item " + code, 'I');
-			this.rootView.itemCodeRequested = code;
-			this.rootView.changeState('itemloading');
+		if(typeof code === 'string') {
+			code = code.trim();
+			if(code !== '') {
+				if(this.itemView === null || this.itemView.item.code !== this.code) {
+					this.logsView.logs.add("Requested item " + code, 'I');
+					this.deleteItemViews();
+					this.createItemView();
+					this.itemView.item.code = code;
+				} else {
+					this.logsView.logs.add("Refreshing item " + code, 'I');
+				}
+
+				this.inRequest(true);
+				this.itemView.item.getFromServer();
+			}
 		}
+	}
+
+	/**
+	 * Basically disable the "view item" button while an item is loading.
+	 *
+	 * @param {boolean} state - true if there's a request going on, false otherwise
+	 */
+	inRequest(state) {
+		this.viewItemButton.disabled = state;
+	}
+
+	deleteItemViews() {
+		// TODO: use locationView
+		this.itemView = null;
+		while(this.itemContainer.lastElementChild) {
+			this.itemContainer.removeChild(this.itemContainer.lastElementChild);
+		}
+	}
+
+	createItemView() {
+		// TODO: use locationView
+		let container = ItemView.newContainer();
+		this.itemContainer.appendChild(container);
+		this.itemView = new ItemView(container, new Item(this.trigger), this.language);
 	}
 
 	trigger(that, event) {
