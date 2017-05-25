@@ -2,7 +2,7 @@ class ItemView extends FrameworkView {
 	/**
 	 * View and edit an item.
 	 *
-	 * @param {HTMLElement} element - Container element
+	 * @param {HTMLElement} element - An element where the item div will be placed
 	 * @param {Item} item - Item to view
 	 * @param {Translations} language - Language for translated strings
 	 * @param {ItemView|null=null} parentItemView - parent view for subitems, null if it's a root element
@@ -17,7 +17,7 @@ class ItemView extends FrameworkView {
 		this.parentItemView = parentItemView ? parentItemView : null;
 		this.frozen = false;
 		this.subViews = [];
-		this.el.appendChild(document.getElementById("template-item").content.cloneNode(true));
+		this.el.appendChild(ItemView._newElement());
 
 		// querySelector uses depth-first search, so as long as these are before .inside there should be no problem.
 		// also, no subitems should exist at this stage...
@@ -105,8 +105,7 @@ class ItemView extends FrameworkView {
 	 * @param {Item} item - an item
 	 */
 	addInside(item) {
-		let container = ItemView.newContainer();
-		this.item.addInside(item);
+		let container = document.createElement("div");
 
 		let view = new ItemView(container, item, this.language, this);
 		this.subViews.push(view);
@@ -311,6 +310,7 @@ class ItemView extends FrameworkView {
 
 	showInsideItems() {
 		let subitem;
+		// TODO: reuse same items if possible
 		this.removeInsideItems();
 		for(let i = 0; i < this.item.inside.length; i++) {
 			subitem = this.item.inside[i];
@@ -325,16 +325,14 @@ class ItemView extends FrameworkView {
 	}
 
 	/**
-	 * Create a top-level container element and return it.
-	 *
-	 * Do not use for subitems!
+	 * Create a container element, for a single item, and return it.
 	 *
 	 * @return {HTMLElement} container
-	 * @deprecated
 	 */
-	static newContainer() {
+	static _newElement() {
 		let container = document.createElement("div");
 		container.classList.add("item");
+		container.appendChild(document.getElementById("template-item").content.cloneNode(true));
 		return container;
 	}
 
@@ -429,39 +427,35 @@ class ItemView extends FrameworkView {
 			}
 		}
 	}
-
 }
 
 
 class ItemLocationView extends ItemView {
 	/**
-	 * Show items inside a specific location, and also a breadcrumb for navigation.
+	 * Show an item, and its location as breadcrumbs.
 	 *
 	 * @param {HTMLElement} element - an HTML element
 	 * @param {Item} item - item to show
-	 * @param {string|string[]} path - array of items representing a path, or single item if there's only one ancestor
 	 * @param {Translations} language - Language for translated strings
 	 */
-	constructor(element, item, path, language) {
+	constructor(element, item, language) {
 		super(element, item, language, null);
-		// TODO: get path from item?
-		/** @type {ItemView[]} */
-		this.el.appendChild(document.getElementById("template-location").content.cloneNode(true));
-		this.language = language;
-		this.contentsElement = this.el.querySelector('.contents');
-		this.navigationElement = this.el.querySelector('.breadcrumbs');
+		// TODO: get path from item
+		let locationContainer = document.createElement("div");
+		let locationContent = document.getElementById("template-location").content.cloneNode(true);
+		locationContainer.appendChild(locationContent);
 
-		if(typeof path === 'string') {
-			path = [path];
-		}
-		this.path = path;
+		this.contentsElement = locationContainer.querySelector('.contents');
+		this.navigationElement = locationContainer.querySelector('.breadcrumbs');
 
 		this.createBreadcrumbs();
 
-		this.contentsElement.addEventListener('click', this.handleNavigation.bind(this));
+		this.contentsElement.addEventListener('click', this.handleBreadcrumbs.bind(this));
+
+		element.insertBefore(locationContainer, this.el.firstChild);
 	}
 
-	handleNavigation() {
+	handleBreadcrumbs() {
 		// TODO: implement
 		alert("CLICK");
 	}
@@ -476,10 +470,6 @@ class ItemLocationView extends ItemView {
 			piece.textContent = this.path[i];
 			this.navigationElement.appendChild(piece);
 		}
-
-
 	}
-
-
 }
 

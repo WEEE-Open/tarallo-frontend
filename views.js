@@ -437,7 +437,8 @@ class NavigationView extends FrameworkView {
 
 	createItemView() {
 		// TODO: use locationView
-		let container = ItemView.newContainer();
+		let container = document.createElement("div");
+		container.classList.add("itemholder");
 		this.itemContainer.appendChild(container);
 		this.itemView = new ItemView(container, new Item(this.trigger), this.language);
 	}

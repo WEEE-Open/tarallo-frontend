@@ -9,7 +9,6 @@ const Controller = (function () {
 			"": "home",
 			"login": "login",
 			"logout": "logout",
-			"test": "test",
 			"add": "add",
 			"search": "search",
 			//"search/:page": "search",
@@ -19,29 +18,6 @@ const Controller = (function () {
 
 		home: function() {
 			root.changeState('home');
-		},
-
-		test: function() {
-			let item = new Item(trigger);
-			item.setDefaultFeature("frequency-hz", 12);
-			item.setDefaultFeature("brand", "Intelllll");
-			item.setDefaultFeature("name", "Atom-ic crap N123");
-			item.setFeature("works", "yes");
-			item.setCode("CPU-666");
-			let itemContainer = ItemView.newContainer();
-			let theview = new ItemView(container, item, translations);
-			root = theview;
-
-			let button = document.createElement("button");
-			container.appendChild(itemContainer).appendChild(button);
-			button.textContent = "(s)congela";
-			button.onclick = function() {
-				if(theview.frozen) {
-					theview.unfreeze();
-				} else {
-					theview.freeze();
-				}
-			};
 		},
 
 		login: function() {
