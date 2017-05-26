@@ -382,14 +382,15 @@ class NavigationView extends FrameworkView {
 		super(el);
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
-		this.logsView = new LogsView(template.querySelector('.logs'), logs);
-
 		this.el.appendChild(template);
-		this.viewItemButton = this.el.querySelector('#main .viewitembutton').addEventListener('click', this.handleViewItem.bind(this));
-		this.viewItemTextElement = this.el.querySelector('#main .viewitemtext');
-		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
+		this.viewItemButton = this.el.querySelector('.viewitembutton');
+		this.viewItemButton.addEventListener('click', this.handleViewItem.bind(this));
+		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.itemContainer = this.el.querySelector('.locations');
 		this.itemView = null;
+
+		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
+		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
 	}
 
 	/**
@@ -419,6 +420,8 @@ class NavigationView extends FrameworkView {
 					this.logsView.logs.add(Err.message, 'E');
 					this.inRequest(false);
 				}
+			} else {
+				this.logsView.logs.add('To view an item type its code', 'I');
 			}
 		}
 	}
@@ -449,7 +452,7 @@ class NavigationView extends FrameworkView {
 	}
 
 	trigger(that, event) {
-		if(that === this.itemView.item) {
+		if(this.itemView !== null && that === this.itemView.item) {
 			if(event === 'fetch-success') {
 				alert("SUCCESS"); // TODO: update view
 				this.inRequest(false);

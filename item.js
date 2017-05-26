@@ -192,9 +192,8 @@ class Item extends FrameworkObject {
 			throw Error("Invalid item code: '" +this.code + "'");
 		}
 
-		XHR.GET('/Location/' + this.code,
+		let req = XHR.GET('/Location/' + this.code,
 			function(code, message) {
-				// TODO: determine why phpstorm doesn't like "this" even though it's bound
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
 				this.trigger('fetch-failed');
@@ -203,5 +202,6 @@ class Item extends FrameworkObject {
 				// TODO: read data, memorize, delete old if unneeded
 				this.trigger('fetch-success');
 			}.bind(this));
+		req.send();
 	}
 }
