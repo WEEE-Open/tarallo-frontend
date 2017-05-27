@@ -155,6 +155,9 @@ class Item extends FrameworkObject {
 		if(this.exists) {
 			throw new Error('Too late, code cannot be changed');
 		}
+		if(typeof code === 'number') {
+			code = code.toString();
+		}
 		if(Item.isValidCode(code)) {
 			this.code = code;
 			return this;
@@ -177,7 +180,7 @@ class Item extends FrameworkObject {
 	/**
 	 * Is this a valid code?
 	 *
-	 * @param code code
+	 * @param {string} code code
 	 * @return {boolean} valid or not
 	 */
 	static isValidCode(code) {
@@ -241,6 +244,7 @@ class Item extends FrameworkObject {
 			return false;
 		}
 
+		// TODO: may/should be an array, actually
 		if(typeof data.items !== "object") {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Expected an "items" object from server, got ' + (typeof data.items);
@@ -283,8 +287,31 @@ class Item extends FrameworkObject {
 			return false;
 		}
 
+		if(Array.isArray(item.content)) {
+			let insideCodes = [];
+			for(let i = 0; i < item.content; i++) {
+				if(typeof item.content[i].code === 'number') {
+					item.content[i].code = code.toString();
+				}
+				if(typeof item.content[i].code === 'string') {
+					insideCodes.push(item.content[i].code);
+					// TODO: for each item inside
+					// -> if code matches, call _parseItem on that
+					// -> if no match, add new and call _parseItem
+					// for each item inside
+					// -> if code in insideCodes, do nothing
+					// -> else remove (consider that there may be no code!)
+					// It's O(n²). It's ugly. Not every inside item has a code, there's no other way.
+					// if anything fails, return false.
+				} else {
+					this.lastErrorCode = 'malformed-response';
+					this.lastErrorMessage = 'Invalid item code: expected string or int, got ' + (typeof item.code);
+					return false;
+				}
+			}
+		}
 
-
+		return true;
 	}
 
 	/**
