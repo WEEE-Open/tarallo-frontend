@@ -208,7 +208,6 @@ class Item extends FrameworkObject {
 				if(this.parseData(data)) {
 					this.trigger('fetch-success');
 				} else {
-					// TODO: different event if no items found? Or use failed?
 					this.trigger('fetch-failed');
 				}
 			}.bind(this));
@@ -242,15 +241,83 @@ class Item extends FrameworkObject {
 			return false;
 		}
 
-		if(typeof data.item !== "object") {
+		if(typeof data.items !== "object") {
 			this.lastErrorCode = 'malformed-response';
-			this.lastErrorMessage = 'Expected an "item" object from server, got ' + (typeof data);
+			this.lastErrorMessage = 'Expected an "items" object from server, got ' + (typeof data.items);
 			return false;
 		}
 
-		// TODO: read data, memorize, delete old if unneeded
-		if(Item._isEmpty(data.item)) {
+		if(Item._isEmpty(data.items)) {
+			this.lastErrorCode = 'not-found';
+			this.lastErrorMessage = 'Item not found';
+			return false;
+		}
 
+		if(data.items.length > 1) {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Duplicate items returned for the same code (expected 1, got ' + data.items.length + ')';
+			return false;
+		}
+
+		return this._parseItem(data.items[0]);
+	}
+
+	/**
+	 * @param {object} item
+	 * @return boolean
+	 */
+	_parseItem(item) {
+		this.setExisting();
+
+		if(typeof item.code === 'string' || typeof item.code === 'number') {
+			this.setCode(item.code);
+		} else {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Invalid item code: expected string or int, got ' + (typeof item.code);
+			return false;
+		}
+
+		//noinspection JSUnresolvedVariable
+		if(!(this._parseItemFeatures(item.features, this.features, this.setFeature) &&
+			this._parseItemFeatures(item.features_default, this.defaultFeatures, this.setDefaultFeature))) {
+			return false;
+		}
+
+
+
+	}
+
+	/**
+	 * Update features and default features. All in a single function! Which should be called twice with different parameters!
+	 *
+	 * @param {undefined|Array|object} newFeatures - item.features or item.features_default
+	 * @param {Array} oldFeatures - this.features or this.defaultFeatures
+	 * @param {Function} setFeature - this.setFeature or this.setDefaultFeature
+	 * @return boolean
+	 */
+	_parseItemFeatures(newFeatures, oldFeatures, setFeature) {
+		if(typeof newFeatures === 'undefined' || (Array.isArray(newFeatures) && Item._isEmpty(newFeatures))) {
+			return true;
+		}
+
+		if(typeof newFeatures === 'object') {
+			for(let old in oldFeatures) {
+				if(oldFeatures.hasOwnProperty(old)) {
+					if(!newFeatures.hasOwnProperty(old)) {
+						setFeature(old, null);
+					}
+				}
+			}
+			for(let feature in newFeatures) {
+				if(newFeatures.hasOwnProperty(feature)) {
+					setFeature(feature, newFeatures[feature]);
+				}
+			}
+			return true;
+		} else {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected "features" to be an object, got ' + (typeof newFeatures);
+			return false;
 		}
 	}
 }
