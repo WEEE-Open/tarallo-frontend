@@ -7,6 +7,7 @@ class FrameworkView {
 	 */
 	constructor(element) {
 		this.el = element;
+		this.trigger = this.trigger.bind(this);
 	}
 
 	/**
