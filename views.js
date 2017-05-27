@@ -384,10 +384,17 @@ class NavigationView extends FrameworkView {
 
 		this.el.appendChild(template);
 		this.viewItemButton = this.el.querySelector('.viewitembutton');
-		this.viewItemButton.addEventListener('click', this.handleViewItem.bind(this));
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
-		this.itemContainer = this.el.querySelector('.locations');
+
+		this.itemContainer = this.el.querySelector('.itemholder');
+		/** @var {Item|null} */
 		this.itemView = null;
+		/** @var {Item|null} */
+		this.currentItem = null;
+		/** @var {Item|null} */
+		this.requestedItem = null;
+
+		this.viewItemButton.addEventListener('click', this.handleViewItem.bind(this));
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
@@ -404,26 +411,48 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				if(this.itemView === null || this.itemView.item.code !== this.code) {
+				if(this.requestItem(code)) {
 					this.logsView.logs.add("Requested item " + code, 'I');
-					this.deleteItemViews();
-					this.createItemView();
-					this.itemView.item.code = code;
-				} else {
-					this.logsView.logs.add("Refreshing item " + code, 'I');
-				}
-
-				this.inRequest(true);
-				try {
-					this.itemView.item.getFromServer();
-				} catch(Err) {
-					this.logsView.logs.add(Err.message, 'E');
-					this.inRequest(false);
+					this.inRequest(true);
 				}
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
 		}
+	}
+
+	setView() {
+		if(this.itemView !== null || this.itemView.item === this.requestedItem) {
+			this.deleteItemViews();
+			this.createItemView();
+			this.itemView.item.code = code;
+		} else {
+			this.logsView.logs.add("Refreshing item " + code, 'I');
+		}
+
+		this.inRequest(true);
+		try {
+			this.itemView.item.getFromServer();
+		} catch(Err) {
+			this.logsView.logs.add(Err.message, 'E');
+			this.inRequest(false);
+		}
+	}
+
+	requestItem(code) {
+		try {
+			if(this.itemView !== null && this.itemView.item.code === this.code) {
+				this.requestedItem = this.itemView.item;
+			} else {
+				this.requestedItem = new Item(this.trigger).setCode(code);
+			}
+		} catch(err) {
+			this.logsView.logs.add('Error getting item: ' + err, 'E');
+			this.requestedItem = null;
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -433,6 +462,13 @@ class NavigationView extends FrameworkView {
 	 */
 	inRequest(state) {
 		this.viewItemButton.disabled = state;
+		if(this.itemView !== null) {
+			if(state) {
+				this.itemView.el.classList.add("hidden");
+			} else {
+				this.itemView.el.classList.remove("hidden");
+			}
+		}
 	}
 
 	deleteItemViews() {
@@ -454,8 +490,8 @@ class NavigationView extends FrameworkView {
 	trigger(that, event) {
 		if(this.itemView !== null && that === this.itemView.item) {
 			if(event === 'fetch-success') {
-				alert("SUCCESS"); // TODO: update view
 				this.inRequest(false);
+
 			} else if(event === 'fetch-failed') {
 				this.logsView.logs.add('Failed getting item: ' + this.itemView.item.lastErrorCode + ', ' + this.itemView.item.lastErrorMessage, 'E');
 				this.inRequest(false);

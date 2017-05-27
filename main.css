@@ -90,6 +90,6 @@ template {
     float: right;
 }
 
-.wip {
+.hidden, .wip {
     display: none;
 }

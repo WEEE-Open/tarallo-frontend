@@ -149,7 +149,7 @@ class Item extends FrameworkObject {
 	 * Set item code.
 	 *
 	 * @param {string} code
-	 * @return {boolean}
+	 * @return {Item} this
 	 */
 	setCode(code) {
 		if(this.exists) {
@@ -157,9 +157,9 @@ class Item extends FrameworkObject {
 		}
 		if(Item.isValidCode(code)) {
 			this.code = code;
-			return true;
+			return this;
 		} else {
-			return false;
+			throw new Error('Invalid code: ' + code);
 		}
 	}
 
