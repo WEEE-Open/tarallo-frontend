@@ -412,7 +412,6 @@ class NavigationView extends FrameworkView {
 			code = code.trim();
 			if(code !== '') {
 				if(this.requestItem(code)) {
-					this.logsView.logs.add("Requested item " + code, 'I');
 					this.inRequest(true);
 				}
 			} else {
@@ -421,29 +420,13 @@ class NavigationView extends FrameworkView {
 		}
 	}
 
-	setView() {
-		if(this.itemView !== null || this.itemView.item === this.requestedItem) {
-			this.deleteItemViews();
-			this.createItemView();
-			this.itemView.item.code = code;
-		} else {
-			this.logsView.logs.add("Refreshing item " + code, 'I');
-		}
-
-		this.inRequest(true);
-		try {
-			this.itemView.item.getFromServer();
-		} catch(Err) {
-			this.logsView.logs.add(Err.message, 'E');
-			this.inRequest(false);
-		}
-	}
-
 	requestItem(code) {
 		try {
 			if(this.itemView !== null && this.itemView.item.code === this.code) {
+				this.logsView.logs.add("Refreshing item " + code, 'I');
 				this.requestedItem = this.itemView.item;
 			} else {
+				this.logsView.logs.add("Requested item " + code, 'I');
 				this.requestedItem = new Item(this.trigger).setCode(code);
 			}
 		} catch(err) {
@@ -453,6 +436,23 @@ class NavigationView extends FrameworkView {
 		}
 
 		return true;
+	}
+
+	requestedFailed() {
+		this.logsView.logs.add("Failed getting item: " + this.requestedItem.lastErrorCode + ", " + this.requestedItem.lastErrorMessage, 'E');
+		this.requestedItem = null;
+		this.inRequest(false);
+	}
+
+	requestedReady() {
+		this.currentItem = this.requestedItem;
+		this.requestedItem = null;
+
+		if(this.itemView === null || this.itemView.item !== this.item) {
+			this.deleteItemViews();
+			this.createItemView();
+		}
+		this.inRequest(false);
 	}
 
 	/**
@@ -481,14 +481,11 @@ class NavigationView extends FrameworkView {
 
 	createItemView() {
 		// TODO: use locationView
-		let container = document.createElement("div");
-		container.classList.add("itemholder");
-		this.itemContainer.appendChild(container);
-		this.itemView = new ItemView(container, new Item(this.trigger), this.language);
+		this.itemView = new ItemView(this.itemContainer, this.currentItem, this.language);
 	}
 
 	trigger(that, event) {
-		if(this.itemView !== null && that === this.itemView.item) {
+		if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
 				this.inRequest(false);
 
@@ -496,6 +493,10 @@ class NavigationView extends FrameworkView {
 				this.logsView.logs.add('Failed getting item: ' + this.itemView.item.lastErrorCode + ', ' + this.itemView.item.lastErrorMessage, 'E');
 				this.inRequest(false);
 			}
+		}
+
+		if(this.itemView !== null) {
+			this.itemView.trigger(that, event);
 		}
 
 		this.logsView.trigger(that, event);
