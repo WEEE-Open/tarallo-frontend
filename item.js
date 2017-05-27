@@ -187,9 +187,15 @@ class Item extends FrameworkObject {
 			/^[A-Za-z0-9-]+$/.test(code);
 	}
 
+	/**
+	 * Use code, and only code, to get the item from server.
+	 * The entire item and its content will be replaced or updated before the "fetch-success" event.
+	 *
+	 * @return {Item}
+	 */
 	getFromServer() {
 		if(!Item.isValidCode(this.code)) {
-			throw Error("Invalid item code: '" +this.code + "'");
+			throw Error("Invalid item code: '" + this.code + "'");
 		}
 
 		let req = XHR.GET('/Location/' + this.code,
@@ -203,5 +209,7 @@ class Item extends FrameworkObject {
 				this.trigger('fetch-success');
 			}.bind(this));
 		req.send();
+
+		return this;
 	}
 }

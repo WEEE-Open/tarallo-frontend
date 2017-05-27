@@ -411,9 +411,7 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				if(this.requestItem(code)) {
-					this.inRequest(true);
-				}
+				this.requestItem(code);
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
@@ -421,21 +419,22 @@ class NavigationView extends FrameworkView {
 	}
 
 	requestItem(code) {
-		try {
-			if(this.itemView !== null && this.itemView.item.code === this.code) {
-				this.logsView.logs.add("Refreshing item " + code, 'I');
-				this.requestedItem = this.itemView.item;
-			} else {
-				this.logsView.logs.add("Requested item " + code, 'I');
-				this.requestedItem = new Item(this.trigger).setCode(code);
+		if(this.itemView !== null && this.itemView.item.code === this.code) {
+			this.logsView.logs.add("Refreshing item " + code, 'I');
+			this.requestedItem = this.itemView.item;
+			this.requestedItem.getFromServer();
+		} else {
+			this.logsView.logs.add("Requested item " + code, 'I');
+			try {
+				this.requestedItem = new Item(this.trigger).setCode(code).getFromServer();
+			} catch(err) {
+				this.logsView.logs.add('Error getting item: ' + err, 'E');
+				this.requestedItem = null;
+				return;
 			}
-		} catch(err) {
-			this.logsView.logs.add('Error getting item: ' + err, 'E');
-			this.requestedItem = null;
-			return false;
 		}
 
-		return true;
+		this.inRequest(true);
 	}
 
 	requestedFailed() {
@@ -487,11 +486,9 @@ class NavigationView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
-				this.inRequest(false);
-
+				this.requestedReady()
 			} else if(event === 'fetch-failed') {
-				this.logsView.logs.add('Failed getting item: ' + this.itemView.item.lastErrorCode + ', ' + this.itemView.item.lastErrorMessage, 'E');
-				this.inRequest(false);
+				this.requestedFailed()
 			}
 		}
 
