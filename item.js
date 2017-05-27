@@ -205,11 +205,52 @@ class Item extends FrameworkObject {
 				this.trigger('fetch-failed');
 			}.bind(this),
 			function(data) {
-				// TODO: read data, memorize, delete old if unneeded
-				this.trigger('fetch-success');
+				if(this.parseData(data)) {
+					this.trigger('fetch-success');
+				} else {
+					// TODO: different event if no items found? Or use failed?
+					this.trigger('fetch-failed');
+				}
 			}.bind(this));
 		req.send();
 
 		return this;
+	}
+
+	static _isEmpty(something) {
+		switch(typeof something) {
+			case 'object':
+				// these objects are usually quite small, Object.keys shouldn't destroy performance
+				return Object.keys(something).length === 0;
+				break;
+			case 'array':
+				return something.length === 0;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Parse response data, update current object.
+	 *
+	 * @param {object} data - an object, or anything else if the server messes up
+	 */
+	parseData(data) {
+		if(typeof data !== 'object') {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected object from server, got ' + (typeof data);
+			return false;
+		}
+
+		if(typeof data.item !== "object") {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected an "item" object from server, got ' + (typeof data);
+			return false;
+		}
+
+		// TODO: read data, memorize, delete old if unneeded
+		if(Item._isEmpty(data.item)) {
+
+		}
 	}
 }
