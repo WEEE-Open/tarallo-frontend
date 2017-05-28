@@ -380,6 +380,8 @@ class NavigationView extends FrameworkView {
 	 */
 	constructor(el, logs, session, transaction, translations) {
 		super(el);
+		this.language = translations;
+
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
 		this.el.appendChild(template);
@@ -450,6 +452,7 @@ class NavigationView extends FrameworkView {
 		if(this.itemView === null || this.itemView.item !== this.item) {
 			this.deleteItemViews();
 			this.createItemView();
+			this.itemView.freeze();
 		}
 		this.inRequest(false);
 	}

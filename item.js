@@ -152,14 +152,15 @@ class Item extends FrameworkObject {
 	 * @return {Item} this
 	 */
 	setCode(code) {
-		if(this.exists) {
-			throw new Error('Too late, code cannot be changed');
+		if(typeof code === 'number') {
+			code = code.toString();
 		}
 		if(typeof code === 'number') {
 			code = code.toString();
 		}
 		if(Item.isValidCode(code)) {
 			this.code = code;
+			this.trigger('code-changed');
 			return this;
 		} else {
 			throw new Error('Invalid code: ' + code);
@@ -282,8 +283,8 @@ class Item extends FrameworkObject {
 		}
 
 		//noinspection JSUnresolvedVariable
-		if(!(this._parseItemFeatures(item.features, this.features, this.setFeature) &&
-			this._parseItemFeatures(item.features_default, this.defaultFeatures, this.setDefaultFeature))) {
+		if(!(this._parseItemFeatures(item.features, this.features, this.setFeature.bind(this), 'features-changed') &&
+			this._parseItemFeatures(item.features_default, this.defaultFeatures, this.setDefaultFeature.bind(this), 'default-features-changed'))) {
 			return false;
 		}
 
@@ -320,26 +321,33 @@ class Item extends FrameworkObject {
 	 * @param {undefined|Array|object} newFeatures - item.features or item.features_default
 	 * @param {Array} oldFeatures - this.features or this.defaultFeatures
 	 * @param {Function} setFeature - this.setFeature or this.setDefaultFeature
+	 * @param {string} event - event to fire if anything has changed
 	 * @return boolean
 	 */
-	_parseItemFeatures(newFeatures, oldFeatures, setFeature) {
+	_parseItemFeatures(newFeatures, oldFeatures, setFeature, event) {
 		if(typeof newFeatures === 'undefined' || (Array.isArray(newFeatures) && Item._isEmpty(newFeatures))) {
 			return true;
 		}
 
 		if(typeof newFeatures === 'object') {
+			let changed = false;
 			for(let old in oldFeatures) {
 				if(oldFeatures.hasOwnProperty(old)) {
 					if(!newFeatures.hasOwnProperty(old)) {
-						setFeature(old, null);
+						changed = changed || setFeature(old, null);
 					}
 				}
 			}
 			for(let feature in newFeatures) {
 				if(newFeatures.hasOwnProperty(feature)) {
-					setFeature(feature, newFeatures[feature]);
+					changed = changed || setFeature(feature, newFeatures[feature]);
 				}
 			}
+
+			if(changed) {
+				this.trigger(event);
+			}
+
 			return true;
 		} else {
 			this.lastErrorCode = 'malformed-response';
