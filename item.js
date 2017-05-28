@@ -365,13 +365,13 @@ class Item extends FrameworkObject {
 			for(let old in oldFeatures) {
 				if(oldFeatures.hasOwnProperty(old)) {
 					if(!newFeatures.hasOwnProperty(old)) {
-						changed = changed || setFeature(old, null);
+						changed = setFeature(old, null) || changed;
 					}
 				}
 			}
 			for(let feature in newFeatures) {
 				if(newFeatures.hasOwnProperty(feature)) {
-					changed = changed || setFeature(feature, newFeatures[feature]);
+					changed = setFeature(feature, newFeatures[feature]) || changed;
 				}
 			}
 
