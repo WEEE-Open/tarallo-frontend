@@ -115,12 +115,21 @@ class Item extends FrameworkObject {
 		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
 		let pos = this.inside.indexOf(other);
 		if(pos > -1) {
-			let old = this.inside.splice(pos, 1);
-			old[0]._setParent(null);
+			this._removeInsideIndex(pos);
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Remove an Item from its index.
+	 *
+	 * @param {int} pos item to be removed
+	 */
+	_removeInsideIndex(pos) {
+		let old = this.inside.splice(pos, 1);
+		old[0]._setParent(null);
 	}
 
 	/**
@@ -290,26 +299,48 @@ class Item extends FrameworkObject {
 
 		if(Array.isArray(item.content)) {
 			let insideCodes = [];
+			let modified = false;
+			// remove items without a code, since they don't exist on the server and cannot be updated
+			for(let i = 0; i < this.inside.length; i++) {
+				if(this.inside[i].code !== null) {
+					this._removeInsideIndex(i);
+					modified = true;
+				}
+			}
+
+			// this avoids checking against newly added items, which is pointless
+			// note that this will fail catastrophically if addInside sorts or reorders items in any way.
+			let previousLength = this.inside.length;
+
 			for(let i = 0; i < item.content; i++) {
 				if(typeof item.content[i].code === 'number') {
 					item.content[i].code = code.toString();
 				}
+
 				if(typeof item.content[i].code === 'string') {
 					insideCodes.push(item.content[i].code);
-					// TODO: for each item inside
-					// -> if code matches, call _parseItem on that
-					// -> if no match, add new and call _parseItem
-					// for each item inside
-					// -> if code in insideCodes, do nothing
-					// -> else remove (consider that there may be no code!)
-					// It's O(n²). It's ugly. Not every inside item has a code, there's no other way.
-					// if anything fails, return false.
+					let previousItem = null;
+					for(let i = 0; i < previousLength; i++) {
+						if(this.inside[i].code === item.content[i].code) {
+							previousItem = this.inside[i];
+							break;
+						}
+					}
+					if(previousItem === null) {
+						previousItem = new Item(this.trigger).setCode(item.content[i].code);
+						this.addInside(previousItem);
+					}
+					modified = previousItem._parseItem(item.content[i]) || modified;
 				} else {
 					this.lastErrorCode = 'malformed-response';
 					this.lastErrorMessage = 'Invalid item code: expected string or int, got ' + (typeof item.code);
 					return false;
 				}
 			}
+
+			// TODO: for each old item
+			// -> if code in insideCodes, do nothing
+			// -> else remove
 		}
 
 		return true;
