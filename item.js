@@ -298,7 +298,7 @@ class Item extends FrameworkObject {
 		}
 
 		if(Array.isArray(item.content)) {
-			let insideCodes = [];
+			let insideCodes = {};
 			let modified = false;
 			// remove items without a code, since they don't exist on the server and cannot be updated
 			for(let i = 0; i < this.inside.length; i++) {
@@ -318,7 +318,7 @@ class Item extends FrameworkObject {
 				}
 
 				if(typeof item.content[i].code === 'string') {
-					insideCodes.push(item.content[i].code);
+					insideCodes[item.content[i].code] = true;
 					let previousItem = null;
 					for(let i = 0; i < previousLength; i++) {
 						if(this.inside[i].code === item.content[i].code) {
@@ -338,9 +338,11 @@ class Item extends FrameworkObject {
 				}
 			}
 
-			// TODO: for each old item
-			// -> if code in insideCodes, do nothing
-			// -> else remove
+			for(let i = 0; i < previousLength; i++) {
+				if(!insideCodes[this.inside[i].code]) {
+					this._removeInsideIndex(i);
+				}
+			}
 		}
 
 		return true;
