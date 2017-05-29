@@ -164,9 +164,6 @@ class Item extends FrameworkObject {
 		if(typeof code === 'number') {
 			code = code.toString();
 		}
-		if(typeof code === 'number') {
-			code = code.toString();
-		}
 		if(Item.isValidCode(code)) {
 			this.code = code;
 			this.trigger('code-changed');
@@ -283,7 +280,10 @@ class Item extends FrameworkObject {
 	_parseItem(item) {
 		this.setExisting();
 
-		if(typeof item.code === 'string' || typeof item.code === 'number') {
+		if(typeof item.code === 'number') {
+			item.code = item.code.toString();
+		}
+		if(typeof item.code === 'string') {
 			this.setCode(item.code);
 		} else {
 			this.lastErrorCode = 'malformed-response';
