@@ -284,7 +284,13 @@ class Item extends FrameworkObject {
 			item.code = item.code.toString();
 		}
 		if(typeof item.code === 'string') {
-			this.setCode(item.code);
+			try {
+				this.setCode(item.code);
+			} catch(e) {
+				this.lastErrorCode = 'malformed-response';
+				this.lastErrorMessage = e.message;
+				return false;
+			}
 		} else {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Invalid item code: expected string or int, got ' + (typeof item.code);
@@ -312,7 +318,7 @@ class Item extends FrameworkObject {
 			// note that this will fail catastrophically if addInside sorts or reorders items in any way.
 			let previousLength = this.inside.length;
 
-			for(let i = 0; i < item.content; i++) {
+			for(let i = 0; i < item.content.length; i++) {
 				if(typeof item.content[i].code === 'number') {
 					item.content[i].code = code.toString();
 				}
@@ -327,7 +333,14 @@ class Item extends FrameworkObject {
 						}
 					}
 					if(previousItem === null) {
-						previousItem = new Item(this.trigger).setCode(item.content[i].code);
+						previousItem = new Item(this.trigger);
+						try {
+							previousItem.setCode(item.content[i].code);
+						} catch(e) {
+							this.lastErrorCode = 'malformed-response';
+							this.lastErrorMessage = e.message;
+							return false;
+						}
 						this.addInside(previousItem);
 					}
 					modified = previousItem._parseItem(item.content[i]) || modified;
