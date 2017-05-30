@@ -30,6 +30,8 @@ class Item extends FrameworkObject {
 		 * @type {string|null}
 		 */
 		this.code = null;
+		/** @type {Array} location */
+		this.location = [];
 	}
 
 	// TODO: use a proxy to build another object with null features when removed, new features when added, etc... for "update" queries
@@ -235,7 +237,7 @@ class Item extends FrameworkObject {
 			case 'array':
 				return something.length === 0;
 			default:
-				return false;
+				return true;
 		}
 	}
 
@@ -271,6 +273,19 @@ class Item extends FrameworkObject {
 		}
 
 		return this._parseItem(data.items[0]);
+	}
+
+	/**
+	 * Set location.
+	 *
+	 * @param {Array} location - complete location from root
+	 */
+	setLocation(location) {
+		if(Array.isArray(location)) {
+			this.location = location;
+		} else {
+			throw new TypeError("Expected location as array, got " + typeof location);
+		}
 	}
 
 	/**
@@ -356,6 +371,24 @@ class Item extends FrameworkObject {
 					this._removeInsideIndex(i);
 				}
 			}
+		}
+
+		if(modified) {
+			// TODO: what?
+		}
+
+		if(typeof item.location === 'object') {
+			this.setLocation([]);
+		} else if(Array.isArray(item.location)) {
+			if(item.location.length === 0) {
+				this.setLocation([]);
+			} else {
+				this.setLocation(item.location);
+			}
+		} else {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected array or nothing for location, ' + typeof item.location + ' given';
+			return false;
 		}
 
 		return true;
