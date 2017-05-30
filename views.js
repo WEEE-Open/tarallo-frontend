@@ -346,8 +346,8 @@ class LogsView extends FrameworkView {
 	}
 
 	shifted() {
-		if(this.el.firstElementChild) {
-			this.el.removeChild(this.el.firstElementChild);
+		if(this.el.lastElementChild) {
+			this.el.removeChild(this.el.lastElementChild);
 		}
 	}
 
