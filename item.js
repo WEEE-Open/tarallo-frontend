@@ -371,10 +371,11 @@ class Item extends FrameworkObject {
 					this._removeInsideIndex(i);
 				}
 			}
-		}
 
-		if(modified) {
-			// TODO: what?
+			if(modified) {
+				// TODO: where are other events triggered? Does this make sense?
+				this.trigger('inside-changed');
+			}
 		}
 
 		if(typeof item.location === 'object') {
