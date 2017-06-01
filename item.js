@@ -289,8 +289,10 @@ class Item extends FrameworkObject {
 	}
 
 	/**
-	 * @param {object} item
-	 * @return boolean
+	 * Build an Item object. Or set some error codes and messages.
+	 *
+	 * @param {object} item - item to be parsed
+	 * @return boolean - true for success, false for failure. Of any kind.
 	 */
 	_parseItem(item) {
 		this.setExisting();
@@ -320,12 +322,10 @@ class Item extends FrameworkObject {
 
 		if(Array.isArray(item.content)) {
 			let insideCodes = {};
-			let modified = false;
 			// remove items without a code, since they don't exist on the server and cannot be updated
 			for(let i = 0; i < this.inside.length; i++) {
 				if(this.inside[i].code !== null) {
 					this._removeInsideIndex(i);
-					modified = true;
 				}
 			}
 
@@ -358,7 +358,7 @@ class Item extends FrameworkObject {
 						}
 						this.addInside(previousItem);
 					}
-					modified = previousItem._parseItem(item.content[i]) || modified;
+					previousItem._parseItem(item.content[i]);
 				} else {
 					this.lastErrorCode = 'malformed-response';
 					this.lastErrorMessage = 'Invalid item code: expected string or int, got ' + (typeof item.code);
@@ -372,10 +372,11 @@ class Item extends FrameworkObject {
 				}
 			}
 
-			if(modified) {
-				// TODO: where are other events triggered? Does this make sense?
-				this.trigger('inside-changed');
-			}
+			// there isn't really a way to detect here if anything has changed inside
+			// (functions return true/false for success/failure), so trigger an event anyway.
+			// this is in post-order: innermost elements trigger first, outermost last, so
+			// the handler can be non-recursive.
+			this.trigger('inside-changed');
 		}
 
 		if(typeof item.location === 'object') {
@@ -386,7 +387,7 @@ class Item extends FrameworkObject {
 			} else {
 				this.setLocation(item.location);
 			}
-		} else {
+		} else if(typeof item.location !== 'undefined') {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Expected array or nothing for location, ' + typeof item.location + ' given';
 			return false;
