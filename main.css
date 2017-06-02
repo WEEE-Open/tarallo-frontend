@@ -43,10 +43,13 @@ template {
 .item {
     border: 0.1em solid black;
     padding: 0.5em;
+}
+
+.inside div, .itemholder div {
     margin: 0.5em 0 0 0;
 }
 
-.item:first-of-type {
+.inside div:first-of-type, .itemholder div:first-of-type {
     margin: 0;
 }
 
