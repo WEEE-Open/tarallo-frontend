@@ -131,12 +131,13 @@ class ItemView extends FrameworkView {
 	 * Set item as non-editable.
 	 *
 	 * @see this.unfreeze
+	 * @todo make a recursive version too
 	 */
 	freeze() {
 		this.freezeCode();
 		this.freezeDelete();
 		this._toggleFreezable(true);
-		this.frozen = true;
+		this.frozen = true; // TODO: use this variable for something useful
 	}
 
 	_toggleFreezable(disabled) {
@@ -168,6 +169,7 @@ class ItemView extends FrameworkView {
 	 * Set item as editable again (except for the code)
 	 *
 	 * @see this.freeze
+	 * @todo make a recursive version too
 	 */
 	unfreeze() {
 		this._toggleFreezable(false);
