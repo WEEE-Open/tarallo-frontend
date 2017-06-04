@@ -139,6 +139,9 @@ class ItemView extends FrameworkView {
 		this.frozen = true; // TODO: use this variable for something useful
 	}
 
+	/**
+	 * @see this.freeze
+	 */
 	freezeRecursive() {
 		for(let i = 0; i < this.subViews.length; i++) {
 			this.subViews[i].freezeRecursive();
@@ -180,6 +183,16 @@ class ItemView extends FrameworkView {
 	unfreeze() {
 		this._toggleFreezable(false);
 		this.frozen = false;
+	}
+
+	/**
+	 * @see this.unfreeze
+	 */
+	unfreezeRecursive() {
+		for(let i = 0; i < this.subViews.length; i++) {
+			this.subViews[i].unfreezeRecursive();
+		}
+		this.unfreeze();
 	}
 
 	/**
