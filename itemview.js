@@ -178,7 +178,6 @@ class ItemView extends FrameworkView {
 	 * Set item as editable again (except for the code)
 	 *
 	 * @see this.freeze
-	 * @todo make a recursive version too
 	 */
 	unfreeze() {
 		this._toggleFreezable(false);

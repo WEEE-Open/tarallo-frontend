@@ -452,7 +452,7 @@ class NavigationView extends FrameworkView {
 		if(this.itemView === null || this.itemView.item !== this.item) {
 			this.deleteItemViews();
 			this.createItemView();
-			this.itemView.freeze();
+			this.itemView.freezeRecursive();
 		}
 		this.inRequest(false);
 	}
