@@ -6,6 +6,7 @@ class rootView extends FrameworkView {
 		this.state = 'root';
 		this.prevState = 'root';
 		this.trigger = this.trigger.bind(this);
+		/** @deprecated */
 		this._router = router;
 
 		this.session = new Session(this.trigger);
@@ -121,6 +122,10 @@ class rootView extends FrameworkView {
 		this.prevState = this.state; // prevents further rollbacks
 	}
 
+	/**
+	 * @deprecated
+	 * @param url
+	 */
 	navigate(url) {
 		this._router.trigger(url, {"trigger": false});
 	}
