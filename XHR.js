@@ -1,6 +1,6 @@
 let XHR = (function() {
 	const TIMEOUT = 30000;
-	const pathPrefix = 'http://127.0.0.1:8081/index.php?path=';
+	const pathPrefix = 'http://tarallo.local:8081/index.php?path=';
 
 	/**
 	 * @param path URL parameter (e.g. /Login)
