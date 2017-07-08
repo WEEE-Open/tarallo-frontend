@@ -93,6 +93,7 @@ class rootView extends FrameworkView {
 				this.navigate('#/');
 				break;
 			case 'itemloading':
+				alert("Should never happen, remove?");
 				this._itemloading();
 				break;
 			case 'item':
