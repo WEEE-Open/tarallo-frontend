@@ -110,9 +110,10 @@ class urlState {
 	 *
 	 * @param {int} start - how many URL pieces to skip
 	 * @return {urlState}
+	 * @todo see if this magically works
 	 */
 	emit(start) {
-
+		return new this(start, this.path, this._router);
 	}
 
 	/**
