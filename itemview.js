@@ -411,8 +411,7 @@ class ItemView extends FrameworkView {
 	 *
 	 * @param {boolean} force repopulate if already populated or not
 	 */
-	static populateFeatureDropdown(force) {
-		force = force || false;
+	static populateFeatureDropdown(force = false) {
 		if(!force && !!this.selectFeatureElement.lastElementChild) {
 			return;
 		}
