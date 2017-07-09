@@ -211,18 +211,18 @@ class Item extends FrameworkObject {
 		}
 
 		let req = XHR.GET('/Location/' + this.code,
-			function(code, message) {
+			(code, message) => {
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
 				this.trigger('fetch-failed');
-			}.bind(this),
-			function(data) {
+			},
+			(data) => {
 				if(this.parseData(data)) {
 					this.trigger('fetch-success');
 				} else {
 					this.trigger('fetch-failed');
 				}
-			}.bind(this));
+			});
 		req.send();
 
 		return this;

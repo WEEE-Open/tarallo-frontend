@@ -5,7 +5,6 @@ class rootView extends FrameworkView {
 
 		this.state = 'root';
 		this.prevState = 'root';
-		this.trigger = this.trigger.bind(this);
 		/** @deprecated */
 		this._router = router;
 

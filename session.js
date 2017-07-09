@@ -31,7 +31,7 @@ class Session extends FrameworkObject {
 
 	send(username, password) {
 		let req = XHR.POST('/Session',
-			function(code, message) {
+			(code, message) => {
 				this.lastError = code;
 				this.lastErrorDetails = message;
 				if(username === null) {
@@ -39,8 +39,8 @@ class Session extends FrameworkObject {
 				} else {
 					this.trigger('login-error');
 				}
-			}.bind(this),
-			function() {
+			},
+			() => {
 				this.username = username;
 				this.password = password;
 				this.lastError = null;
@@ -50,7 +50,7 @@ class Session extends FrameworkObject {
 				} else {
 					this.trigger('login-success');
 				}
-			}.bind(this));
+			});
 		if(username === null) {
 			this.trigger('logout-try');
 		} else {
@@ -76,12 +76,12 @@ class Session extends FrameworkObject {
 
 	restore() {
 		let req = XHR.GET('/Session',
-			function(code, message) {
+			(code, message) => {
 				this.lastError = code;
 				this.lastErrorDetails = message;
 				this.trigger('restore-error');
-			}.bind(this),
-			function(data) {
+			},
+			(data) => {
 				if(data.username === null) {
 					this.trigger('restore-invalid');
 				} else if(typeof data.username === 'string') {
@@ -92,7 +92,7 @@ class Session extends FrameworkObject {
 					this.lastErrorDetails = "Missing 'username' in response";
 					this.trigger('restore-error');
 				}
-			}.bind(this));
+			});
 		req.send();
 	}
 }
