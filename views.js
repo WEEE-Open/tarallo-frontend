@@ -124,7 +124,7 @@ class rootView extends FrameworkView {
 
 	/**
 	 * @deprecated
-	 * @param url
+	 * @param {string} url
 	 */
 	navigate(url) {
 		this._router.trigger(url, {"trigger": false});

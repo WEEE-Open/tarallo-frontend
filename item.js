@@ -68,8 +68,8 @@ class Item extends FrameworkObject {
 	/**
 	 * Same as setFeature, but for default features.
 	 *
-	 * @param name
-	 * @param value
+	 * @param {string} name
+	 * @param {string|int|null} value
 	 * @return {boolean}
 	 * @see this.setFeature
 	 */
@@ -178,7 +178,7 @@ class Item extends FrameworkObject {
 	/**
 	 * Is (default) feature name valid?
 	 *
-	 * @param name feature name
+	 * @param {string} name feature name
 	 * @return {boolean} valid or not
 	 * @private
 	 */
@@ -292,7 +292,7 @@ class Item extends FrameworkObject {
 	 * Build an Item object. Or set some error codes and messages.
 	 *
 	 * @param {object} item - item to be parsed
-	 * @return boolean - true for success, false for failure. Of any kind.
+	 * @return {boolean} - true for success, false for failure. Of any kind.
 	 */
 	_parseItem(item) {
 		this.setExisting();
@@ -403,7 +403,7 @@ class Item extends FrameworkObject {
 	 * @param {Array} oldFeatures - this.features or this.defaultFeatures
 	 * @param {Function} setFeature - this.setFeature or this.setDefaultFeature
 	 * @param {string} event - event to fire if anything has changed
-	 * @return boolean
+	 * @return {boolean}
 	 */
 	_parseItemFeatures(newFeatures, oldFeatures, setFeature, event) {
 		if(typeof newFeatures === 'undefined' || (Array.isArray(newFeatures) && Item._isEmpty(newFeatures))) {

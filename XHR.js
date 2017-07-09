@@ -3,12 +3,12 @@ let XHR = (function() {
 	const pathPrefix = 'http://tarallo.local:8081/index.php?path=';
 
 	/**
-	 * @param path URL parameter (e.g. /Login)
-	 * @return XMLHttpRequest
+	 * @param {string} path - URL parameter (e.g. /Login)
+	 * @return {XMLHttpRequest}
 	 * @see Controller.reqSetHandler
 	 *
-	 * @param {Function} onfail function(code, message)
-	 * @param {Function} onsuccess function(data), data is decoded JSON
+	 * @param {Function} onfail - function(code, message)
+	 * @param {Function} onsuccess - function(data), data is decoded JSON
 	 */
 	function POST(path, onfail, onsuccess) {
 		let req = new XMLHttpRequest();
@@ -22,12 +22,12 @@ let XHR = (function() {
 	}
 
 	/**
-	 * @param path URL parameter (e.g. /Login)
-	 * @return XMLHttpRequest
+	 * @param {string} path URL parameter (e.g. /Login)
+	 * @return {XMLHttpRequest}
 	 * @see Controller.reqSetHandler
 	 *
-	 * @param {Function} onfail function(code, message)
-	 * @param {Function} onsuccess function(data), data is decoded JSON
+	 * @param {Function} onfail - function(code, message)
+	 * @param {Function} onsuccess - function(data), data is decoded JSON
 	 */
 	function GET(path, onfail, onsuccess) {
 		let req = new XMLHttpRequest();
@@ -53,7 +53,7 @@ let XHR = (function() {
 	 * "response-fail" JSend "fail" ("message" contains an hash of error messages or null)
 	 * "http-status": got another code (contained in "message") instead of 200
 	 *
-	 * @param xhr XMLHttpRequest
+	 * @param {XMLHttpRequest|EventTarget} xhr - XMLHttpRequest, which implements EventTarget. Had to be specified to stop PHPStorm from complaining.
 	 * @param {Function} onfail function(code, message)
 	 * @param {Function} onsuccess function(data), data is decoded JSON
 	 */
