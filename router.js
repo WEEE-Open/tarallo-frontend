@@ -46,7 +46,7 @@ class urlState {
 	 *
 	 * @param {int=0} start - starting position, 0 by default
 	 * @param {string[]} [path]
-	 * @param router
+	 * @param {Backbone.Router} router
 	 */
 	contructor(start, path, router) {
 		this._router = router;
@@ -63,7 +63,7 @@ class urlState {
 	}
 
 	/**
-	 * Get specified item from URL components, null if it doesn't exist
+	 * Get specified item from URL pieces, null if it doesn't exist
 	 *
 	 * @param {int} pos
 	 * @return {string|null}
@@ -78,14 +78,16 @@ class urlState {
 	}
 
 	/**
-	 * Get current URL components
+	 * Get current URL pieces
+	 *
+	 * @return {string[]}
 	 */
 	getAll() {
-		this.path.slice(this.start);
+		return this.path.slice(this.start);
 	}
 
 	/**
-	 * Replace URL with specified array
+	 * Replace URL pieces with specified array
 	 *
 	 * @param {string[]} toWhat array of URL components
 	 */
@@ -104,11 +106,22 @@ class urlState {
 	}
 
 	/**
+	 * Return another urlState object, starting from a specific URL piece
+	 *
+	 * @param {int} start - how many URL pieces to skip
+	 * @return {urlState}
+	 */
+	emit(start) {
+
+	}
+
+	/**
 	 * Set current URL in browser
 	 *
 	 * @private
 	 */
 	_setUrl() {
+		//noinspection JSUnresolvedFunction
 		this._router.trigger('#' + this._buildUrl(), {"trigger": false});
 	}
 
