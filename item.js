@@ -207,7 +207,7 @@ class Item extends FrameworkObject {
 	 */
 	getFromServer() {
 		if(!Item.isValidCode(this.code)) {
-			throw Error("Invalid item code: '" + this.code + "'");
+			throw new Error("Invalid item code: '" + this.code + "'");
 		}
 
 		let req = XHR.GET('/Location/' + this.code,

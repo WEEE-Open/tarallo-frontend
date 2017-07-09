@@ -107,7 +107,7 @@ class rootView extends FrameworkView {
 				}
 				break;
 			default:
-				throw Error('Unknown state ' + state);
+				throw new Error('Unknown state ' + state);
 				return;
 		}
 

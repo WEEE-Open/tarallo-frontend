@@ -383,7 +383,7 @@ class ItemView extends FrameworkView {
 		event.stopPropagation();
 
 		if(this.item.exists) {
-			throw Error('Cannot delete items that already exist');
+			throw new Error('Cannot delete items that already exist');
 		}
 
 		/**
