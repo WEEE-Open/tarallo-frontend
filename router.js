@@ -46,9 +46,10 @@ class urlState {
 	 *
 	 * @param {int=0} start - starting position, 0 by default
 	 * @param {string[]} [path]
+	 * @param {string[]} [previousPath]
 	 * @param {Backbone.Router} router
 	 */
-	contructor(start, path, router) {
+	contructor(start, path, previousPath, router) {
 		this._router = router;
 		if(Number.isInteger(start) && start > 0) {
 			this.start = start;
@@ -59,6 +60,11 @@ class urlState {
 			this.path = path;
 		} else {
 			this.path = [];
+		}
+		if(Array.isArray(previousPath)) {
+			this.previousPath = previousPath;
+		} else {
+			this.previousPath = [];
 		}
 	}
 
@@ -92,17 +98,20 @@ class urlState {
 	 * @param {string[]} toWhat array of URL components
 	 */
 	setAll(toWhat) {
+		this._backupPath();
 		if(!Array.isArray(toWhat)) {
 			throw new TypeError('urlState.setAll expected an array, ' + typeof toWhat + ' given');
 		}
 		this.path.splice(this.start);
-		for(let i = 0; i < toWhat.length; i++) {
-			if(typeof toWhat[i]) {
-				throw new TypeError('Cannot insert ' + typeof toWhat[i] + ' into URL, only strings are allowed');
-			}
-			this.path.push(toWhat[i]);
-		}
+		this._appendAll(toWhat);
 		this._setUrl();
+	}
+
+	rollback() {
+		this.path.splice(this.start);
+		this._appendAll(this.previousPath.splice(this.start));
+		// "erase" previous path to prevent further rollbacks or rollforwards (which only bring chaos and destruction)
+		this._backupPath();
 	}
 
 	/**
@@ -114,6 +123,24 @@ class urlState {
 	 */
 	emit(start) {
 		return new this(start, this.path, this._router);
+	}
+
+	_appendAll(what) {
+		for(let i = 0; i < what.length; i++) {
+			if(typeof what[i]) {
+				throw new TypeError('Cannot insert ' + typeof what[i] + ' into URL, only strings are allowed');
+			}
+			this.path.push(what[i]);
+		}
+	}
+
+	_backupPath() {
+		while(this.previousPath.length > 0) {
+			this.previousPath.pop();
+		}
+		for(let i = 0; i < this.path.length; i++) {
+			this.previousPath.push(this.path[i]);
+		}
 	}
 
 	/**
