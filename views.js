@@ -1,6 +1,50 @@
+class browserView extends FrameworkView {
+	constructor() {
+		super(window);
+		this.state = new stateHolder(this.trigger);
+		this.rootView = new rootView(this.state);
+	}
+
+	/**
+	 * Build the URL piece thingamjig from array.
+	 *
+	 * @return {string}
+	 * @private
+	 */
+	_buildUrl() {
+		let path = this.state.getAll();
+		if(path.length === 0) {
+			return '/';
+		}
+		let result = '';
+		for(let i = 0; i < path.length; i++) {
+			result = result + '/' + path[i];
+		}
+		return result;
+	}
+
+	/**
+	 * Set current URL in browser
+	 *
+	 * @private
+	 */
+	static _setUrl(url) {
+		history.pushState(null, '', '#' + url);
+	}
+
+	trigger(that, event) {
+		if(that === this.state) {
+			if(event === 'change') {
+
+			}
+		}
+		this.rootView.trigger(that,event);
+	}
+}
+
 class rootView extends FrameworkView {
 	/**
-	 * @param {urlState} stateHolder
+	 * @param {stateHolder} stateHolder
 	 */
 	constructor(stateHolder) {
 		let body = document.getElementById("body");

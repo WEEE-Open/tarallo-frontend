@@ -1,56 +1,14 @@
-const Controller = (function () {
-	"use strict";
-
-	let routerInstance;
-
-	//noinspection ES6ModulesDependencies
-	let router = Backbone.Router.extend({
-		routes: {
-			"": "home",
-			"login": "login",
-			"logout": "logout",
-			"add": "add",
-			"search": "search",
-			//"search/:page": "search",
-		},
-
-		home: function() {
-			root.changeState('home');
-		},
-
-		login: function() {
-			root.changeState('login');
-		},
-
-		logout: function() {
-			root.changeState('logout');
-		},
-
-		search: function(page) {
-			alert("ricerca" + ", " + page);
-		},
-
-		add: function() {
-			root.changeState('addnew');
-		}
-	});
-
-	routerInstance = new router();
-	let root = new rootView(routerInstance);
-	Backbone.history.start();
-})();
-
-class urlState {
+class stateHolder extends FrameworkObject {
 	/**
 	 * Keep current URL state, keeps URL current, keeps current state URL.
 	 *
 	 * @param {int=0} start - starting position, 0 by default
 	 * @param {string[]} [path]
 	 * @param {string[]} [previousPath]
-	 * @param {Backbone.Router} router
+	 * @param {Function} trigger
 	 */
-	contructor(start, path, previousPath, router) {
-		this._router = router;
+	constructor(trigger, start, path, previousPath) {
+		super(trigger);
 		if(Number.isInteger(start) && start > 0) {
 			this.start = start;
 		} else {
@@ -104,7 +62,7 @@ class urlState {
 		}
 		this.path.splice(this.start);
 		this._appendAll(toWhat);
-		this._setUrl();
+		this.trigger('change');
 	}
 
 	rollback() {
@@ -118,11 +76,11 @@ class urlState {
 	 * Return another urlState object, starting from a specific URL piece
 	 *
 	 * @param {int} start - how many URL pieces to skip
-	 * @return {urlState}
+	 * @return {stateHolder}
 	 * @todo see if this magically works
 	 */
 	emit(start) {
-		return new this(start, this.path, this._router);
+		return new this(this.trigger, start, this.path, this.previousPath);
 	}
 
 	_appendAll(what) {
@@ -141,33 +99,6 @@ class urlState {
 		for(let i = 0; i < this.path.length; i++) {
 			this.previousPath.push(this.path[i]);
 		}
-	}
-
-	/**
-	 * Set current URL in browser
-	 *
-	 * @private
-	 */
-	_setUrl() {
-		//noinspection JSUnresolvedFunction
-		this._router.trigger('#' + this._buildUrl(), {"trigger": false});
-	}
-
-	/**
-	 * Build the URL piece thingamjig from array.
-	 *
-	 * @return {string}
-	 * @private
-	 */
-	_buildUrl() {
-		if(this.path.length === 0) {
-			return '/';
-		}
-		let result = '';
-		for(let i = 0; i < this.path.length; i++) {
-			result = result + '/' + this.path[i];
-		}
-		return result;
 	}
 
 }
