@@ -1,12 +1,18 @@
 class rootView extends FrameworkView {
-	constructor(router) {
+	/**
+	 * @param {urlState} stateHolder
+	 */
+	constructor(stateHolder) {
 		let body = document.getElementById("body");
 		super(body);
 
+		/** @deprecated */
 		this.state = 'root';
+		/** @deprecated */
 		this.prevState = 'root';
 		/** @deprecated */
-		this._router = router;
+		this._router = stateHolder;
+		this.stateHolder = stateHolder;
 
 		this.session = new Session(this.trigger);
 		this.logs = new Logs(this.trigger);
@@ -58,8 +64,10 @@ class rootView extends FrameworkView {
 	 * @param {String} state
 	 */
 	changeState(state) {
+		let now = this.stateHolder.get(0);
+
 		// Going where we're already
-		if(state === this.state) {
+		if(state === now) {
 			// Yay!
 			return;
 		}
@@ -72,12 +80,12 @@ class rootView extends FrameworkView {
 
 		switch(state) {
 			case 'logout':
-				this._logout();
-				this.navigate('#/logout');
+				//this._logout();
+				this.stateHolder.setAll(['logout']);
 				break;
 			case 'login':
-				switch(this.state) {
-					case 'root':
+				switch(now) {
+					case null:
 						this._login();
 						break;
 					default:
@@ -91,10 +99,6 @@ class rootView extends FrameworkView {
 				this.clearContainer();
 				this._home();
 				this.navigate('#/');
-				break;
-			case 'itemloading':
-				alert("Should never happen, remove?");
-				this._itemloading();
 				break;
 			case 'item':
 				switch(this.state) {
@@ -126,12 +130,12 @@ class rootView extends FrameworkView {
 	 * @param {string} url
 	 */
 	navigate(url) {
-		this._router.trigger(url, {"trigger": false});
-	}
-
-	_logout() {
 
 	}
+
+	//_logout() {
+	//
+	//}
 
 	_login() {
 		this.currentView = new LoginView(this.container, this.logs, this.session);
