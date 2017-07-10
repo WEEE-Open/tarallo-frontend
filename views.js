@@ -3,6 +3,14 @@ class browserView extends FrameworkView {
 		super(window);
 		this.state = new stateHolder(this.trigger);
 		this.rootView = new rootView(this.state);
+
+		window.onpopstate = this.urlChanged.bind(this);
+		window.onhashchange = this.urlChanged.bind(this);
+	}
+
+	urlChanged(event) {
+		// TODO: passare a stateHolder
+		alert(window.location.hash);
 	}
 
 	/**
