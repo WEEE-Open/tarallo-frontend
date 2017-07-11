@@ -2,19 +2,35 @@ class browserView extends FrameworkView {
 	constructor() {
 		super(window);
 		this.state = new stateHolder(this.trigger);
-		this.rootView = new rootView(this.state);
+		this.rootView = new rootView(document.getElementById("body"), this.state);
 
-		window.onpopstate = this.urlChanged.bind(this);
+		//window.onpopstate = this.urlChanged.bind(this);
 		window.onhashchange = this.urlChanged.bind(this);
 	}
 
 	urlChanged(event) {
-		// TODO: passare a stateHolder
-		alert(window.location.hash);
+		let pieces = browserView.splitPieces(window.location.hash);
+		this.state.setAll(pieces);
 	}
 
 	/**
-	 * Build the URL piece thingamjig from array.
+	 * Split URL into pieces.
+	 * Trailing slashes and double slashes cause empty string pieces to appear, which is intended behaviour.
+	 *
+	 * @param {string} string
+	 * @return {Array}
+	 */
+	static splitPieces(string) {
+		let pieces = string.substr(1).split('/');
+		// "//////////////Login" is an acceptable URL, whatever.
+		while(pieces[0] === '') {
+			pieces.shift();
+		}
+		return pieces;
+	}
+
+	/**
+	 * Build the URL piece thingamajig from array.
 	 *
 	 * @return {string}
 	 * @private
@@ -52,10 +68,10 @@ class browserView extends FrameworkView {
 
 class rootView extends FrameworkView {
 	/**
-	 * @param {stateHolder} stateHolder
+	 * @param {HTMLElement} body - an HTML element (not body, actually: it's a div)
+	 * @param {stateHolder} stateHolder - throw that state somewhere!
 	 */
-	constructor(stateHolder) {
-		let body = document.getElementById("body");
+	constructor(body, stateHolder) {
 		super(body);
 
 		/** @deprecated */

@@ -85,7 +85,7 @@ class stateHolder extends FrameworkObject {
 
 	_appendAll(what) {
 		for(let i = 0; i < what.length; i++) {
-			if(typeof what[i]) {
+			if(typeof what[i] !== 'string') {
 				throw new TypeError('Cannot insert ' + typeof what[i] + ' into URL, only strings are allowed');
 			}
 			this.path.push(what[i]);
