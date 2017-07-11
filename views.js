@@ -96,6 +96,11 @@ class rootView extends FrameworkView {
 		this.session.restore();
 	}
 
+	/**
+	 * Return site header elements
+	 *
+	 * @return {HTMLElement}
+	 */
 	static createHeader() {
 		let header = document.createElement("header");
 		let h1 = document.createElement("h1");
@@ -108,6 +113,11 @@ class rootView extends FrameworkView {
 		return header;
 	}
 
+	/**
+	 * Create some random divs, because that's what "modern" web is all about.
+	 *
+	 * @return {HTMLElement}
+	 */
 	static createViewHolder() {
 		let div = document.createElement("div");
 		div.id = "view";
@@ -120,6 +130,12 @@ class rootView extends FrameworkView {
 		this.currentView = null;
 	}
 
+	/**
+	 * Remove children elements from a container
+	 *
+	 * @param {HTMLElement} container
+	 * @private
+	 */
 	static _clearContents(container) {
 		while(container.firstChild) {
 			container.removeChild(container.firstChild);
@@ -188,6 +204,9 @@ class rootView extends FrameworkView {
 		this.currentView.trigger(this, 'changestate');
 	}
 
+	/**
+	 * @deprecated use stateHolder.rollback
+	 */
 	rollbackState() {
 		this.changeState(this.prevState);
 		this.prevState = this.state; // prevents further rollbacks
@@ -201,10 +220,6 @@ class rootView extends FrameworkView {
 
 	}
 
-	//_logout() {
-	//
-	//}
-
 	_login() {
 		this.currentView = new LoginView(this.container, this.logs, this.session);
 	}
@@ -213,6 +228,10 @@ class rootView extends FrameworkView {
 		this.currentView = new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations);
 	}
 
+	/**
+	 * @deprecated delegate to subview
+	 * @private
+	 */
 	_item() {
 		// TODO: what?
 	}
