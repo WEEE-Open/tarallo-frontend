@@ -53,16 +53,18 @@ class stateHolder extends FrameworkObject {
 	/**
 	 * Replace URL pieces with specified array
 	 *
-	 * @param {string[]} toWhat array of URL components
+	 * @param {string} toWhat array of URL components
 	 */
-	setAll(toWhat) {
+	setAll(...toWhat) {
 		this._backupPath();
-		if(!Array.isArray(toWhat)) {
+		if(Array.isArray(toWhat)) {
+			this.path.splice(this.start);
+			this._appendAll(toWhat);
+			this.trigger('change');
+		} else {
+			// Should never happen anyway
 			throw new TypeError('urlState.setAll expected an array, ' + typeof toWhat + ' given');
 		}
-		this.path.splice(this.start);
-		this._appendAll(toWhat);
-		this.trigger('change');
 	}
 
 	rollback() {
@@ -83,13 +85,29 @@ class stateHolder extends FrameworkObject {
 		return new this(this.trigger, start, this.path, this.previousPath);
 	}
 
+	/**
+	 * Append strings to state
+	 *
+	 * @param {string[]} what
+	 * @private
+	 */
 	_appendAll(what) {
 		for(let i = 0; i < what.length; i++) {
-			if(typeof what[i] !== 'string') {
-				throw new TypeError('Cannot insert ' + typeof what[i] + ' into URL, only strings are allowed');
-			}
-			this.path.push(what[i]);
+			this._appendOne(what[i]);
 		}
+	}
+
+	/**
+	 * Append exactly one string to state
+	 *
+	 * @param {string} what
+	 * @private
+	 */
+	_appendOne(what) {
+		if(typeof what !== 'string') {
+			throw new TypeError('Cannot insert ' + typeof what + ' into state, only strings are allowed');
+		}
+		this.path.push(what);
 	}
 
 	_backupPath() {
