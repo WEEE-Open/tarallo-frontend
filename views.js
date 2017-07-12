@@ -147,7 +147,7 @@ class rootView extends FrameworkView {
 	 *
 	 * @param {String} state
 	 * @todo use only in response to STUFF happening in the URL
-	 * @deprecated
+	 * @return {boolean} - keep propagating change or not?
 	 */
 	changeState(state) {
 		let now = this.stateHolder.get(0);
@@ -155,19 +155,17 @@ class rootView extends FrameworkView {
 		// Going where we're already
 		if(state === now) {
 			// Yay!
-			return;
+			return true;
 		}
 
 		// Going where guests can't go
 		if(this.session.username === null && state !== 'login') {
 			this.stateHolder.setAll('login');
-			return;
+			return false;
 		}
 
 		switch(state) {
 			case 'logout':
-				//this._logout();
-				this.stateHolder.setAll('logout');
 				break;
 			case 'login':
 				switch(now) {
@@ -186,8 +184,8 @@ class rootView extends FrameworkView {
 				break;
 			default:
 				throw new Error('Unknown state ' + state);
-				return;
 		}
+		return true;
 	}
 
 	/**
@@ -196,14 +194,6 @@ class rootView extends FrameworkView {
 	rollbackState() {
 		this.changeState(this.prevState);
 		this.prevState = this.state; // prevents further rollbacks
-	}
-
-	/**
-	 * @deprecated
-	 * @param {string} url
-	 */
-	navigate(url) {
-
 	}
 
 	_login() {
@@ -215,41 +205,42 @@ class rootView extends FrameworkView {
 	}
 
 	trigger(that, event) {
-		// TODO: everything should be in post-order now
-		if(this.currentView !== null) {
-			this.currentView.trigger(that, event);
-		}
-
 		if(that === this.session) {
+			let propagate = true;
 			switch(event) {
 				case 'restore-valid':
-					if(this.state === 'login' || this.state === 'root') {
-						this.changeState('home');
+					if(this.stateHolder.get(0) === 'login' || this.stateHolder.get(0) === null) {
+						propagate = this.changeState('home');
 					}
 					break;
 				case 'restore-invalid':
-					if(this.state !== 'login') {
+					if(this.stateHolder.get(0) !== 'login') {
 						this.logs.add("Not logged in", 'W');
 					}
-					this.changeState('login');
+					propagate = this.changeState('login');
 					break;
 				case 'restore-error':
 					// TODO: better message
 					this.logs.add('Error restoring previous session: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, 'E');
-					this.changeState('login');
+					propagate = this.changeState('login');
 					break;
 				case 'login-success':
-					this.changeState('home');
+					propagate = this.changeState('home');
 					break;
 				case 'logout-try':
-					this.changeState('logout');
+					propagate = this.changeState('logout');
 					break;
 				case 'logout-success':
-					this.changeState('login');
+					propagate = this.changeState('login');
 					break;
 				case 'logout-error':
 					this.rollbackState();
 					break;
+			}
+
+			// TODO: everything should be in post-order now
+			if(propagate && this.currentView !== null) {
+				this.currentView.trigger(that, event);
 			}
 		}
 	}
