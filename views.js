@@ -146,6 +146,8 @@ class rootView extends FrameworkView {
 	 * Perform state transition
 	 *
 	 * @param {String} state
+	 * @todo use only in response to STUFF happening in the URL
+	 * @deprecated
 	 */
 	changeState(state) {
 		let now = this.stateHolder.get(0);
@@ -158,14 +160,14 @@ class rootView extends FrameworkView {
 
 		// Going where guests can't go
 		if(this.session.username === null && state !== 'login') {
-			this.changeState('login');
+			this.stateHolder.setAll('login');
 			return;
 		}
 
 		switch(state) {
 			case 'logout':
 				//this._logout();
-				this.stateHolder.setAll(['logout']);
+				this.stateHolder.setAll('logout');
 				break;
 			case 'login':
 				switch(now) {
@@ -177,31 +179,15 @@ class rootView extends FrameworkView {
 						this._login();
 						break;
 				}
-				this.navigate('#/login');
 				break;
-			case 'home':
+			case null:
 				this.clearContainer();
 				this._home();
-				this.navigate('#/');
-				break;
-			case 'item':
-				switch(this.state) {
-					default:
-						this.clearContainer();
-						this._home();
-					case 'home': // yep, fallthrough.
-						this._item();
-						break;
-				}
 				break;
 			default:
 				throw new Error('Unknown state ' + state);
 				return;
 		}
-
-		this.prevState = this.state;
-		this.state = state;
-		this.currentView.trigger(this, 'changestate');
 	}
 
 	/**
@@ -228,15 +214,8 @@ class rootView extends FrameworkView {
 		this.currentView = new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations);
 	}
 
-	/**
-	 * @deprecated delegate to subview
-	 * @private
-	 */
-	_item() {
-		// TODO: what?
-	}
-
 	trigger(that, event) {
+		// TODO: everything should be in post-order now
 		if(this.currentView !== null) {
 			this.currentView.trigger(that, event);
 		}

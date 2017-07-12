@@ -2,10 +2,10 @@ class stateHolder extends FrameworkObject {
 	/**
 	 * Keep current URL state, keeps URL current, keeps current state URL.
 	 *
+	 * @param {Function} trigger
 	 * @param {int=0} start - starting position, 0 by default
 	 * @param {string[]} [path]
 	 * @param {string[]} [previousPath]
-	 * @param {Function} trigger
 	 */
 	constructor(trigger, start, path, previousPath) {
 		super(trigger);
