@@ -150,13 +150,7 @@ class rootView extends FrameworkView {
 	 * @return {boolean} - keep propagating change or not?
 	 */
 	changeState(state) {
-		let now = this.stateHolder.get(0);
-
-		// Going where we're already
-		if(state === now) {
-			// Yay!
-			return true;
-		}
+		let now = this.stateHolder.getOld(0);
 
 		// Going where guests can't go
 		if(this.session.username === null && state !== 'login') {
@@ -188,14 +182,6 @@ class rootView extends FrameworkView {
 		return true;
 	}
 
-	/**
-	 * @deprecated use stateHolder.rollback
-	 */
-	rollbackState() {
-		this.changeState(this.prevState);
-		this.prevState = this.state; // prevents further rollbacks
-	}
-
 	_login() {
 		this.currentView = new LoginView(this.container, this.logs, this.session);
 	}
@@ -205,40 +191,37 @@ class rootView extends FrameworkView {
 	}
 
 	trigger(that, event) {
+		let propagate = true;
+
+		if(that === this.stateHolder && event === 'change') {
+
+		}
+
 		if(that === this.session) {
-			let propagate = true;
 			switch(event) {
 				case 'restore-valid':
 					if(this.stateHolder.get(0) === 'login' || this.stateHolder.get(0) === null) {
-						propagate = this.changeState('home');
+						this.stateHolder.setAll();
 					}
 					break;
 				case 'restore-invalid':
 					if(this.stateHolder.get(0) !== 'login') {
 						this.logs.add("Not logged in", 'W');
 					}
-					propagate = this.changeState('login');
+					this.stateHolder.setAll('login');
 					break;
 				case 'restore-error':
 					// TODO: better message
 					this.logs.add('Error restoring previous session: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, 'E');
-					propagate = this.changeState('login');
+					this.stateHolder.setAll('login');
 					break;
 				case 'login-success':
-					propagate = this.changeState('home');
-					break;
-				case 'logout-try':
-					propagate = this.changeState('logout');
+					this.stateHolder.setAll();
 					break;
 				case 'logout-success':
-					propagate = this.changeState('login');
-					break;
-				case 'logout-error':
-					this.rollbackState();
+					this.stateHolder.setAll('login');
 					break;
 			}
-
-			// TODO: everything should be in post-order now
 			if(propagate && this.currentView !== null) {
 				this.currentView.trigger(that, event);
 			}

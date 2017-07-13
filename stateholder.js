@@ -42,6 +42,22 @@ class stateHolder extends FrameworkObject {
 	}
 
 	/**
+	 * Get specified item from previous URL pieces, null if it doesn't exist
+	 *
+	 * @param {int} pos
+	 * @return {string|null}
+	 * @see stateHolder.get
+	 */
+	getOld(pos) {
+		let index = this.start + pos;
+		if(this.previousPath.length <= index) {
+			return null;
+		} else {
+			return this.previousPath[index];
+		}
+	}
+
+	/**
 	 * Get current URL pieces
 	 *
 	 * @return {string[]}
@@ -51,11 +67,26 @@ class stateHolder extends FrameworkObject {
 	}
 
 	/**
-	 * Replace URL pieces with specified array
+	 * Get previous URL pieces
+	 *
+	 * @return {string[]}
+	 * @see stateHolder.getAll
+	 */
+	getAllOld() {
+		return this.path.slice(this.start);
+	}
+
+	/**
+	 * Replace URL pieces with specified array.
+	 * Don't pass any parameter to remove this URL part ("null" will throw an error)
 	 *
 	 * @param {string} toWhat array of URL components
 	 */
 	setAll(...toWhat) {
+		if(stateHolder._same(this.getAll(), toWhat)) {
+			return;
+		}
+
 		this._backupPath();
 		if(Array.isArray(toWhat)) {
 			this.path.splice(this.start);
@@ -67,12 +98,15 @@ class stateHolder extends FrameworkObject {
 		}
 	}
 
-	rollback() {
-		this.path.splice(this.start);
-		this._appendAll(this.previousPath.splice(this.start));
-		// "erase" previous path to prevent further rollbacks or rollforwards (which only bring chaos and destruction)
-		this._backupPath();
-	}
+	/*
+	 * @deprecated stuff WILL crash and burn.
+	 */
+	//rollback() {
+	//	this.path.splice(this.start);
+	//	this._appendAll(this.previousPath.splice(this.start));
+	//	// "erase" previous path to prevent further rollbacks or rollforwards (which only bring chaos and destruction)
+	//	this._backupPath();
+	//}
 
 	/**
 	 * Return another urlState object, starting from a specific URL piece
@@ -83,6 +117,30 @@ class stateHolder extends FrameworkObject {
 	 */
 	emit(start) {
 		return new this(this.trigger, start, this.path, this.previousPath);
+	}
+
+	/**
+	 * Shallow check of equality for arrays.
+	 *
+	 * @param {string[]} before
+	 * @param {string[]} after
+	 * @return {boolean} are they identical?
+	 * @private
+	 */
+	static _same(before, after) {
+		if(after.length = before.length) {
+			let equal = true;
+			for(let i = 0; i < after.length; i++) {
+				if(after[i] !== before[i]) {
+					equal = false;
+					break;
+				}
+			}
+			if(equal) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
