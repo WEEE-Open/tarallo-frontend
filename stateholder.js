@@ -80,9 +80,17 @@ class stateHolder extends FrameworkObject {
 	 * Replace URL pieces with specified array.
 	 * Don't pass any parameter to remove this URL part ("null" will throw an error)
 	 *
-	 * @param {string} toWhat array of URL components
+	 * @param {string} toWhat URL components
 	 */
 	setAll(...toWhat) {
+		this.setAllArray(toWhat);
+	}
+
+	/**
+	 * @see stateHolder.setAll
+	 * @param {string[]} toWhat array of URL components
+	 */
+	setAllArray(toWhat) {
 		if(stateHolder._same(this.getAll(), toWhat)) {
 			return;
 		}

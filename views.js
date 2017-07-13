@@ -8,9 +8,8 @@ class browserView extends FrameworkView {
 		window.onhashchange = this.urlChanged.bind(this);
 	}
 
-	urlChanged(event) {
-		let pieces = browserView.splitPieces(window.location.hash);
-		this.state.setAll(pieces);
+	urlChanged(/*event*/) {
+		this.state.setAllArray(browserView.splitPieces(window.location.hash));
 	}
 
 	/**
@@ -59,7 +58,7 @@ class browserView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.state) {
 			if(event === 'change') {
-
+				browserView._setUrl(this._buildUrl());
 			}
 		}
 		this.rootView.trigger(that,event);
@@ -145,39 +144,32 @@ class rootView extends FrameworkView {
 	/**
 	 * Perform state transition
 	 *
-	 * @param {String} state
-	 * @todo use only in response to STUFF happening in the URL
+	 * @param {String} from
+	 * @param {String} to
 	 * @return {boolean} - keep propagating change or not?
 	 */
-	changeState(state) {
-		let now = this.stateHolder.getOld(0);
-
+	_changeState(from, to) {
 		// Going where guests can't go
-		if(this.session.username === null && state !== 'login') {
+		if(this.session.username === null && to !== 'login') {
 			this.stateHolder.setAll('login');
 			return false;
 		}
 
-		switch(state) {
-			case 'logout':
-				break;
+		switch(to) {
 			case 'login':
-				switch(now) {
-					case null:
-						this._login();
-						break;
-					default:
-						this.clearContainer();
-						this._login();
-						break;
-				}
+				this.clearContainer();
+				this._login();
 				break;
 			case null:
 				this.clearContainer();
 				this._home();
 				break;
 			default:
-				throw new Error('Unknown state ' + state);
+				if(from === 'login') {
+					// leaving login page to wherever else
+					this.clearContainer();
+					this._home();
+				}
 		}
 		return true;
 	}
@@ -194,7 +186,7 @@ class rootView extends FrameworkView {
 		let propagate = true;
 
 		if(that === this.stateHolder && event === 'change') {
-
+			propagate = this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		}
 
 		if(that === this.session) {
