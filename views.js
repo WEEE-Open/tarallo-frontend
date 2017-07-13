@@ -147,6 +147,7 @@ class rootView extends FrameworkView {
 	 * @param {String} from
 	 * @param {String} to
 	 * @return {boolean} - keep propagating change or not?
+	 * @private
 	 */
 	_changeState(from, to) {
 		// Going where guests can't go
@@ -187,9 +188,7 @@ class rootView extends FrameworkView {
 
 		if(that === this.stateHolder && event === 'change') {
 			propagate = this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
-		}
-
-		if(that === this.session) {
+		} else if(that === this.session) {
 			switch(event) {
 				case 'restore-valid':
 					if(this.stateHolder.get(0) === 'login' || this.stateHolder.get(0) === null) {
@@ -208,15 +207,24 @@ class rootView extends FrameworkView {
 					this.stateHolder.setAll('login');
 					break;
 				case 'login-success':
+					/*
+					 * This feels very wrong here, but the alternatives are even worse:
+					 * - let LoginView handle this during trigger cascades, right before being deleted
+					 * - let LogView handlet this, adding a reference to session
+					 */
+					this.logs.add('Login successful. Welcome, ' + this.session.username, 'S');
 					this.stateHolder.setAll();
 					break;
 				case 'logout-success':
+					// same as above
+					this.logs.add('Logout successful, bye', 'S');
 					this.stateHolder.setAll('login');
 					break;
 			}
-			if(propagate && this.currentView !== null) {
-				this.currentView.trigger(that, event);
-			}
+		}
+
+		if(propagate && this.currentView !== null) {
+			this.currentView.trigger(that, event);
 		}
 	}
 }
@@ -247,9 +255,6 @@ class LoginView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.session) {
 			switch(event) {
-				case 'login-success':
-					this.logs.add('Login successful. Welcome, ' + this.session.username, 'S');
-					return;
 				case 'login-error':
 				case 'validation-error':
 					if(typeof this.session.lastErrorDetails === 'string') {
@@ -303,9 +308,7 @@ class LogoutView extends FrameworkView {
 
 	trigger(that, event) {
 		if(that === this.session) {
-			if(event === 'logout-success') {
-				this.logs.add('Logout successful, bye', 'S');
-			} else if(event === 'logout-error') {
+			if(event === 'logout-error') {
 				this.logs.add('Can\'t log out: ' + this.session.lastError + ', ' + this.session.lastErrorDetails, 'E');
 			}
 			this.whoami();
