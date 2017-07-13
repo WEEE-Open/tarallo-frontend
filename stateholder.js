@@ -136,7 +136,7 @@ class stateHolder extends FrameworkObject {
 	 * @private
 	 */
 	static _same(before, after) {
-		if(after.length = before.length) {
+		if(after.length === before.length) {
 			let equal = true;
 			for(let i = 0; i < after.length; i++) {
 				if(after[i] !== before[i]) {
