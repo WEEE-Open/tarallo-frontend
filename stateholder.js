@@ -7,7 +7,7 @@ class stateHolder extends FrameworkObject {
 	 * @param {string[]} [path]
 	 * @param {string[]} [previousPath]
 	 */
-	constructor(trigger, start, path, previousPath) {
+	constructor(trigger, path, start, previousPath) {
 		super(trigger);
 		if(Number.isInteger(start) && start > 0) {
 			this.start = start;
@@ -124,7 +124,7 @@ class stateHolder extends FrameworkObject {
 	 * @todo see if this magically works
 	 */
 	emit(start) {
-		return new this(this.trigger, start, this.path, this.previousPath);
+		return new this(this.trigger, this.path, start, this.previousPath);
 	}
 
 	/**

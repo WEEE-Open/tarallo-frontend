@@ -1,11 +1,15 @@
 class browserView extends FrameworkView {
 	constructor() {
 		super(window);
+		// requires a lor of ifs in view constructors for initialization, while triggering an event reuses whatever logic is already in place
+		//this.state = new stateHolder(this.trigger, browserView.splitPieces(window.location.hash));
 		this.state = new stateHolder(this.trigger);
 		this.rootView = new rootView(document.getElementById("body"), this.state);
 
+		// useless:
 		//window.onpopstate = this.urlChanged.bind(this);
 		window.onhashchange = this.urlChanged.bind(this);
+		this.urlChanged();
 	}
 
 	urlChanged(/*event*/) {
@@ -73,12 +77,6 @@ class rootView extends FrameworkView {
 	constructor(body, stateHolder) {
 		super(body);
 
-		/** @deprecated */
-		this.state = 'root';
-		/** @deprecated */
-		this.prevState = 'root';
-		/** @deprecated */
-		this._router = stateHolder;
 		this.stateHolder = stateHolder;
 
 		this.session = new Session(this.trigger);
@@ -158,17 +156,14 @@ class rootView extends FrameworkView {
 
 		switch(to) {
 			case 'login':
-				this.clearContainer();
 				this._login();
 				break;
 			case null:
-				this.clearContainer();
 				this._home();
 				break;
 			default:
 				if(from === 'login') {
 					// leaving login page to wherever else
-					this.clearContainer();
 					this._home();
 				}
 		}
@@ -176,10 +171,12 @@ class rootView extends FrameworkView {
 	}
 
 	_login() {
+		this.clearContainer();
 		this.currentView = new LoginView(this.container, this.logs, this.session);
 	}
 
 	_home() {
+		this.clearContainer();
 		this.currentView = new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations);
 	}
 
