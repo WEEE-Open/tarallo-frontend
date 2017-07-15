@@ -162,19 +162,22 @@ class rootView extends FrameworkView {
 				this._home();
 				break;
 			case 'view':
-				if(from !== null) {
-					// same function is good for both states, so if we're already
-					// in home (null) there's no need to re-render
-					this._home();
-				}
+				this._view();
 				break;
 			default:
-				if(from === 'login') {
-					// leaving login page to wherever else
-					this._home();
-				}
+				this._what();
 		}
 		return true;
+	}
+
+	_what() {
+		this.clearContainer();
+		this.currentView = new TextView(this.container, "What? What's this state?");
+	}
+
+	_home() {
+		this.clearContainer();
+		this.currentView = new TextView(this.container, "Questa è la home temporanea.");
 	}
 
 	_login() {
@@ -182,7 +185,7 @@ class rootView extends FrameworkView {
 		this.currentView = new LoginView(this.container, this.logs, this.session);
 	}
 
-	_home() {
+	_view() {
 		this.clearContainer();
 		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.transaction, this.translations);
 	}
@@ -463,7 +466,7 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				this.stateHolder.setAll('view', code);
+				this.stateHolder.setAll(code);
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
@@ -553,5 +556,14 @@ class NavigationView extends FrameworkView {
 
 		this.logsView.trigger(that, event);
 		this.logoutView.trigger(that, event);
+	}
+}
+
+class TextView extends FrameworkView {
+	constructor(el, text) {
+		super(el);
+		let p = document.createElement("p");
+		p.textContent = text;
+		this.el.appendChild(p);
 	}
 }
