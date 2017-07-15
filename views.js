@@ -161,6 +161,13 @@ class rootView extends FrameworkView {
 			case null:
 				this._home();
 				break;
+			case 'view':
+				if(from !== null) {
+					// same function is good for both states, so if we're already
+					// in home (null) there's no need to re-render
+					this._home();
+				}
+				break;
 			default:
 				if(from === 'login') {
 					// leaving login page to wherever else
@@ -177,7 +184,7 @@ class rootView extends FrameworkView {
 
 	_home() {
 		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.transaction, this.translations);
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.transaction, this.translations);
 	}
 
 	trigger(that, event) {
@@ -416,12 +423,14 @@ class NavigationView extends FrameworkView {
 	 * @param {HTMLElement} el
 	 * @param {Logs} logs
 	 * @param {Session} session
+	 * @param {stateHolder} stateHolder
 	 * @param {Transaction} transaction
 	 * @param {Translations} translations
 	 */
-	constructor(el, logs, session, transaction, translations) {
+	constructor(el, logs, session, stateHolder, transaction, translations) {
 		super(el);
 		this.language = translations;
+		this.stateHolder = stateHolder;
 
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
@@ -454,7 +463,7 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				this.requestItem(code);
+				this.stateHolder.setAll('view', code);
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
@@ -528,7 +537,9 @@ class NavigationView extends FrameworkView {
 	}
 
 	trigger(that, event) {
-		if(that === this.requestedItem) {
+		if(that === this.stateHolder && event === 'change') {
+			this.requestItem(this.stateHolder.get(0));
+		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
 				this.requestedReady()
 			} else if(event === 'fetch-failed') {
