@@ -124,7 +124,7 @@ class stateHolder extends FrameworkObject {
 	 * @todo see if this magically works
 	 */
 	emit(start) {
-		return new this(this.trigger, this.path, start, this.previousPath);
+		return new this.constructor(this.trigger, this.path, start, this.previousPath);
 	}
 
 	/**
