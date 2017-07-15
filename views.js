@@ -5,6 +5,7 @@ class browserView extends FrameworkView {
 		//this.state = new stateHolder(this.trigger, browserView.splitPieces(window.location.hash));
 		this.state = new stateHolder(this.trigger);
 		this.rootView = new rootView(document.getElementById("body"), this.state);
+		this.hashchanged = false; // orrible hack.
 
 		// useless:
 		//window.onpopstate = this.urlChanged.bind(this);
@@ -13,6 +14,7 @@ class browserView extends FrameworkView {
 	}
 
 	urlChanged(/*event*/) {
+		this.hashchanged = true;
 		this.state.setAllArray(browserView.splitPieces(window.location.hash));
 	}
 
@@ -62,7 +64,11 @@ class browserView extends FrameworkView {
 	trigger(that, event) {
 		if(that === this.state) {
 			if(event === 'change') {
-				browserView._setUrl(this._buildUrl());
+				if(this.hashchanged) {
+					this.hashchanged = false;
+				} else {
+					browserView._setUrl(this._buildUrl());
+				}
 			}
 		}
 		this.rootView.trigger(that,event);
