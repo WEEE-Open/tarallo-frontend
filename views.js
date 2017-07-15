@@ -88,7 +88,7 @@ class rootView extends FrameworkView {
 		this.session = new Session(this.trigger);
 		this.logs = new Logs(this.trigger);
 		this.translations = new Translations(this.trigger, 'it-IT');
-		this.transaction = new Transaction(this.trigger);
+		//this.transaction = new Transaction(this.trigger);
 
 		this.el.appendChild(rootView.createHeader());
 		this.container = rootView.createViewHolder();
@@ -193,7 +193,7 @@ class rootView extends FrameworkView {
 
 	_view() {
 		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.transaction, this.translations);
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.translations);
 	}
 
 	trigger(that, event) {
@@ -433,10 +433,9 @@ class NavigationView extends FrameworkView {
 	 * @param {Logs} logs
 	 * @param {Session} session
 	 * @param {stateHolder} stateHolder
-	 * @param {Transaction} transaction
 	 * @param {Translations} translations
 	 */
-	constructor(el, logs, session, stateHolder, transaction, translations) {
+	constructor(el, logs, session, stateHolder, translations) {
 		super(el);
 		this.language = translations;
 		this.stateHolder = stateHolder;
