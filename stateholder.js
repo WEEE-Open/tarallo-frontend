@@ -3,18 +3,12 @@ class stateHolder extends FrameworkObject {
 	 * Keep current URL state, keeps URL current, keeps current state URL.
 	 *
 	 * @param {Function} trigger
-	 * @param {boolean=false} bound - set to false (default) if you want to live. Used internally.
 	 * @param {int=0} start - starting position, 0 by default
 	 * @param {string[]} [path]
 	 * @param {string[]} [previousPath]
 	 */
-	constructor(trigger, path, start, previousPath, bound) {
+	constructor(trigger, path, start, previousPath) {
 		super(trigger);
-
-		if(bound) {
-			// could have been an if-else with super()... but it doesn't work, super() MUST be called.
-			this.trigger = trigger;
-		}
 		if(Number.isInteger(start) && start > 0) {
 			this.start = start;
 		} else {
@@ -130,7 +124,7 @@ class stateHolder extends FrameworkObject {
 	 * @todo see if this magically works
 	 */
 	emit(start) {
-		return new this.constructor(this.trigger, this.path, start, this.previousPath, true);
+		return new this.constructor(this.trigger, this.path, start, this.previousPath);
 	}
 
 	/**
