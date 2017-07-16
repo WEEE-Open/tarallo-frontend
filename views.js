@@ -62,7 +62,7 @@ class browserView extends FrameworkView {
 	}
 
 	trigger(that, event) {
-		if(that === this.state) {
+		if(that instanceof stateHolder && that.equals(this.state)) {
 			if(event === 'change') {
 				if(this.hashchanged) {
 					this.hashchanged = false;
@@ -193,13 +193,13 @@ class rootView extends FrameworkView {
 
 	_view() {
 		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.translations);
 	}
 
 	trigger(that, event) {
 		let propagate = true;
 
-		if(that === this.stateHolder && event === 'change') {
+		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
 			propagate = this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.session) {
 			switch(event) {
@@ -471,7 +471,7 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				this.stateHolder.setAll('view', code);
+				this.stateHolder.setAll(code);
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
@@ -545,8 +545,8 @@ class NavigationView extends FrameworkView {
 	}
 
 	trigger(that, event) {
-		if(that === this.stateHolder && event === 'change') {
-			this.requestItem(this.stateHolder.get(1));
+		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
+			this.requestItem(this.stateHolder.get(0));
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
 				this.requestedReady()

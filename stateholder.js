@@ -116,16 +116,16 @@ class stateHolder extends FrameworkObject {
 	//	this._backupPath();
 	//}
 
-	/*
+	/**
 	 * Return another urlState object, starting from a specific URL piece
 	 *
 	 * @param {int} start - how many URL pieces to skip
 	 * @return {stateHolder}
-	 * @todo see if this magically works
+	 * @see this.equals
 	 */
-	//emit(start) {
-	//	return new this.constructor(this.trigger, this.path, start, this.previousPath);
-	//}
+	emit(start) {
+		return new this.constructor(this.trigger, this.path, start, this.previousPath);
+	}
 
 	/**
 	 * Shallow check of equality for arrays.
@@ -183,6 +183,16 @@ class stateHolder extends FrameworkObject {
 		for(let i = 0; i < this.path.length; i++) {
 			this.previousPath.push(this.path[i]);
 		}
+	}
+
+	/**
+	 * Checks if two stateHolder "instances" are the same
+	 * (= one derived from the other via emit)
+	 *
+	 * @see this.emit
+	 */
+	equals(other) {
+		return this.path === other.path && this.previousPath === other.previousPath;
 	}
 
 }
