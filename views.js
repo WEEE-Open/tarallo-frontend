@@ -47,7 +47,7 @@ class browserView extends FrameworkView {
 		}
 		let result = '';
 		for(let i = 0; i < path.length; i++) {
-			result = result + '/' + path[i];
+			result = result + '/' + encodeURIComponent(path[i]);
 		}
 		return result;
 	}
