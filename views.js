@@ -193,7 +193,7 @@ class rootView extends FrameworkView {
 
 	_view() {
 		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.translations);
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
 	}
 
 	trigger(that, event) {
@@ -471,7 +471,7 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				this.stateHolder.setAll(code);
+				this.stateHolder.setAll('view', code);
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
@@ -546,7 +546,7 @@ class NavigationView extends FrameworkView {
 
 	trigger(that, event) {
 		if(that === this.stateHolder && event === 'change') {
-			this.requestItem(this.stateHolder.get(0));
+			this.requestItem(this.stateHolder.get(1));
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
 				this.requestedReady()
