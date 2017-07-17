@@ -546,7 +546,9 @@ class NavigationView extends FrameworkView {
 
 	trigger(that, event) {
 		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
-			this.requestItem(this.stateHolder.get(0));
+			if(this.stateHolder.get(0) !== null) {
+				this.requestItem(this.stateHolder.get(0));
+			}
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
 				this.requestedReady()
