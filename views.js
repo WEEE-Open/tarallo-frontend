@@ -170,14 +170,10 @@ class rootView extends FrameworkView {
 				this._login();
 				break;
 			case null:
-				this._home();
-				break;
+			case 'add':
 			case 'view':
-				this._view();
+				this._nav();
 				break;
-			//case 'add':
-			//	this._add();
-			//	break;
 			default:
 				this._what();
 		}
@@ -189,7 +185,7 @@ class rootView extends FrameworkView {
 		this.currentView = new TextView(this.container, "What? What's this state?");
 	}
 
-	_home() {
+	_nav() {
 		this.clearContainer();
 		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
 	}
@@ -197,11 +193,6 @@ class rootView extends FrameworkView {
 	_login() {
 		this.clearContainer();
 		this.currentView = new LoginView(this.container, this.logs, this.session);
-	}
-
-	_view() {
-		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
 	}
 
 	trigger(that, event) {
