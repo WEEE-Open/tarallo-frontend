@@ -175,6 +175,9 @@ class rootView extends FrameworkView {
 			case 'view':
 				this._view();
 				break;
+			//case 'add':
+			//	this._add();
+			//	break;
 			default:
 				this._what();
 		}
@@ -188,7 +191,7 @@ class rootView extends FrameworkView {
 
 	_home() {
 		this.clearContainer();
-		this.currentView = new TextView(this.container, "Questa è la home temporanea.");
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
 	}
 
 	_login() {
@@ -198,7 +201,7 @@ class rootView extends FrameworkView {
 
 	_view() {
 		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder.emit(1), this.translations);
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
 	}
 
 	trigger(that, event) {
@@ -451,9 +454,9 @@ class NavigationView extends FrameworkView {
 		this.viewItemButton = this.el.querySelector('.viewitembutton');
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 
-		this.itemContainer = this.el.querySelector('.itemholder');
-		/** @var {Item|null} */
-		this.itemView = null;
+		this.container = this.el.querySelector('.itemholder');
+		/** @var {ItemView|null} */
+		this.innerView = null;
 		/** @var {Item|null} */
 		this.currentItem = null;
 		/** @var {Item|null} */
@@ -476,17 +479,35 @@ class NavigationView extends FrameworkView {
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				this.stateHolder.setAll(code);
+				this.stateHolder.setAll('view', code);
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
 		}
 	}
 
+	_changeState(from, to) {
+		switch(to) {
+			case null:
+				if(from === null) {
+					break;
+				}
+				this.deleteItemViews();
+				this.innerView = new TextView(this.container, "Questa è la home temporanea.");
+				break;
+			case 'view':
+				if(this.stateHolder.get(1) !== null) {
+					this.requestItem(this.stateHolder.get(1));
+				}
+				break;
+		}
+	}
+
 	requestItem(code) {
-		if(this.itemView !== null && this.itemView.item.code === this.code) {
+		// TODO: use LocationView
+		if(this.innerView !== null && this.innerView instanceof ItemView && this.innerView.item.code === this.code) {
 			this.logsView.logs.add("Refreshing item " + code, 'I');
-			this.requestedItem = this.itemView.item;
+			this.requestedItem = this.innerView.item;
 			this.requestedItem.getFromServer();
 		} else {
 			this.logsView.logs.add("Requested item " + code, 'I');
@@ -512,10 +533,10 @@ class NavigationView extends FrameworkView {
 		this.currentItem = this.requestedItem;
 		this.requestedItem = null;
 
-		if(this.itemView === null || this.itemView.item !== this.item) {
+		if(this.innerView === null || this.innerView.item !== this.item) {
 			this.deleteItemViews();
 			this.createItemView();
-			this.itemView.freezeRecursive();
+			this.innerView.freezeRecursive();
 		}
 		this.inRequest(false);
 	}
@@ -527,33 +548,31 @@ class NavigationView extends FrameworkView {
 	 */
 	inRequest(state) {
 		this.viewItemButton.disabled = state;
-		if(this.itemView !== null) {
+		if(this.innerView !== null) {
 			if(state) {
-				this.itemView.el.classList.add("hidden");
+				this.innerView.el.classList.add("hidden");
 			} else {
-				this.itemView.el.classList.remove("hidden");
+				this.innerView.el.classList.remove("hidden");
 			}
 		}
 	}
 
 	deleteItemViews() {
 		// TODO: use locationView
-		this.itemView = null;
-		while(this.itemContainer.lastElementChild) {
-			this.itemContainer.removeChild(this.itemContainer.lastElementChild);
+		this.innerView = null;
+		while(this.container.lastElementChild) {
+			this.container.removeChild(this.container.lastElementChild);
 		}
 	}
 
 	createItemView() {
 		// TODO: use locationView
-		this.itemView = new ItemView(this.itemContainer, this.currentItem, this.language);
+		this.innerView = new ItemView(this.container, this.currentItem, this.language);
 	}
 
 	trigger(that, event) {
 		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
-			if(this.stateHolder.get(0) !== null) {
-				this.requestItem(this.stateHolder.get(0));
-			}
+			this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
 				this.requestedReady()
@@ -562,8 +581,8 @@ class NavigationView extends FrameworkView {
 			}
 		}
 
-		if(this.itemView !== null) {
-			this.itemView.trigger(that, event);
+		if(this.innerView !== null) {
+			this.innerView.trigger(that, event);
 		}
 
 		this.logsView.trigger(that, event);
