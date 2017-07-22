@@ -81,18 +81,20 @@ class stateHolder extends FrameworkObject {
 	 * Don't pass any parameter to remove this URL part ("null" will throw an error)
 	 *
 	 * @param {string} toWhat URL components
+	 * @return {boolean} any changes?
 	 */
 	setAll(...toWhat) {
-		this.setAllArray(toWhat);
+		return this.setAllArray(toWhat);
 	}
 
 	/**
 	 * @see stateHolder.setAll
 	 * @param {string[]} toWhat array of URL components
+	 * @return {boolean} any changes?
 	 */
 	setAllArray(toWhat) {
 		if(stateHolder._same(this.getAll(), toWhat)) {
-			return;
+			return false;
 		}
 
 		this._backupPath();
@@ -104,17 +106,8 @@ class stateHolder extends FrameworkObject {
 			// Should never happen anyway
 			throw new TypeError('urlState.setAll expected an array, ' + typeof toWhat + ' given');
 		}
+		return true;
 	}
-
-	/*
-	 * @deprecated stuff WILL crash and burn.
-	 */
-	//rollback() {
-	//	this.path.splice(this.start);
-	//	this._appendAll(this.previousPath.splice(this.start));
-	//	// "erase" previous path to prevent further rollbacks or rollforwards (which only bring chaos and destruction)
-	//	this._backupPath();
-	//}
 
 	/**
 	 * Return another urlState object, starting from a specific URL piece
