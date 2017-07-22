@@ -160,6 +160,11 @@ class rootView extends FrameworkView {
 			return false;
 		}
 
+		if(from === to) {
+			// from /view/foo to /view/bar: "view" is unchanged but the rest isn't, so keep propagating
+			return true;
+		}
+
 		switch(to) {
 			case 'login':
 				this._login();
