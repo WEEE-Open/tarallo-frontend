@@ -462,7 +462,7 @@ class NavigationView extends FrameworkView {
 		/** @var {Item|null} */
 		this.requestedItem = null;
 
-		this.viewItemButton.addEventListener('click', this.handleViewItem.bind(this));
+		this.viewItemButton.addEventListener('click', this._handleViewItem.bind(this));
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
@@ -473,17 +473,27 @@ class NavigationView extends FrameworkView {
 	 *
 	 * @param {Event} event
 	 */
-	handleViewItem(event) {
+	_handleViewItem(event) {
 		event.preventDefault();
 		let code = this.viewItemTextElement.value;
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
-				this.stateHolder.setAll('view', code);
+				let changed = this.stateHolder.setAll('view', code);
+				if(!changed) {
+					this._refresh();
+				}
 			} else {
 				this.logsView.logs.add('To view an item type its code', 'I');
 			}
 		}
+	}
+
+	_refresh() {
+		this.logsView.logs.add("Refreshing item " + this.currentItem.code, 'I');
+		this.requestedItem = this.currentItem;
+		this.requestedItem.getFromServer();
+		// TODO: this triggers A LOT of code-changed and feature-changed, even though nothing changed: look into this.
 	}
 
 	_changeState(from, to) {
@@ -492,23 +502,21 @@ class NavigationView extends FrameworkView {
 				if(from === null) {
 					break;
 				}
-				this.deleteItemViews();
+				this._deleteItemViews();
 				this.innerView = new TextView(this.container, "Questa è la home temporanea.");
 				break;
 			case 'view':
 				if(this.stateHolder.get(1) !== null) {
-					this.requestItem(this.stateHolder.get(1));
+					this._requestItem(this.stateHolder.get(1));
 				}
 				break;
 		}
 	}
 
-	requestItem(code) {
+	_requestItem(code) {
 		// TODO: use LocationView
-		if(this.innerView !== null && this.innerView instanceof ItemView && this.innerView.item.code === this.code) {
-			this.logsView.logs.add("Refreshing item " + code, 'I');
-			this.requestedItem = this.innerView.item;
-			this.requestedItem.getFromServer();
+		if(this.innerView !== null && this.currentItem.code === this.code) {
+			this._refresh();
 		} else {
 			this.logsView.logs.add("Requested item " + code, 'I');
 			try {
@@ -516,29 +524,33 @@ class NavigationView extends FrameworkView {
 			} catch(err) {
 				this.logsView.logs.add('Error getting item: ' + err, 'E');
 				this.requestedItem = null;
+				// doesn't set _inRequest
 				return;
 			}
 		}
 
-		this.inRequest(true);
+		this._inRequest(true);
 	}
 
-	requestedFailed() {
+	_requestedFailed() {
 		this.logsView.logs.add("Failed getting item: " + this.requestedItem.lastErrorCode + ", " + this.requestedItem.lastErrorMessage, 'E');
 		this.requestedItem = null;
-		this.inRequest(false);
+		this._inRequest(false);
 	}
 
-	requestedReady() {
+	_requestedReady() {
+		let itemChanged = this.innerView === null || this.currentItem !== this.requestedItem;
+
+		if(itemChanged) {
+			this._deleteItemViews();
+		}
 		this.currentItem = this.requestedItem;
 		this.requestedItem = null;
-
-		if(this.innerView === null || this.innerView.item !== this.item) {
-			this.deleteItemViews();
-			this.createItemView();
+		if(itemChanged) {
+			this._createItemView();
 			this.innerView.freezeRecursive();
 		}
-		this.inRequest(false);
+		this._inRequest(false);
 	}
 
 	/**
@@ -546,7 +558,7 @@ class NavigationView extends FrameworkView {
 	 *
 	 * @param {boolean} state - true if there's a request going on, false otherwise
 	 */
-	inRequest(state) {
+	_inRequest(state) {
 		this.viewItemButton.disabled = state;
 		if(this.innerView !== null) {
 			if(state) {
@@ -557,7 +569,7 @@ class NavigationView extends FrameworkView {
 		}
 	}
 
-	deleteItemViews() {
+	_deleteItemViews() {
 		// TODO: use locationView
 		this.innerView = null;
 		while(this.container.lastElementChild) {
@@ -565,7 +577,7 @@ class NavigationView extends FrameworkView {
 		}
 	}
 
-	createItemView() {
+	_createItemView() {
 		// TODO: use locationView
 		this.innerView = new ItemView(this.container, this.currentItem, this.language);
 	}
@@ -575,9 +587,9 @@ class NavigationView extends FrameworkView {
 			this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
-				this.requestedReady()
+				this._requestedReady()
 			} else if(event === 'fetch-failed') {
-				this.requestedFailed()
+				this._requestedFailed()
 			}
 		}
 
