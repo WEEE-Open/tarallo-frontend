@@ -18,8 +18,14 @@ module.exports = function(grunt) {
 					"js/stateholder.js",
 					"js/translations.js",
 					"js/transaction.js",
-					"js/views.js",
-					"js/itemview.js"
+					"js/views/browserView.js",
+					"js/views/rootView.js",
+					"js/views/loginView.js",
+					"js/views/logoutView.js",
+					"js/views/logsView.js",
+					"js/views/navigationView.js",
+					"js/views/textView.js",
+					"js/views/itemview.js"
 				],
 				dest: 'dist/all.js',
 			},
