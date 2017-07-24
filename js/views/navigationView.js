@@ -24,6 +24,8 @@ class NavigationView extends FrameworkView {
 		this.currentItem = null;
 		/** @var {Item|null} */
 		this.requestedItem = null;
+		/** @var {Item|null} */
+		this.newItem = null;
 
 		this.viewItemButton.addEventListener('click', this._handleViewItem.bind(this));
 
@@ -73,6 +75,9 @@ class NavigationView extends FrameworkView {
 					this._requestItem(this.stateHolder.get(1));
 				}
 				break;
+			case 'add':
+				this._newItem();
+				break;
 		}
 	}
 
@@ -114,6 +119,14 @@ class NavigationView extends FrameworkView {
 			this.innerView.freezeRecursive();
 		}
 		this._inRequest(false);
+	}
+
+	_newItem() {
+		// TODO: does this make sense?
+		this.requestedItem = null;
+		this.currentItem = new Item(this.trigger);
+		this._deleteItemViews();
+		this._createItemView();
 	}
 
 	/**
