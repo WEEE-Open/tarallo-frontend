@@ -16,6 +16,7 @@ class NavigationView extends FrameworkView {
 		this.el.appendChild(template);
 		this.viewItemButton = this.el.querySelector('.viewitembutton');
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
+		this.buttonsArea = this.el.querySelector('.navbuttons');
 
 		this.container = this.el.querySelector('.itemholder');
 		/** @var {ItemView|null} */
@@ -24,8 +25,6 @@ class NavigationView extends FrameworkView {
 		this.currentItem = null;
 		/** @var {Item|null} */
 		this.requestedItem = null;
-		/** @var {Item|null} */
-		this.newItem = null;
 
 		this.viewItemButton.addEventListener('click', this._handleViewItem.bind(this));
 
@@ -67,7 +66,7 @@ class NavigationView extends FrameworkView {
 				if(from === null) {
 					break;
 				}
-				this._deleteItemViews();
+				this._deleteContent();
 				this.innerView = new TextView(this.container, "Questa è la home temporanea.");
 				break;
 			case 'view':
@@ -110,7 +109,7 @@ class NavigationView extends FrameworkView {
 		let itemChanged = this.innerView === null || this.currentItem !== this.requestedItem;
 
 		if(itemChanged) {
-			this._deleteItemViews();
+			this._deleteContent();
 		}
 		this.currentItem = this.requestedItem;
 		this.requestedItem = null;
@@ -125,8 +124,15 @@ class NavigationView extends FrameworkView {
 		// TODO: does this make sense?
 		this.requestedItem = null;
 		this.currentItem = new Item(this.trigger);
-		this._deleteItemViews();
+		this._deleteContent();
 		this._createItemView();
+		this._createSaveButton();
+	}
+
+	_createSaveButton() {
+		let button = document.createElement("button");
+		button.textContent = "SALVA."; // WEEE Save! [cit.]
+		this.buttonsArea.appendChild(button);
 	}
 
 	/**
@@ -145,11 +151,13 @@ class NavigationView extends FrameworkView {
 		}
 	}
 
-	_deleteItemViews() {
-		// TODO: use locationView
+	_deleteContent() {
 		this.innerView = null;
 		while(this.container.lastElementChild) {
 			this.container.removeChild(this.container.lastElementChild);
+		}
+		while(this.buttonsArea.lastElementChild) {
+			this.buttonsArea.removeChild(this.buttonsArea.lastElementChild);
 		}
 	}
 
