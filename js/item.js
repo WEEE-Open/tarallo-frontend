@@ -390,14 +390,14 @@ class Item extends FrameworkObject {
 			this.trigger('inside-changed');
 		}
 
-		if(typeof item.location === 'object') {
-			this.setLocation([]);
-		} else if(Array.isArray(item.location)) {
+		if(Array.isArray(item.location)) {
 			if(item.location.length === 0) {
 				this.setLocation([]);
 			} else {
 				this.setLocation(item.location);
 			}
+		} else if(typeof item.location === 'object' && Object.keys(item.location).length === 0) {
+			this.setLocation([]);
 		} else if(typeof item.location !== 'undefined') {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Expected array or nothing for location, ' + typeof item.location + ' given';
