@@ -15,7 +15,6 @@ class ItemView extends FrameworkView {
 		 * @type {ItemView|null}
 		 */
 		this.parentItemView = parentItemView ? parentItemView : null;
-		this.frozen = false;
 		this.subViews = [];
 		this.el.appendChild(ItemView._newElement());
 
@@ -136,7 +135,6 @@ class ItemView extends FrameworkView {
 		this.freezeCode();
 		this.freezeDelete();
 		this._toggleFreezable(true);
-		this.frozen = true; // TODO: use this variable for something useful
 	}
 
 	/**
@@ -181,7 +179,6 @@ class ItemView extends FrameworkView {
 	 */
 	unfreeze() {
 		this._toggleFreezable(false);
-		this.frozen = false;
 	}
 
 	/**
@@ -459,7 +456,6 @@ class ItemLocationView extends ItemView {
 	 */
 	constructor(element, item, language) {
 		super(element, item, language, null);
-		// TODO: get path from item
 		let locationContainer = document.createElement("div");
 		let locationContent = document.getElementById("template-location").content.cloneNode(true);
 		locationContainer.appendChild(locationContent);
@@ -471,6 +467,11 @@ class ItemLocationView extends ItemView {
 
 		this.contentsElement.addEventListener('click', this.handleBreadcrumbs.bind(this));
 
+		while(element.firstChild) {
+			// TODO: fix here non c'è tempo fai cose
+			this.contentsElement.appendChild(element.firstChild);
+			element.removeChild(element.firstChild);
+		}
 		element.insertBefore(locationContainer, this.el.firstChild);
 	}
 
@@ -480,13 +481,13 @@ class ItemLocationView extends ItemView {
 	}
 
 	createBreadcrumbs() {
-		for(let i = 0; i < this.path.length; i++) {
+		for(let i = 0; i < this.item.location.length; i++) {
 			if(i !== 0) {
 				this.navigationElement.appendChild(document.createTextNode(" > "));
 			}
 			let piece = document.createElement("a");
-			piece.href = "#/view/" + this.path[i];
-			piece.textContent = this.path[i];
+			piece.href = "#/view/" + this.item.location[i];
+			piece.textContent = this.item.location[i];
 			this.navigationElement.appendChild(piece);
 		}
 	}
