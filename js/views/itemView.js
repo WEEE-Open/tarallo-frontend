@@ -485,7 +485,7 @@ class ItemLocationView extends ItemView {
 				this.navigationElement.appendChild(document.createTextNode(" > "));
 			}
 			let piece = document.createElement("a");
-			piece.href = "#/location/" + this.path[i];
+			piece.href = "#/view/" + this.path[i];
 			piece.textContent = this.path[i];
 			this.navigationElement.appendChild(piece);
 		}

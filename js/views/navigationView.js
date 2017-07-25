@@ -81,7 +81,6 @@ class NavigationView extends FrameworkView {
 	}
 
 	_requestItem(code) {
-		// TODO: use LocationView
 		if(this.innerView !== null && this.currentItem.code === this.code) {
 			this._refresh();
 		} else {
@@ -162,8 +161,7 @@ class NavigationView extends FrameworkView {
 	}
 
 	_createItemView() {
-		// TODO: use locationView
-		this.innerView = new ItemView(this.container, this.currentItem, this.language);
+		this.innerView = new ItemLocationView(this.container, this.currentItem, this.language);
 	}
 
 	trigger(that, event) {
