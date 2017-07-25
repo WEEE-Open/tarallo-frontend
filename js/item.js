@@ -128,6 +128,7 @@ class Item extends FrameworkObject {
 	 * Remove an Item from its index.
 	 *
 	 * @param {int} pos item to be removed
+	 * @private
 	 */
 	_removeInsideIndex(pos) {
 		let old = this.inside.splice(pos, 1);
@@ -140,6 +141,7 @@ class Item extends FrameworkObject {
 	 * somewhere in the database.
 	 *
 	 * @param {Item|null} item
+	 * @private
 	 */
 	_setParent(item) {
 		this.parent = item;
@@ -228,6 +230,14 @@ class Item extends FrameworkObject {
 		return this;
 	}
 
+	/**
+	 * Check if something is an empty array or object.
+	 * If it's some other type this function returns true anyway for reasons I can't remember.
+	 *
+	 * @param something
+	 * @return {boolean} true if empty
+	 * @private
+	 */
 	static _isEmpty(something) {
 		switch(typeof something) {
 			case 'object':
@@ -276,7 +286,7 @@ class Item extends FrameworkObject {
 	}
 
 	/**
-	 * Set location.
+	 * Set location. Use only if it's a root item in the forest of results.
 	 *
 	 * @param {Array} location - complete location from root
 	 */
@@ -293,6 +303,7 @@ class Item extends FrameworkObject {
 	 *
 	 * @param {object} item - item to be parsed
 	 * @return {boolean} - true for success, false for failure. Of any kind.
+	 * @private
 	 */
 	_parseItem(item) {
 		this.setExisting();
@@ -391,6 +402,10 @@ class Item extends FrameworkObject {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Expected array or nothing for location, ' + typeof item.location + ' given';
 			return false;
+		} else {
+			// make location always available
+			// it should never be undefined in normal conditions, actually, but still...
+			this.setLocation([]);
 		}
 
 		return true;
@@ -404,6 +419,7 @@ class Item extends FrameworkObject {
 	 * @param {Function} setFeature - this.setFeature or this.setDefaultFeature
 	 * @param {string} event - event to fire if anything has changed
 	 * @return {boolean}
+	 * @private
 	 */
 	_parseItemFeatures(newFeatures, oldFeatures, setFeature, event) {
 		if(typeof newFeatures === 'undefined' || (Array.isArray(newFeatures) && Item._isEmpty(newFeatures))) {
