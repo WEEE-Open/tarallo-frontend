@@ -470,7 +470,6 @@ class ItemLocationView extends ItemView {
 		while(element.firstChild) {
 			// TODO: fix here non c'è tempo fai cose
 			this.contentsElement.appendChild(element.firstChild);
-			element.removeChild(element.firstChild);
 		}
 		element.insertBefore(locationContainer, this.el.firstChild);
 	}
