@@ -449,6 +449,7 @@ class ItemView extends FrameworkView {
 class ItemLocationView extends ItemView {
 	/**
 	 * Show an item, and its location as breadcrumbs.
+	 * Use for top-level items only.
 	 *
 	 * @param {HTMLElement} element - an HTML element
 	 * @param {Item} item - item to show
@@ -461,7 +462,8 @@ class ItemLocationView extends ItemView {
 		locationContainer.appendChild(locationContent);
 
 		this.contentsElement = locationContainer.querySelector('.contents');
-		this.navigationElement = locationContainer.querySelector('.breadcrumbs');
+		this.breadcrumbsElement = locationContainer.querySelector('.breadcrumbs');
+		this.locationTextBox = null;
 
 		this.createBreadcrumbs();
 
@@ -471,16 +473,47 @@ class ItemLocationView extends ItemView {
 		element.insertBefore(locationContainer, this.el.firstChild);
 	}
 
-	createBreadcrumbs() {
-		for(let i = 0; i < this.item.location.length; i++) {
-			if(i !== 0) {
-				this.navigationElement.appendChild(document.createTextNode(" > "));
-			}
-			let piece = document.createElement("a");
-			piece.href = "#/view/" + this.item.location[i];
-			piece.textContent = this.item.location[i];
-			this.navigationElement.appendChild(piece);
+	deleteBreadcrumbs() {
+		this.locationTextBox = null;
+		while(this.breadcrumbsElement.lastChild) {
+			this.breadcrumbsElement.removeChild(this.breadcrumbsElement.lastChild);
 		}
+	}
+
+	createBreadcrumbs() {
+		this.deleteBreadcrumbs();
+		let len = this.item.location.length;
+		if(len > 0) {
+			for(let i = 0; i < len; i++) {
+				if(i !== 0) {
+					this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
+				}
+				let piece = document.createElement("a");
+				piece.href = "#/view/" + this.item.location[i];
+				piece.textContent = this.item.location[i];
+				this.breadcrumbsElement.appendChild(piece);
+			}
+		} else {
+			let label = document.createElement('label');
+			label.textContent = 'Location: ';
+			this.locationTextBox = document.createElement('input');
+			label.appendChild(this.locationTextBox);
+			this.breadcrumbsElement.appendChild(label);
+		}
+	}
+
+	/**
+	 * Get user selected location for new items, or null if none/not modified/deleted
+	 *
+	 * @return {string|null} non-empty string if there's some location in the textbox, or null
+	 */
+	getNewLocation() {
+		if(this.locationTextBox instanceof HTMLElement) {
+			if(this.locationTextBox.value instanceof 'string' && this.locationTextBox.value.length > 0) {
+				return this.locationTextBox.value;
+			}
+		}
+			return null;
 	}
 }
 
