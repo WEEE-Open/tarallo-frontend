@@ -465,18 +465,10 @@ class ItemLocationView extends ItemView {
 
 		this.createBreadcrumbs();
 
-		this.contentsElement.addEventListener('click', this.handleBreadcrumbs.bind(this));
-
 		while(element.firstChild) {
-			// TODO: fix here non c'è tempo fai cose
 			this.contentsElement.appendChild(element.firstChild);
 		}
 		element.insertBefore(locationContainer, this.el.firstChild);
-	}
-
-	handleBreadcrumbs() {
-		// TODO: implement
-		alert("CLICK");
 	}
 
 	createBreadcrumbs() {
