@@ -62,13 +62,10 @@ class ItemView extends FrameworkView {
 	 */
 	featureClick(event) {
 		if(event.target.classList.contains("featuredeletebutton")) {
-			// plainly unreadable.
 			event.stopPropagation();
 			event.preventDefault();
 			let name = event.target.parentElement.dataset.name;
-			this.item.setFeature(name, null);
-			this.setDefaultFeatureDuplicate(name, false); // TODO: use a proxy?
-			event.target.parentElement.parentElement.removeChild(event.target.parentElement);
+			this.removeFeatureElement(name, event.target.parentElement);
 		}
 	}
 
@@ -86,10 +83,8 @@ class ItemView extends FrameworkView {
 			if(event.target.value === "") {
 				changed = this.item.setFeature(name, null);
 				// TODO: move deduplication in feature creation/deletion
-				if (changed) this.setDefaultFeatureDuplicate(name, false);
 			} else {
 				changed = this.item.setFeature(name, event.target.value);
-				if (changed) this.setDefaultFeatureDuplicate(name, true);
 			}
 		}
 	}
@@ -247,6 +242,38 @@ class ItemView extends FrameworkView {
 			this.featuresElement.appendChild(newElement);
 		}
 		this.setDefaultFeatureDuplicate(name, true);
+	}
+
+	/**
+	 * Tries to remove a feature from the feature box. Does nothing if that feature doesn't exist.
+	 * Also unmarks default features as duplicates, if needed.
+	 *
+	 * @param {string} name - feature name
+	 * @param {Node} [element] - outermost element to delete, if already known (avoids a for loop)
+	 */
+	removeFeatureElement(name, element) {
+		let thisFeature;
+		if(element instanceof Node) {
+			thisFeature = element;
+		} else {
+			thisFeature = null;
+			let features = this.featuresElement.children;
+			let i = features.length;
+			while(i--) {
+				if(features[i].dataset.name === name) {
+					thisFeature = features[i];
+					break;
+				}
+			}
+		}
+
+		if(element === null) {
+			return;
+		}
+
+		this.item.setFeature(name, null);
+		this.setDefaultFeatureDuplicate(name, false);
+		this.featuresElement.removeChild(thisFeature);
 	}
 
 	/**
