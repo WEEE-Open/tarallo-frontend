@@ -518,15 +518,17 @@ class ItemLocationView extends ItemView {
 	createBreadcrumbs() {
 		this.deleteBreadcrumbs();
 		let len = this.item.location.length;
-		if(len > 0) {
-			for(let i = 0; i < len; i++) {
-				if(i !== 0) {
-					this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
+		if(this.item.exists) {
+			if(len > 0) {
+				for(let i = 0; i < len; i++) {
+					if(i !== 0) {
+						this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
+					}
+					let piece = document.createElement("a");
+					piece.href = "#/view/" + this.item.location[i];
+					piece.textContent = this.item.location[i];
+					this.breadcrumbsElement.appendChild(piece);
 				}
-				let piece = document.createElement("a");
-				piece.href = "#/view/" + this.item.location[i];
-				piece.textContent = this.item.location[i];
-				this.breadcrumbsElement.appendChild(piece);
 			}
 		} else {
 			let label = document.createElement('label');
@@ -538,17 +540,48 @@ class ItemLocationView extends ItemView {
 	}
 
 	/**
+	 * Make breadcrumbs clickable or not clickable (enabled/disabled)
+	 *
+	 * @param {boolean} enable
+	 * @private
+	 */
+	_toggleBreadcrumbsNavigation(enable) {
+		let bread = this.breadcrumbsElement.querySelectorAll('a');
+		for(let crumb = 0; crumb < bread.length; crumb++) {
+			if(enable) {
+				bread[crumb].href = bread[crumb].dataset.href;
+				bread[crumb].removeAttribute('data-href');
+			} else {
+				bread[crumb].dataset.href = bread[crumb].href;
+			}
+		}
+		if(this.locationTextBox instanceof HTMLElement) {
+			this.locationTextBox.disabled = !enable;
+		}
+	}
+
+	freeze() {
+		super.freeze();
+		this._toggleBreadcrumbsNavigation(true);
+	}
+
+	unfreeze() {
+		super.unfreeze();
+		this._toggleBreadcrumbsNavigation(false);
+	}
+
+	/**
 	 * Get user selected location for new items, or null if none/not modified/deleted
 	 *
 	 * @return {string|null} non-empty string if there's some location in the textbox, or null
 	 */
 	getNewLocation() {
-		if(this.locationTextBox instanceof HTMLElement) {
+		if(this.locationTextBox instanceof HTMLElement) { // TODO: does this work?
 			if(this.locationTextBox.value instanceof 'string' && this.locationTextBox.value.length > 0) {
 				return this.locationTextBox.value;
 			}
 		}
-			return null;
+		return null;
 	}
 }
 
