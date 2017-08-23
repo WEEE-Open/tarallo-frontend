@@ -38,8 +38,8 @@ class Item extends FrameworkObject {
 	/**
 	 * Create, Update and Delete features
 	 *
-	 * @param {string} name feature name
-	 * @param {string|int|null} value feature value, null to delete
+	 * @param {string} name - feature name
+	 * @param {string|int|null} value - feature value, null to delete
 	 * @returns {boolean} anything actually changed (false if deleting non-existing features, etc...)
 	 */
 	setFeature(name, value) {

@@ -73,6 +73,28 @@ class ItemView extends FrameworkView {
 	}
 
 	/**
+	 * Handler for inputting anything in the feature box (set/change value)
+	 *
+	 * @param {Event} event
+	 */
+	featureInput(event) {
+		if(event.target.classList.contains('value')) {
+			event.stopPropagation();
+			event.preventDefault();
+			let name = event.target.parentElement.dataset.name;
+			let changed;
+			if(event.target.value === "") {
+				changed = this.item.setFeature(name, null);
+				// TODO: move deduplication in feature creation/deletion
+				if (changed) this.setDefaultFeatureDuplicate(name, false);
+			} else {
+				changed = this.item.setFeature(name, event.target.value);
+				if (changed) this.setDefaultFeatureDuplicate(name, true);
+			}
+		}
+	}
+
+	/**
 	 * Handler for the "add feature" button
 	 *
 	 * @param {Event} event
@@ -109,21 +131,6 @@ class ItemView extends FrameworkView {
 		let view = new ItemView(container, item, this.language, this);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
-	}
-
-	/**
-	 * Handler for changing a feature value
-	 *
-	 * @param {Event} event
-	 */
-	featureInput(event) {
-		event.stopPropagation();
-		event.preventDefault();
-		if(event.target.value === "") {
-			this.item.setFeature(event.target.parentElement.dataset.name, null);
-		} else {
-			this.item.setFeature(event.target.parentElement.dataset.name, event.target.value);
-		}
 	}
 
 	/**
@@ -244,6 +251,7 @@ class ItemView extends FrameworkView {
 
 	/**
 	 * Mark a default feature as duplicate/overridden by a feature. Or unmark it.
+	 * Or do nothing if there's no default feature.
 	 *
 	 * @param {string} name feature name
 	 * @param {boolean} duplicate is duplicate
