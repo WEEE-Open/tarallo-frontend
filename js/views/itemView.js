@@ -48,7 +48,8 @@ class ItemView extends FrameworkView {
 		}
 
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
-		this.featuresElement.addEventListener('input', this.featureInput.bind(this));
+		this.featuresElement.addEventListener('focusin', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
+		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this));
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
@@ -71,6 +72,7 @@ class ItemView extends FrameworkView {
 
 	/**
 	 * Handler for inputting anything in the feature box (set/change value)
+	 * Empty input counts as no feature. Or as a feature with empty content. Still undecided.
 	 *
 	 * @param {Event} event
 	 */
@@ -79,12 +81,10 @@ class ItemView extends FrameworkView {
 			event.stopPropagation();
 			event.preventDefault();
 			let name = event.target.parentElement.dataset.name;
-			let changed;
 			if(event.target.value === "") {
-				changed = this.item.setFeature(name, null);
-				// TODO: move deduplication in feature creation/deletion
+				this.item.setFeature(name, null);
 			} else {
-				changed = this.item.setFeature(name, event.target.value);
+				this.item.setFeature(name, event.target.value);
 			}
 		}
 	}
