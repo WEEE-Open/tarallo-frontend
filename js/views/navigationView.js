@@ -130,8 +130,19 @@ class NavigationView extends FrameworkView {
 
 	_createSaveButton() {
 		let button = document.createElement("button");
-		button.textContent = "SALVA."; // WEEE Save! [cit.]
+		button.textContent = "SALVA.";
+		button.addEventListener('click', this._weeeSave.bind(this));
 		this.buttonsArea.appendChild(button);
+	}
+
+	/**
+	 * Handler for the save button.
+	 * WEEE Save! [cit.]
+	 *
+	 * @private
+	 */
+	_weeeSave() {
+		// TODO: this.currentItem.setParent() or something similar? (setLocation cannot be used for this kind of location)
 	}
 
 	/**
