@@ -263,7 +263,6 @@ class Item extends FrameworkObject {
 			return false;
 		}
 
-		// TODO: may/should be an array, actually
 		if(typeof data.items !== "object") {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Expected an "items" object from server, got ' + (typeof data.items);
