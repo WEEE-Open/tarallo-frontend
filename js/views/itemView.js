@@ -518,14 +518,14 @@ class ItemLocationView extends ItemView {
 	createBreadcrumbs() {
 		this.deleteBreadcrumbs();
 		let len = this.item.location.length;
-		if(this.item.exists) {
+		if(this.item.exists) { // TODO: change this to something that makes more sense
 			if(len > 0) {
 				for(let i = 0; i < len; i++) {
 					if(i !== 0) {
 						this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
 					}
 					let piece = document.createElement("a");
-					piece.href = "#/view/" + this.item.location[i];
+					piece.dataset.href = piece.href = "#/view/" + this.item.location[i];
 					piece.textContent = this.item.location[i];
 					this.breadcrumbsElement.appendChild(piece);
 				}
