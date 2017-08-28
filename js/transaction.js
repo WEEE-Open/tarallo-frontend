@@ -25,9 +25,36 @@ class Transaction extends FrameworkObject {
 		this.update.push(item);
 	}
 
+	/**
+	 * Add item to kill list... er, delete list
+	 *
+	 * @param {Item|string|int} item - an item with a code, or a code
+	 * @throws Error when passing a non-existing item or an item without code
+	 * @throws TypeError for invalid parameter type
+	 */
+	addDeleted(item) {
+		if(item instanceof Item) {
+			if(item.exists === false) {
+				throw new Error('Cannot delete items that don\'t even exist on the server (' + item.code + ')')
+			} else if(item.code === null) {
+				throw new Error('Cannot delete items without code');
+			} else {
+				this.delete.push(item.code);
+			}
+			// TODO: maybe create a "castToCode" static function in Item?
+		} else if(typeof item === 'number' && Number.isInteger(item)) {
+			this.delete.push(item.toString());
+		} else if(typeof item === 'string') {
+			this.delete.push(item);
+		} else {
+			throw new TypeError('Expected Item, string or number, ' + typeof item + ' given');
+		}
+	}
+
 	reset() {
 		this.create = [];
 		this.update = [];
+		this.delete = [];
 		this.notes = null;
 	}
 }
