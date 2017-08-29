@@ -504,12 +504,34 @@ class ItemLocationView extends ItemView {
 		this.breadcrumbsElement = locationContainer.querySelector('.breadcrumbs');
 		this.locationTextBox = null;
 
+		this.breadcrumbsElement.addEventListener('focusin', this.parentInput.bind(this));
+		this.breadcrumbsElement.addEventListener('focusout', this.parentInput.bind(this));
+
 		this.createBreadcrumbs();
 
 		while(element.firstChild) {
 			this.contentsElement.appendChild(element.firstChild);
 		}
 		element.insertBefore(locationContainer, this.el.firstChild);
+	}
+
+	/**
+	 * Handle inserting parent code in breadcrumbs textbox
+	 *
+	 * @param {Event} event
+	 * @todo strike out breadcrumbs if anything has been inserted (copy whatever features + default features does)
+	 */
+	parentInput(event) {
+		// TODO: are these necessary?
+		//event.preventDefault();
+		//event.stopPropagation();
+		if(this.locationTextBox !== null) {
+			let value = this.locationTextBox.value;
+			if(value !== null && value !== '') {
+				this.item.setParent(this.locationTextBox.value);
+				event.stopPropagation();
+			}
+		}
 	}
 
 	deleteBreadcrumbs() {
