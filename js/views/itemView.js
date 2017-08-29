@@ -586,14 +586,29 @@ class ItemLocationView extends ItemView {
 		}
 	}
 
+	/**
+	 * Make "set parent" textbox in breadcrumbs editable or not
+	 *
+	 * @param {boolean} enable
+	 * @private
+	 */
+	_toggleBreadcrumbsEdit(enable) {
+		let breadbox = this.breadcrumbsElement.querySelector('label input');
+		if(breadbox !== null) {
+			breadbox.disabled = !enable;
+		}
+	}
+
 	freeze() {
 		super.freeze();
-		this._toggleBreadcrumbsNavigation(true);
+		this._toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
+		this._toggleBreadcrumbsEdit(false);
 	}
 
 	unfreeze() {
 		super.unfreeze();
-		this._toggleBreadcrumbsNavigation(false);
+		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
+		this._toggleBreadcrumbsEdit(true);
 	}
 
 	/**
