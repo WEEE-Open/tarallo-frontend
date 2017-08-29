@@ -11,6 +11,7 @@ class ItemView extends FrameworkView {
 		super(element);
 		this.item = item;
 		this.language = language;
+		this.frozen = false;
 		/**
 		 * @type {ItemView|null}
 		 */
@@ -33,6 +34,7 @@ class ItemView extends FrameworkView {
 			this.showCode(item.code);
 		}
 		if(item.exists) {
+			// TODO: this should be more of a "permanent freeze" (or permafrost)
 			this.freezeCode();
 			this.freezeDelete();
 		}
@@ -134,6 +136,7 @@ class ItemView extends FrameworkView {
 	 * @see this.unfreeze
 	 */
 	freeze() {
+		this.frozen = true;
 		this.freezeCode();
 		this.freezeDelete();
 		this._toggleFreezable(true);
@@ -180,6 +183,7 @@ class ItemView extends FrameworkView {
 	 * @see this.freeze
 	 */
 	unfreeze() {
+		this.frozen = false;
 		this._toggleFreezable(false);
 	}
 
@@ -515,22 +519,44 @@ class ItemLocationView extends ItemView {
 		}
 	}
 
-	createBreadcrumbs() {
+	createBreadcrumbs(frozen) {
 		this.deleteBreadcrumbs();
 		let len = this.item.location.length;
-		if(this.item.exists) { // TODO: change this to something that makes more sense
-			if(len > 0) {
-				for(let i = 0; i < len; i++) {
-					if(i !== 0) {
-						this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
-					}
-					let piece = document.createElement("a");
-					piece.dataset.href = piece.href = "#/view/" + this.item.location[i];
-					piece.textContent = this.item.location[i];
-					this.breadcrumbsElement.appendChild(piece);
+		if(len > 0) {
+			for(let i = 0; i < len; i++) {
+				if(i !== 0) {
+					this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
 				}
+				let piece = document.createElement("a");
+				piece.dataset.href = piece.href = "#/view/" + this.item.location[i];
+				piece.textContent = this.item.location[i];
+				this.breadcrumbsElement.appendChild(piece);
 			}
-		} else {
+		}
+		this._appendEditableBreadcrumbs(this.item.exists, len > 0, frozen, this.item.getParent() !== null);
+	}
+
+	/**
+	 * Decides wether to append the "set parent" textbox to breadcrumbs, and does that.
+	 * The "decides" part involved drawing a CFG, but the resulting code would have been wider than taller and
+	 * absolutely unreadable. To make it at least more compact a truth table has been drawn and Karnaugh tables were
+	 * used to simplify the logic. This would have been useful if I were to implement this in hardware, but in software
+	 * was a bit pointless. Well, at least the code appears more readable (but still doesn't make sense).
+	 *
+	 * @param {boolean} exists - item.exists
+	 * @param {boolean} location - does item have a "location"?
+	 * @param {boolean} frozen - is item frozen (or transitioning to frozen)?
+	 * @param {boolean} parent - does item have a "parent" (user-defined, not yet saved on server)
+	 * @private
+	 */
+	_appendEditableBreadcrumbs(exists, location, frozen, parent) {
+		if(
+			!exists && !location && !frozen ||
+			!exists && parent ||
+			location && parent ||
+			location && !frozen ||
+			exists && !frozen
+		) {
 			let label = document.createElement('label');
 			label.textContent = 'Location: ';
 			this.locationTextBox = document.createElement('input');
@@ -573,6 +599,7 @@ class ItemLocationView extends ItemView {
 	/**
 	 * Get user selected location for new items, or null if none/not modified/deleted
 	 *
+	 * @deprecated use events to edit item directly instead
 	 * @return {string|null} non-empty string if there's some location in the textbox, or null
 	 */
 	getNewLocation() {
