@@ -34,6 +34,10 @@ class Item extends FrameworkObject {
 		this.location = [];
 	}
 
+	setParent(code) {
+		// TODO: implement
+	}
+
 	// TODO: use a proxy to build another object with null features when removed, new features when added, etc... for "update" queries
 	/**
 	 * Create, Update and Delete features
