@@ -627,7 +627,12 @@ class ItemLocationView extends ItemView {
 	}
 
 	_toggleBreadcrumbsDuplicate(duplicate) {
-		let a = this.breadcrumbsElement.querySelectorAll('a');
+		let a;
+		if(duplicate) {
+			a = this.breadcrumbsElement.querySelectorAll('a:not(.duplicate)');
+		} else {
+			a = this.breadcrumbsElement.querySelectorAll('a.duplicate');
+		}
 		for(let i = 0; i < a.length; i++) {
 			if(duplicate) {
 				a[i].classList.add('duplicate');
