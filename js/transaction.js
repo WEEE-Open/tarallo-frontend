@@ -18,8 +18,8 @@ class Transaction extends FrameworkObject {
 	/**
 	 * Add an item changeset(?) to upload
 	 *
-	 * @todo use an ItemUpdate class
-	 * @param {Item} item
+	 * @todo use ItemUpdate class
+	 * @param {ItemUpdate} item
 	 */
 	addUpdated(item) {
 		this.update.push(item);
@@ -41,13 +41,9 @@ class Transaction extends FrameworkObject {
 			} else {
 				this.delete.push(item.code);
 			}
-			// TODO: maybe create a "castToCode" static function in Item?
-		} else if(typeof item === 'number' && Number.isInteger(item)) {
-			this.delete.push(item.toString());
-		} else if(typeof item === 'string') {
-			this.delete.push(item);
 		} else {
-			throw new TypeError('Expected Item, string or number, ' + typeof item + ' given');
+			let code = Item.sanitizeCode(item);
+			this.delete.push(code);
 		}
 	}
 
