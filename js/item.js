@@ -12,12 +12,18 @@ class Item extends FrameworkObject {
 		this.defaultFeatures = {};
 		this.inside = [];
 		/**
+		 * User-defined parent, to replace location. Available only if explicitly set by the user.
+		 *
+		 * @type {null|string}
+		 */
+		this.parent = null;
+		/**
 		 * Current parent, available right here and right now, not the real one that may be in the database.
 		 * Null if none.
 		 *
 		 * @type {null|Item}
 		 */
-		this.parent = null;
+		this.treeParent = null;
 		/**
 		 * Already exists on the server.
 		 * If it exists, code cannot be changed anymore.
@@ -34,8 +40,28 @@ class Item extends FrameworkObject {
 		this.location = [];
 	}
 
+	/**
+	 * Set parent to replace location once saved on the server
+	 *
+	 * @param {string|int|null} code
+	 */
 	setParent(code) {
-		// TODO: implement
+		if(code === null) {
+			this.parent = null;
+		} else {
+			code = Item.sanitizeCode(code);
+			this.parent = code;
+		}
+	}
+
+	/**
+	 * Get user-defined parent, which will replace location once saved to the server.
+	 * Or null if not set.
+	 *
+	 * @return {string|null}
+	 */
+	getParent() {
+		return this.parent;
 	}
 
 	// TODO: use a proxy to build another object with null features when removed, new features when added, etc... for "update" queries
@@ -108,7 +134,7 @@ class Item extends FrameworkObject {
 	addInside(other) {
 		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
 		this.inside.push(other);
-		other._setParent(this);
+		other._setTreeParent(this);
 	}
 
 	/**
@@ -136,19 +162,19 @@ class Item extends FrameworkObject {
 	 */
 	_removeInsideIndex(pos) {
 		let old = this.inside.splice(pos, 1);
-		old[0]._setParent(null);
+		old[0]._setTreeParent(null);
 	}
 
 	/**
 	 * Set parent of an Item. null means "no parent".
-	 * This is the immediate parent, available to and visibile on the client, not the real parent that the item may have
-	 * somewhere in the database.
+	 * This is the immediate parent, an Item object available right here and right now to be displayed to the user,
+	 * not the real parent that the item may have somewhere in the database, nor the item code set as parent by the user.
 	 *
 	 * @param {Item|null} item
 	 * @private
 	 */
-	_setParent(item) {
-		this.parent = item;
+	_setTreeParent(item) {
+		this.treeParent = item;
 		return this;
 	}
 
@@ -165,17 +191,29 @@ class Item extends FrameworkObject {
 	/**
 	 * Set item code.
 	 *
-	 * @param {string} code
+	 * @param {string|int} code
 	 * @return {Item} this
 	 */
 	setCode(code) {
+		code = Item.sanitizeCode(code);
+		this.code = code;
+		this.trigger('code-changed');
+		return this;
+	}
+
+	/**
+	 * Cast code to string, validate and return it
+	 *
+	 * @param {string} code
+	 * @throws Error if code is invalid
+	 * @return {string} code
+	 */
+	static sanitizeCode(code) {
 		if(typeof code === 'number') {
 			code = code.toString();
 		}
 		if(Item.isValidCode(code)) {
-			this.code = code;
-			this.trigger('code-changed');
-			return this;
+			return code;
 		} else {
 			throw new Error('Invalid code: ' + code);
 		}

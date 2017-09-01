@@ -30,6 +30,7 @@ class ItemUpdate extends Item {
 	 * @see Item.addInside
 	 */
 	addInside(other) {
+		// TODO: implement
 		// call on item, then super?
 	}
 
@@ -37,15 +38,8 @@ class ItemUpdate extends Item {
 	 * @see Item.removeInside
 	 */
 	removeInside(other) {
+		// TODO: implement
 		// call on item, then super?
-	}
-
-	/**
-	 * @see Item.setParent
-	 */
-	setParent(item) {
-		this.parent = item;
-		return this;
 	}
 
 	/**
@@ -62,11 +56,20 @@ class ItemUpdate extends Item {
 	 * @see Item.setCode
 	 */
 	setCode(code) {
+		// TODO: implement
 	}
 
 	/**
 	 * @see Item.setLocation
 	 */
 	setLocation(location) {
+		// TODO: implement
+	}
+
+	/**
+	 * @see Item.setParent
+	 */
+	setParent(code) {
+		// TODO: implement
 	}
 }
