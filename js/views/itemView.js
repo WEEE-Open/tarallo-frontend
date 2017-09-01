@@ -519,7 +519,6 @@ class ItemLocationView extends ItemView {
 	 * Handle inserting parent code in breadcrumbs textbox
 	 *
 	 * @param {Event} event
-	 * @todo strike out breadcrumbs if anything has been inserted (copy whatever features + default features does)
 	 */
 	parentInput(event) {
 		// TODO: are these necessary?
@@ -527,7 +526,12 @@ class ItemLocationView extends ItemView {
 		//event.stopPropagation();
 		if(this.locationTextBox !== null) {
 			let value = this.locationTextBox.value;
-			if(value !== null && value !== '') {
+			if(value === null || value === '') {
+				this._toggleBreadcrumbsDuplicate(false);
+				this.item.setParent(null);
+				event.stopPropagation();
+			} else {
+				this._toggleBreadcrumbsDuplicate(true);
 				this.item.setParent(this.locationTextBox.value);
 				event.stopPropagation();
 			}
@@ -561,8 +565,9 @@ class ItemLocationView extends ItemView {
 	/**
 	 * Decides wether to append the "set parent" textbox to breadcrumbs, and does that.
 	 * The "decides" part involved drawing a CFG, but the resulting code would have been wider than taller and
-	 * absolutely unreadable. To make it at least more compact a truth table has been drawn and Karnaugh tables were
-	 * used to simplify the logic. This would have been useful if I were to implement this in hardware, but in software
+	 * absolutely unreadable.
+	 * To make it at least more compact a truth table has been drawn and Karnaugh maps were used to simplify the
+	 * resulting logic. This would have been useful if I were to implement this in hardware, but in software
 	 * was a bit pointless. Well, at least the code appears more readable (but still doesn't make sense).
 	 *
 	 * @param {boolean} exists - item.exists
@@ -621,6 +626,17 @@ class ItemLocationView extends ItemView {
 		}
 	}
 
+	_toggleBreadcrumbsDuplicate(duplicate) {
+		let a = this.breadcrumbsElement.querySelectorAll('a');
+		for(let i = 0; i < a.length; i++) {
+			if(duplicate) {
+				a[i].classList.add('duplicate');
+			} else {
+				a[i].classList.remove('duplicate');
+			}
+		}
+	}
+
 	freeze() {
 		super.freeze();
 		this._toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
@@ -631,21 +647,6 @@ class ItemLocationView extends ItemView {
 		super.unfreeze();
 		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
 		this._toggleBreadcrumbsEdit(true);
-	}
-
-	/**
-	 * Get user selected location for new items, or null if none/not modified/deleted
-	 *
-	 * @deprecated use events to edit item directly instead
-	 * @return {string|null} non-empty string if there's some location in the textbox, or null
-	 */
-	getNewLocation() {
-		if(this.locationTextBox instanceof HTMLElement) { // TODO: does this work?
-			if(this.locationTextBox.value instanceof 'string' && this.locationTextBox.value.length > 0) {
-				return this.locationTextBox.value;
-			}
-		}
-		return null;
 	}
 }
 

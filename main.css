@@ -85,7 +85,7 @@ template {
     display: none;
 }
 
-.defaultfeatures .feature.duplicate {
+.defaultfeatures .feature.duplicate, .breadcrumbs .duplicate {
     text-decoration: line-through;
 }
 
