@@ -5,10 +5,12 @@ class NavigationView extends FrameworkView {
 	 * @param {Session} session
 	 * @param {stateHolder} stateHolder
 	 * @param {Translations} translations
+	 * @param {Transaction} transaction
 	 */
-	constructor(el, logs, session, stateHolder, translations) {
+	constructor(el, logs, session, stateHolder, translations, transaction) {
 		super(el);
 		this.language = translations;
+		this.transaction = transaction;
 		this.stateHolder = stateHolder;
 
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
@@ -142,7 +144,7 @@ class NavigationView extends FrameworkView {
 	 * @private
 	 */
 	_weeeSave() {
-		// TODO: this.currentItem.setParent() or something similar? (setLocation cannot be used for this kind of location)
+		this.transaction.add(this.currentItem);
 	}
 
 	/**

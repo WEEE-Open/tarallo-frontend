@@ -1,10 +1,9 @@
 class Transaction extends FrameworkObject {
 	constructor(trigger) {
 		super(trigger);
-		this.reset();
+		this._reset();
 	}
 
-	// TODO: passare già come tree è più facile, ma ha senso? Passarli singoli rende complicato ricostruire l'albero (il server non lo fa e rischia di dare errore se sono in disordine...)
 	// TODO: il server al momento non genera codici. Farglieli generare.
 	/**
 	 * Add new Item
@@ -13,6 +12,7 @@ class Transaction extends FrameworkObject {
 	 */
 	add(item) {
 		this.create.push(item);
+		this.trigger('transaction-add');
 	}
 
 	/**
@@ -23,6 +23,7 @@ class Transaction extends FrameworkObject {
 	 */
 	addUpdated(item) {
 		this.update.push(item);
+		this.trigger('transaction-add');
 	}
 
 	/**
@@ -45,12 +46,18 @@ class Transaction extends FrameworkObject {
 			let code = Item.sanitizeCode(item);
 			this.delete.push(code);
 		}
+		this.trigger('transaction-add');
 	}
 
-	reset() {
+	_reset() {
 		this.create = [];
 		this.update = [];
 		this.delete = [];
 		this.notes = null;
+	}
+
+	completed() {
+		this._reset();
+		this.trigger('transaction-delete');
 	}
 }

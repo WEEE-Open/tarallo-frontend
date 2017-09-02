@@ -11,7 +11,7 @@ class rootView extends FrameworkView {
 		this.session = new Session(this.trigger);
 		this.logs = new Logs(this.trigger);
 		this.translations = new Translations(this.trigger, 'it-IT');
-		//this.transaction = new Transaction(this.trigger);
+		this.transaction = new Transaction(this.trigger);
 
 		this.el.appendChild(rootView.createHeader());
 		this.container = rootView.createViewHolder();
@@ -110,7 +110,7 @@ class rootView extends FrameworkView {
 
 	_nav() {
 		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations);
+		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations, this.transaction);
 	}
 
 	_login() {
