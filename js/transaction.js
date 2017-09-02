@@ -1,7 +1,34 @@
 class Transaction extends FrameworkObject {
 	constructor(trigger) {
 		super(trigger);
+		this.actionsCounter = 0;
+		this._create = new Map();
+		this._update = new Map();
+		this._delete = new Map();
+		this._notes = null;
+
+		// use getters if this stuff is ever needed externally:
+		//get create() {
+		//	return this._create.values();
+		//}
+
 		this._reset();
+	}
+
+	/**
+	 * Layers and layers of abstraction.
+	 * Add item to a map, increment counters, fire triggers, and the like.
+	 *
+	 * @param {*} item
+	 * @param {Map} map
+	 * @private
+	 */
+	_push(item, map) {
+		if(!map.has(item)) {
+			map.set(item, item);
+			this.actionsCounter++;
+			this.trigger('transaction-add');
+		}
 	}
 
 	// TODO: il server al momento non genera codici. Farglieli generare.
@@ -11,8 +38,7 @@ class Transaction extends FrameworkObject {
 	 * @param {Item} item
 	 */
 	add(item) {
-		this.create.push(item);
-		this.trigger('transaction-add');
+		this._push(item, this._create);
 	}
 
 	/**
@@ -22,8 +48,7 @@ class Transaction extends FrameworkObject {
 	 * @param {ItemUpdate} item
 	 */
 	addUpdated(item) {
-		this.update.push(item);
-		this.trigger('transaction-add');
+		this._push(item, this._update);
 	}
 
 	/**
@@ -40,13 +65,12 @@ class Transaction extends FrameworkObject {
 			} else if(item.code === null) {
 				throw new Error('Cannot delete items without code');
 			} else {
-				this.delete.push(item.code);
+				this._push(item, this._delete);
 			}
 		} else {
 			let code = Item.sanitizeCode(item);
-			this.delete.push(code);
+			this._push(code, this._delete);
 		}
-		this.trigger('transaction-add');
 	}
 
 	/**
@@ -56,7 +80,7 @@ class Transaction extends FrameworkObject {
 	 */
 	setNotes(notes) {
 		if(notes === null || typeof notes === 'string') {
-			this.notes = notes;
+			this._notes = notes;
 		} else {
 			throw new TypeError('Notes must be null or string, ' + typeof notes + ' given');
 		}
@@ -64,10 +88,10 @@ class Transaction extends FrameworkObject {
 
 	_reset() {
 		this.actionsCounter = 0;
-		this.create = [];
-		this.update = [];
-		this.delete = [];
-		this.notes = null;
+		this._create.clear();
+		this._update.clear();
+		this._delete.clear();
+		this._notes = null;
 	}
 
 	completed() {
