@@ -122,13 +122,14 @@ class Transaction extends FrameworkObject {
 	toJSON() {
 		let simplified = {};
 		if(this._create.size > 0) {
-			simplified.create = this._create.entries();
+			// I wonder if this is O(n) or it's optimized somehow...
+			simplified.create = Array.from(this._create.entries());
 		}
 		if(this._update.size > 0) {
-			simplified.update = this._update.entries();
+			simplified.update = Array.from(this._update.entries());
 		}
 		if(this._delete.size > 0) {
-			simplified.delete = this._delete.entries();
+			simplified.delete = Array.from(this._delete.entries());
 		}
 		if(this._notes !== null) {
 			simplified.notes = this._notes;
