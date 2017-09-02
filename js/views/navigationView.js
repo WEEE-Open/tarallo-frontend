@@ -12,6 +12,7 @@ class NavigationView extends FrameworkView {
 		this.language = translations;
 		this.transaction = transaction;
 		this.stateHolder = stateHolder;
+		this.logs = logs;
 
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
@@ -52,13 +53,13 @@ class NavigationView extends FrameworkView {
 					this._refresh();
 				}
 			} else {
-				this.logsView.logs.add('To view an item type its code', 'I');
+				this.logs.add('To view an item type its code', 'I');
 			}
 		}
 	}
 
 	_refresh() {
-		this.logsView.logs.add("Refreshing item " + this.currentItem.code, 'I');
+		this.logs.add("Refreshing item " + this.currentItem.code, 'I');
 		this.requestedItem = this.currentItem;
 		this.requestedItem.getFromServer();
 		// TODO: this triggers A LOT of code-changed and feature-changed, even though nothing changed: look into this.
@@ -88,11 +89,11 @@ class NavigationView extends FrameworkView {
 		if(this.innerView !== null && this.currentItem.code === this.code) {
 			this._refresh();
 		} else {
-			this.logsView.logs.add("Requested item " + code, 'I');
+			this.logs.add("Requested item " + code, 'I');
 			try {
 				this.requestedItem = new Item(this.trigger).setCode(code).getFromServer();
 			} catch(err) {
-				this.logsView.logs.add('Error getting item: ' + err, 'E');
+				this.logs.add('Error getting item: ' + err, 'E');
 				this.requestedItem = null;
 				// doesn't set _inRequest
 				return;
@@ -103,7 +104,7 @@ class NavigationView extends FrameworkView {
 	}
 
 	_requestedFailed() {
-		this.logsView.logs.add("Failed getting item: " + this.requestedItem.lastErrorCode + ", " + this.requestedItem.lastErrorMessage, 'E');
+		this.logs.add("Failed getting item: " + this.requestedItem.lastErrorCode + ", " + this.requestedItem.lastErrorMessage, 'E');
 		this.requestedItem = null;
 		this._inRequest(false);
 	}
@@ -204,7 +205,18 @@ class NavigationView extends FrameworkView {
 		}
 
 		if(that === this.transaction) {
-			this._transactionCount(this.transaction.actionsCounter);
+			//noinspection FallThroughInSwitchStatementJS
+			switch(event) {
+				case 'transaction-success':
+					this.logs.add('Transaction completed', 'S');
+				case 'transaction-add':
+				case 'transaction-delete':
+					this._transactionCount(this.transaction.actionsCounter);
+					break;
+				case 'transaction-failed':
+					// TODO: tell why
+					this.logs.add('Transaction failed', 'E');
+			}
 		}
 
 
