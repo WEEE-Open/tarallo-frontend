@@ -49,7 +49,21 @@ class Transaction extends FrameworkObject {
 		this.trigger('transaction-add');
 	}
 
+	/**
+	 * Set notes.
+	 *
+	 * @param {null|string} notes
+	 */
+	setNotes(notes) {
+		if(notes === null || typeof notes === 'string') {
+			this.notes = notes;
+		} else {
+			throw new TypeError('Notes must be null or string, ' + typeof notes + ' given');
+		}
+	}
+
 	_reset() {
+		this.actionsCounter = 0;
 		this.create = [];
 		this.update = [];
 		this.delete = [];

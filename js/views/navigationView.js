@@ -19,6 +19,7 @@ class NavigationView extends FrameworkView {
 		this.viewItemButton = this.el.querySelector('.viewitembutton');
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.buttonsArea = this.el.querySelector('.navbuttons');
+		this.transactionArea = this.el.querySelector('.transactioncount');
 
 		this.container = this.el.querySelector('.itemholder');
 		/** @var {ItemView|null} */
@@ -147,6 +148,15 @@ class NavigationView extends FrameworkView {
 		this.transaction.add(this.currentItem);
 	}
 
+	_transactionCount(count) {
+		if(count === 0) {
+			this.transactionArea.style.display = 'none';
+		} else {
+			this.transactionArea.style.display = '';
+			this.transactionArea.textContent = 'Items in transaction: ' + count;
+		}
+	}
+
 	/**
 	 * Basically disable the "view item" button while an item is loading.
 	 *
@@ -187,6 +197,11 @@ class NavigationView extends FrameworkView {
 				this._requestedFailed()
 			}
 		}
+
+		if(that === this.transaction) {
+			this._transactionCount(this.transaction.actionsCounter);
+		}
+
 
 		if(this.innerView !== null) {
 			this.innerView.trigger(that, event);
