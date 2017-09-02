@@ -20,6 +20,7 @@ class NavigationView extends FrameworkView {
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.buttonsArea = this.el.querySelector('.navbuttons');
 		this.transactionArea = this.el.querySelector('.transactioncount');
+		this._transactionCount(this.transaction.actionsCounter);
 
 		this.container = this.el.querySelector('.itemholder');
 		/** @var {ItemView|null} */
@@ -145,6 +146,7 @@ class NavigationView extends FrameworkView {
 	 * @private
 	 */
 	_weeeSave() {
+		// TODO: remove item, add new
 		this.transaction.add(this.currentItem);
 	}
 
