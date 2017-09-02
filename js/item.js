@@ -33,9 +33,16 @@ class Item extends FrameworkObject {
 		this.exists = false;
 		/**
 		 * Unique code
+		 *
 		 * @type {string|null}
 		 */
 		this.code = null;
+		/**
+		 * Code of the default item that lends its features to this one
+		 *
+		 * @type {string|null}
+		 */
+		this.defaultCode = null;
 		/** @type {Array} location */
 		this.location = [];
 	}
@@ -337,6 +344,35 @@ class Item extends FrameworkObject {
 		} else {
 			throw new TypeError("Expected location as array, got " + typeof location);
 		}
+	}
+
+	/**
+	 * Does this item contain anything useful or is it an empty shell floating aimlessly in the vastness of the address space?
+	 * i.e. does it exist or have any feature or a code or anything meaningful?
+	 *
+	 * @return {boolean} false if it has some meaning and could be stored on the server, true if it's completely pointless
+	 */
+	empty() {
+		if(this.featuresCount > 0) {
+			return false;
+		}
+		if(this.code !== null) {
+			return false;
+		}
+		if(this.parent !== null) {
+			return false;
+		}
+		if(this.inside.length > 0) {
+			return false;
+		}
+		if(this.location.length > 0) {
+			return false;
+		}
+		if(this.defaultCode !== null) {
+			return false;
+		}
+		return !this.exists;
+
 	}
 
 	/**

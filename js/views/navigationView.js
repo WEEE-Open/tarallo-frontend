@@ -146,9 +146,12 @@ class NavigationView extends FrameworkView {
 	 * @private
 	 */
 	_weeeSave() {
-		// TODO: remove item, add new
-		this.transaction.add(this.currentItem);
+		if(!this.currentItem.empty()) {
+			this.transaction.add(this.currentItem);
+			this._newItem();
+		}
 	}
+
 
 	_transactionCount(count) {
 		if(count === 0) {
