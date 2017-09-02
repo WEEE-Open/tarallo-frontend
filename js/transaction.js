@@ -86,6 +86,25 @@ class Transaction extends FrameworkObject {
 		}
 	}
 
+	commit() {
+		let req = XHR.POST('/Edit',
+			(code, message) => {
+				this.lastErrorCode = code;
+				this.lastErrorMessage = message;
+				this.trigger('transaction-failed');
+			},
+			(data) => {
+				this.trigger('transaction-success');
+			});
+
+		req.send(JSON.stringify(this));
+	}
+
+	completed() {
+		this._reset();
+		this.trigger('transaction-delete');
+	}
+
 	_reset() {
 		this.actionsCounter = 0;
 		this._create.clear();
@@ -94,8 +113,26 @@ class Transaction extends FrameworkObject {
 		this._notes = null;
 	}
 
-	completed() {
-		this._reset();
-		this.trigger('transaction-delete');
+	//noinspection JSUnusedGlobalSymbols
+	/**
+	 * Serialize to JSON. Actually, convert to a serializable object. This gets called by JSON.stringify internally.
+	 *
+	 * @return {{}} whatever, JSON.stringify will serialize it
+	 */
+	toJSON() {
+		let simplified = {};
+		if(this._create.size > 0) {
+			simplified.create = this._create.entries();
+		}
+		if(this._update.size > 0) {
+			simplified.update = this._update.entries();
+		}
+		if(this._delete.size > 0) {
+			simplified.delete = this._delete.entries();
+		}
+		if(this._notes !== null) {
+			simplified.notes = this._notes;
+		}
+		return simplified;
 	}
 }
