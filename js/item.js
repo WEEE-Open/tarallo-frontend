@@ -43,6 +43,12 @@ class Item extends FrameworkObject {
 		 * @type {string|null}
 		 */
 		this.defaultCode = null;
+		/**
+		 * Is this a default item?
+		 *
+		 * @type {boolean}
+		 */
+		this.default = false;
 		/** @type {Array} location */
 		this.location = [];
 	}
@@ -527,6 +533,32 @@ class Item extends FrameworkObject {
 			this.lastErrorCode = 'malformed-response';
 			this.lastErrorMessage = 'Expected "features" to be an object, got ' + (typeof newFeatures);
 			return false;
+		}
+	}
+
+	//noinspection JSUnusedGlobalSymbols
+	/**
+	 * Serialize to JSON. Actually, convert to a serializable object. This gets called by JSON.stringify internally.
+	 *
+	 * @return {{}} whatever, JSON.stringify will serialize it
+	 */
+	toJSON() {
+		let simplified = {};
+		simplified.is_default = this.default;
+		if(this.defaultCode !== null) {
+			simplified.default = this.defaultCode;
+		}
+		if(this.code !== null) {
+			simplified.code = this.code;
+		}
+		if(this.parent !== null) {
+			simplified.parent = this.parent;
+		}
+		if(this.features) {
+			// TODO: use map.
+		}
+		if(this.inside.length > 0) {
+			simplified.content = this.inside;
 		}
 	}
 }

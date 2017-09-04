@@ -72,4 +72,14 @@ class ItemUpdate extends Item {
 	setParent(code) {
 		// TODO: implement
 	}
+
+	//noinspection JSUnusedGlobalSymbols
+	/**
+	 * Serialize to JSON. Actually, convert to a serializable object. This gets called by JSON.stringify internally.
+	 *
+	 * @return {{}} whatever, JSON.stringify will serialize it
+	 */
+	toJSON() {
+		// TODO: implement
+	}
 }
