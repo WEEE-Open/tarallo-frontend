@@ -82,6 +82,9 @@ class NavigationView extends FrameworkView {
 			case 'add':
 				this._newItem();
 				break;
+			case 'transaction':
+				this._transaction();
+				break;
 		}
 	}
 
@@ -131,6 +134,11 @@ class NavigationView extends FrameworkView {
 		this._deleteContent();
 		this._createItemView();
 		this._createSaveButton();
+	}
+
+	_transaction() {
+		this._deleteContent();
+		this.innerView = new TransactionView(this.container, this.transaction);
 	}
 
 	_createSaveButton() {

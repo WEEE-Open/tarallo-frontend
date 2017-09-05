@@ -95,6 +95,7 @@ class rootView extends FrameworkView {
 			case null:
 			case 'add':
 			case 'view':
+			case 'transaction':
 				this._nav();
 				break;
 			default:

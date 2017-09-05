@@ -25,6 +25,7 @@ module.exports = function(grunt) {
 					"js/views/logsView.js",
 					"js/views/navigationView.js",
 					"js/views/textView.js",
+					"js/views/transactionView.js",
 					"js/views/itemView.js"
 				],
 				dest: 'dist/all.js',
