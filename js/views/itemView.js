@@ -49,6 +49,7 @@ class ItemView extends FrameworkView {
 			this.showInsideItems();
 		}
 
+		// TODO: add a listener for code
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
 		this.featuresElement.addEventListener('focusin', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
 		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this));

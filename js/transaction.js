@@ -7,12 +7,19 @@ class Transaction extends FrameworkObject {
 		this._delete = new Map();
 		this._notes = null;
 
-		// use getters if this stuff is ever needed externally:
-		//get create() {
-		//	return this._create.values();
-		//}
-
 		this._reset();
+	}
+
+	get create() {
+		return this._create.values();
+	}
+
+	get update() {
+		return this._update.values();
+	}
+
+	get delete() {
+		return this._delete.values();
 	}
 
 	/**
