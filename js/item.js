@@ -1,15 +1,14 @@
 class Item extends FrameworkObject {
 	constructor(trigger) {
 		super(trigger);
-		this.featuresCount = 0;
-		this.features = {};
+		this.features = new Map();
 		this.defaultFeaturesCount = 0;
 		/**
 		 * @type {null|string}
 		 */
 		this.lastErrorCode = null;
 		this.lastErrorMessage = null;
-		this.defaultFeatures = {};
+		this.defaultFeatures = new Map();
 		this.inside = [];
 		/**
 		 * User-defined parent, to replace location. Available only if explicitly set by the user.
@@ -53,6 +52,10 @@ class Item extends FrameworkObject {
 		this.location = [];
 	}
 
+	get featuresCount() {
+		return this.features.size;
+	}
+
 	/**
 	 * Set parent to replace location once saved on the server
 	 *
@@ -90,19 +93,17 @@ class Item extends FrameworkObject {
 			throw new Error(name + ' is not a feature name');
 		}
 		if(value === null) {
-			if(typeof this.features[name] === 'undefined') {
-				return false;
-			} else {
-				delete this.features[name];
-				this.featuresCount--;
+			if(this.features.has(name)) {
+				this.features.delete(name);
 				return true;
+			} else {
+				return false;
 			}
 		} else {
-			if(this.features[name] === value) {
+			if(this.features.get(name) === value) {
 				return false;
 			} else {
-				this.features[name] = value;
-				this.featuresCount++;
+				this.features.set(name, value);
 				return true;
 			}
 		}
@@ -121,7 +122,7 @@ class Item extends FrameworkObject {
 			throw new Error(name + ' is not a feature name');
 		}
 		if(value === null) {
-			if(typeof this.features[name] === 'undefined') {
+			if(typeof this.defaultFeatures[name] === 'undefined') {
 				return false;
 			} else {
 				delete this.defaultFeatures[name];
@@ -369,7 +370,7 @@ class Item extends FrameworkObject {
 	 * @return {boolean} false if it has some meaning and could be stored on the server, true if it's completely pointless
 	 */
 	empty() {
-		if(this.featuresCount > 0) {
+		if(this.features.size > 0) {
 			return false;
 		}
 		if(this.code !== null) {
@@ -508,7 +509,7 @@ class Item extends FrameworkObject {
 	 * Update features and default features. All in a single function! Which should be called twice with different parameters!
 	 *
 	 * @param {undefined|Array|object} newFeatures - item.features or item.features_default
-	 * @param {Array} oldFeatures - this.features or this.defaultFeatures
+	 * @param {Map} oldFeatures - this.features or this.defaultFeatures
 	 * @param {Function} setFeature - this.setFeature or this.setDefaultFeature
 	 * @param {string} event - event to fire if anything has changed
 	 * @return {boolean}
@@ -521,11 +522,9 @@ class Item extends FrameworkObject {
 
 		if(typeof newFeatures === 'object') {
 			let changed = false;
-			for(let old in oldFeatures) {
-				if(oldFeatures.hasOwnProperty(old)) {
-					if(!newFeatures.hasOwnProperty(old)) {
-						changed = setFeature(old, null) || changed;
-					}
+			for(let old of oldFeatures.keys()) {
+				if(!newFeatures.hasOwnProperty(old)) {
+					changed = setFeature(old, null) || changed;
 				}
 			}
 			for(let feature in newFeatures) {
@@ -564,11 +563,16 @@ class Item extends FrameworkObject {
 		if(this.parent !== null) {
 			simplified.parent = this.parent;
 		}
-		if(this.features) {
-			// TODO: use map.
+		if(this.features.size > 0) {
+			simplified.features = {};
+			for(let [name, value] of this.features) {
+				simplified.features[name] = value;
+			}
 		}
 		if(this.inside.length > 0) {
 			simplified.content = this.inside;
 		}
+
+		return simplified;
 	}
 }
