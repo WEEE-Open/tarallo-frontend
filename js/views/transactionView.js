@@ -6,60 +6,49 @@ class TransactionView extends FrameworkView {
 		 */
 		this.transaction = transaction;
 
-		let h2;
-		let create, modify, remove;
-		this.el.appendChild(h2 = document.createElement("h2"));
-		h2.textContent = "Create";
-		this.el.appendChild(create = document.createElement("div"));
+		this.el.appendChild(document.getElementById("template-transaction").content.cloneNode(true));
+		let create = this.el.querySelector('.create');
+		let modify = this.el.querySelector('.modify');
+		let remove = this.el.querySelector('.remove');
 
-		this.el.appendChild(h2 = document.createElement("h2"));
-		h2.textContent = "Modify";
-		this.el.appendChild(modify = document.createElement("div"));
+		this.notesElement = this.el.querySelector(".notes");
+		this.commitButton = this.el.querySelector("button.commit");
 
-		this.el.appendChild(h2 = document.createElement("h2"));
-		h2.textContent = "Remove";
-		this.el.appendChild(remove = document.createElement("div"));
+		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
+		this.commitButton.addEventListener('click', this._commitClick.bind(this));
 
 		this._printAll(create, modify, remove);
-
-		this.el.appendChild(h2 = document.createElement("h2"));
-		h2.textContent = "Note";
-		this.notesElement = document.createElement("textarea");
-		this.el.appendChild(this.notesElement);
-		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
 	}
 
 	/**
 	 *
-	 * @param {Node} createElement
-	 * @param {Node} updateElement
-	 * @param {Node} removeElement
+	 * @param {Node} createElement - ul
+	 * @param {Node} updateElement - ul
+	 * @param {Node} removeElement - ul
 	 * @private
 	 */
 	_printAll(createElement, updateElement, removeElement) {
-		let ul, create = Array.from(this.transaction.create);
 		// TODO: replace Array.from with something better, but iterators can't tell how many elements are there,
 		// for...of does absolutely nothing for no reason, and documentation is impossible to find since everyone calls
 		// plain objects "map" and floods SERPs with useless information from 10 years ago
+		let create = Array.from(this.transaction.create);
 		if(create.length > 0) {
-			ul = document.createElement("ul");
-			createElement.appendChild(ul);
-			TransactionView._printTree(create, ul);
+			TransactionView._printTree(create, createElement);
 		}
 
 		let update = Array.from(this.transaction.update);
 		if(update.length > 0) {
-			ul = document.createElement("ul");
-			updateElement.appendChild(ul);
-			TransactionView._printTree(update, ul);
+			TransactionView._printTree(update, updateElement);
 		}
 
 		let remove = Array.from(this.transaction.delete);
 		if(remove.length > 0) {
-			ul = document.createElement("ul");
-			removeElement.appendChild(ul);
-			TransactionView._printTree(remove, ul);
+			TransactionView._printTree(remove, removeElement);
 		}
+	}
+
+	_commitClick() {
+		// TODO: implement
 	}
 
 	/**
