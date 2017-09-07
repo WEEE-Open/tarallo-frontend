@@ -96,7 +96,15 @@ class Transaction extends FrameworkObject {
 	commit() {
 		let req = XHR.POST('/Edit',
 			(code, data) => {
-				let message = typeof data.message === 'undefined' ? "no message (!?)" : data.message;
+				// TODO: this needs to be handled inside XHR... maybe this function should be (code, message, data)?
+				let message;
+				if(typeof data === 'undefined' || data === null) {
+					message = null;
+				} else if(typeof data === 'string') {
+					message = data;
+				} else {
+					message = typeof data.message === 'undefined' ? "no message (!?)" : data.message;
+				}
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
 				this.trigger('transaction-failed');
@@ -132,13 +140,13 @@ class Transaction extends FrameworkObject {
 		let simplified = {};
 		if(this._create.size > 0) {
 			// I wonder if this is O(n) or it's optimized somehow...
-			simplified.create = Array.from(this._create.entries());
+			simplified.create = Array.from(this._create.values());
 		}
 		if(this._update.size > 0) {
-			simplified.update = Array.from(this._update.entries());
+			simplified.update = Array.from(this._update.values());
 		}
 		if(this._remove.size > 0) {
-			simplified.delete = Array.from(this._remove.entries());
+			simplified.delete = Array.from(this._remove.values());
 		}
 		if(this._notes !== null) {
 			simplified.notes = this._notes;
