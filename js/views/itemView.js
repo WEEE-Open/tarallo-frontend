@@ -51,8 +51,7 @@ class ItemView extends FrameworkView {
 
 		// TODO: add a listener for code
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
-		this.featuresElement.addEventListener('focusin', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
-		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this));
+		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
@@ -505,7 +504,6 @@ class ItemLocationView extends ItemView {
 		this.breadcrumbsElement = locationContainer.querySelector('.breadcrumbs');
 		this.locationTextBox = null;
 
-		this.breadcrumbsElement.addEventListener('focusin', this.parentInput.bind(this));
 		this.breadcrumbsElement.addEventListener('focusout', this.parentInput.bind(this));
 
 		this.createBreadcrumbs();
