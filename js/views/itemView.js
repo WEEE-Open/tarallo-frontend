@@ -52,6 +52,7 @@ class ItemView extends FrameworkView {
 		// TODO: add a listener for code
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
 		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
+		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
@@ -81,13 +82,22 @@ class ItemView extends FrameworkView {
 	featureInput(event) {
 		if(event.target.classList.contains('value')) {
 			event.stopPropagation();
-			event.preventDefault();
 			let name = event.target.parentElement.dataset.name;
 			if(event.target.value === "") {
 				this.item.setFeature(name, null);
 			} else {
 				this.item.setFeature(name, event.target.value);
 			}
+		}
+	}
+
+	codeInput(event) {
+		event.stopPropagation();
+		let code = this.codeElement.value;
+		if(code === "") {
+			this.item.setCode(null);
+		} else {
+			this.item.setCode(code);
 		}
 	}
 

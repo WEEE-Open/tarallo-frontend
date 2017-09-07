@@ -204,13 +204,20 @@ class Item extends FrameworkObject {
 	/**
 	 * Set item code.
 	 *
-	 * @param {string|int} code
+	 * @param {string|int|null} code
 	 * @return {Item} this
 	 */
 	setCode(code) {
-		code = Item.sanitizeCode(code);
-		this.code = code;
-		this.trigger('code-changed');
+		if(this.exists) {
+			throw new Error("Cannot change code for existing items (" + this.code + ")");
+		}
+		if(code === null) {
+			this.code = null;
+		} else {
+			code = Item.sanitizeCode(code);
+			this.code = code;
+		}
+		//this.trigger('code-changed');
 		return this;
 	}
 
