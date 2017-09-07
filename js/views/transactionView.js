@@ -41,14 +41,14 @@ class TransactionView extends FrameworkView {
 			TransactionView._printTree(update, updateElement);
 		}
 
-		let remove = Array.from(this.transaction.delete);
+		let remove = Array.from(this.transaction.remove);
 		if(remove.length > 0) {
 			TransactionView._printTree(remove, removeElement);
 		}
 	}
 
 	_commitClick() {
-		// TODO: implement
+		this.transaction.commit();
 	}
 
 	/**

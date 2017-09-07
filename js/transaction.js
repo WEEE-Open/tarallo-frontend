@@ -4,7 +4,7 @@ class Transaction extends FrameworkObject {
 		this.actionsCounter = 0;
 		this._create = new Map();
 		this._update = new Map();
-		this._delete = new Map();
+		this._remove = new Map();
 		this._notes = null;
 
 		this._reset();
@@ -18,8 +18,8 @@ class Transaction extends FrameworkObject {
 		return this._update.values();
 	}
 
-	get delete() {
-		return this._delete.values();
+	get remove() {
+		return this._remove.values();
 	}
 
 	/**
@@ -72,11 +72,11 @@ class Transaction extends FrameworkObject {
 			} else if(item.code === null) {
 				throw new Error('Cannot delete items without code');
 			} else {
-				this._push(item, this._delete);
+				this._push(item, this._remove);
 			}
 		} else {
 			let code = Item.sanitizeCode(item);
-			this._push(code, this._delete);
+			this._push(code, this._remove);
 		}
 	}
 
@@ -116,7 +116,7 @@ class Transaction extends FrameworkObject {
 		this.actionsCounter = 0;
 		this._create.clear();
 		this._update.clear();
-		this._delete.clear();
+		this._remove.clear();
 		this._notes = null;
 	}
 
@@ -135,8 +135,8 @@ class Transaction extends FrameworkObject {
 		if(this._update.size > 0) {
 			simplified.update = Array.from(this._update.entries());
 		}
-		if(this._delete.size > 0) {
-			simplified.delete = Array.from(this._delete.entries());
+		if(this._remove.size > 0) {
+			simplified.delete = Array.from(this._remove.entries());
 		}
 		if(this._notes !== null) {
 			simplified.notes = this._notes;
