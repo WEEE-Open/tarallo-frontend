@@ -5,12 +5,14 @@ class ItemView extends FrameworkView {
 	 * @param {HTMLElement} element - An element where the item div will be placed
 	 * @param {Item} item - Item to view
 	 * @param {Translations} language - Language for translated strings
+	 * @param {Logs} logs - Logs, to add error messages
 	 * @param {ItemView|null=null} parentItemView - parent view for subitems, null if it's a root element
 	 */
-	constructor(element, item, language, parentItemView) {
+	constructor(element, item, language, logs, parentItemView) {
 		super(element);
 		this.item = item;
 		this.language = language;
+		this.logs = logs;
 		this.frozen = false;
 		/**
 		 * @type {ItemView|null}
@@ -94,10 +96,16 @@ class ItemView extends FrameworkView {
 	codeInput(event) {
 		event.stopPropagation();
 		let code = this.codeElement.value;
-		if(code === "") {
-			this.item.setCode(null);
-		} else {
-			this.item.setCode(code);
+		try {
+			if(code === "") {
+				this.item.setCode(null);
+			} else {
+				this.item.setCode(code);
+			}
+		} catch(e) {
+			let previous = this.item.code === null ? "none" : '"' + this.item.code + '"';
+			this.codeElement.value = this.item.code;
+			this.logs.add(e.message + ", keeping previous code: " + previous, "E");
 		}
 	}
 
@@ -135,7 +143,7 @@ class ItemView extends FrameworkView {
 	addInside(item) {
 		let container = document.createElement("div");
 
-		let view = new ItemView(container, item, this.language, this);
+		let view = new ItemView(container, item, this.language, this.logs, this);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
 	}
@@ -503,9 +511,10 @@ class ItemLocationView extends ItemView {
 	 * @param {HTMLElement} element - an HTML element
 	 * @param {Item} item - item to show
 	 * @param {Translations} language - Language for translated strings
+	 * @param {Logs} logs - Logs, to add error messages
 	 */
-	constructor(element, item, language) {
-		super(element, item, language, null);
+	constructor(element, item, language, logs) {
+		super(element, item, language, logs, null);
 		let locationContainer = document.createElement("div");
 		let locationContent = document.getElementById("template-location").content.cloneNode(true);
 		locationContainer.appendChild(locationContent);

@@ -235,7 +235,7 @@ class Item extends FrameworkObject {
 		if(Item.isValidCode(code)) {
 			return code;
 		} else {
-			throw new Error('Invalid code: ' + code);
+			throw new Error('Invalid code: "' + code + '"');
 		}
 	}
 
