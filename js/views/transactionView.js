@@ -6,14 +6,27 @@ class TransactionView extends FrameworkView {
 		 */
 		this.transaction = transaction;
 
-		let create = document.createElement("div");
-		let edit = document.createElement("div");
-		let remove = document.createElement("div");
-		// TODO: headings (or usa a template, MAYBE)
-		this.el.appendChild(create);
-		this.el.appendChild(edit);
-		this.el.appendChild(remove);
-		this._printAll(create, edit, remove);
+		let h2;
+		let create, modify, remove;
+		this.el.appendChild(h2 = document.createElement("h2"));
+		h2.textContent = "Create";
+		this.el.appendChild(create = document.createElement("div"));
+
+		this.el.appendChild(h2 = document.createElement("h2"));
+		h2.textContent = "Modify";
+		this.el.appendChild(modify = document.createElement("div"));
+
+		this.el.appendChild(h2 = document.createElement("h2"));
+		h2.textContent = "Remove";
+		this.el.appendChild(remove = document.createElement("div"));
+
+		this._printAll(create, modify, remove);
+
+		this.el.appendChild(h2 = document.createElement("h2"));
+		h2.textContent = "Note";
+		this.notesElement = document.createElement("textarea");
+		this.el.appendChild(this.notesElement);
+		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
 	}
 
 	/**
@@ -25,7 +38,9 @@ class TransactionView extends FrameworkView {
 	 */
 	_printAll(createElement, updateElement, removeElement) {
 		let ul, create = Array.from(this.transaction.create);
-		// TODO: replace Array.from with something better, but iterators can't tell how many elements are there, for...of does absolutely nothing for no reason, and documentation is impossible to find since everyone calls plain objects "map" and flood SERPs with useless information from 10 years ago
+		// TODO: replace Array.from with something better, but iterators can't tell how many elements are there,
+		// for...of does absolutely nothing for no reason, and documentation is impossible to find since everyone calls
+		// plain objects "map" and floods SERPs with useless information from 10 years ago
 		if(create.length > 0) {
 			ul = document.createElement("ul");
 			createElement.appendChild(ul);
@@ -59,6 +74,15 @@ class TransactionView extends FrameworkView {
 			li = document.createElement("li");
 			ul.appendChild(li);
 			li.textContent = items[i].code + ' in ' + items[i].parent;
+		}
+	}
+
+	_notesInput() {
+		let notes = this.notesElement.value;
+		if(notes === "") {
+			this.transaction.setNotes(null);
+		} else {
+			this.transaction.setNotes(notes);
 		}
 	}
 }
