@@ -95,12 +95,14 @@ class Transaction extends FrameworkObject {
 
 	commit() {
 		let req = XHR.POST('/Edit',
-			(code, message) => {
+			(code, data) => {
+				let message = typeof data.message === 'undefined' ? "no message (!?)" : data.message;
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
 				this.trigger('transaction-failed');
 			},
 			(data) => {
+				console.log(data); // TODO: remove
 				this.trigger('transaction-success');
 			});
 
