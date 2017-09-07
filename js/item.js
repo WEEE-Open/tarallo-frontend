@@ -212,6 +212,9 @@ class Item extends FrameworkObject {
 	 * @throws {Error} if item exists
 	 */
 	setCode(code) {
+		if(this.code === code) {
+			return this;
+		}
 		if(this.exists) {
 			throw new Error("Cannot change code for existing items (" + this.code + ")");
 		}
@@ -400,8 +403,6 @@ class Item extends FrameworkObject {
 	 * @private
 	 */
 	_parseItem(item) {
-		this.setExisting();
-
 		if(typeof item.code === 'number') {
 			item.code = item.code.toString();
 		}
@@ -476,6 +477,9 @@ class Item extends FrameworkObject {
 					this._removeInsideIndex(i);
 				}
 			}
+
+			// last things last: this would prevent setCode if it was elsewhere
+			this.setExisting();
 
 			// there isn't really a way to detect here if anything has changed inside
 			// (functions return true/false for success/failure), so trigger an event anyway.

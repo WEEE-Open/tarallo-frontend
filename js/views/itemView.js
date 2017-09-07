@@ -221,11 +221,8 @@ class ItemView extends FrameworkView {
 	 * @see this.freeze
 	 */
 	showFeatures() {
-		for(let name in this.item.features) {
-			// hasOwnProperty is probably useless
-			if(this.item.features.hasOwnProperty(name)) {
-				this.appendFeatureElement(name, this.item.features[name]);
-			}
+		for(let [name, value] of this.item.features) {
+			this.appendFeatureElement(name, value);
 		}
 	}
 
