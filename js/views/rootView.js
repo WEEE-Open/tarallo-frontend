@@ -156,13 +156,6 @@ class rootView extends FrameworkView {
 					this.logs.add('Logout successful, bye', 'S');
 					this.stateHolder.setAll('login');
 					break;
-				case 'transaction-success':
-					// This is even more wrong here, but whatever, will refactor once I get a better idea of where to put this singleton/global stuff
-					this.logs.add('Changes saved to server', 'S');
-					break;
-				case 'transaction-failed':
-					this.logs.add("Failed getting item: " + this.transaction.lastErrorCode + ", " + this.transaction.lastErrorMessage, 'E');
-					break;
 			}
 		}
 
