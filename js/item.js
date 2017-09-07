@@ -203,9 +203,12 @@ class Item extends FrameworkObject {
 
 	/**
 	 * Set item code.
+	 * Null to unset.
 	 *
 	 * @param {string|int|null} code
 	 * @return {Item} this
+	 * @throws {Error} if code is invalid
+	 * @throws {Error} if item exists
 	 */
 	setCode(code) {
 		if(this.exists) {
@@ -225,7 +228,7 @@ class Item extends FrameworkObject {
 	 * Cast code to string, validate and return it
 	 *
 	 * @param {string} code
-	 * @throws Error if code is invalid
+	 * @throws {Error} if code is invalid
 	 * @return {string} code
 	 */
 	static sanitizeCode(code) {

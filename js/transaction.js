@@ -62,8 +62,8 @@ class Transaction extends FrameworkObject {
 	 * Add item to kill list... er, delete list
 	 *
 	 * @param {Item|string|int} item - an item with a code, or a code
-	 * @throws Error when passing a non-existing item or an item without code
-	 * @throws TypeError for invalid parameter type
+	 * @throws {Error} when passing a non-existing item or an item without code
+	 * @throws {TypeError} for invalid parameter type
 	 */
 	addDeleted(item) {
 		if(item instanceof Item) {
