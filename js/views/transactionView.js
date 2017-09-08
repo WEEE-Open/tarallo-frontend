@@ -12,7 +12,8 @@ class TransactionView extends FrameworkView {
 		let remove = this.el.querySelector('.remove');
 
 		this.notesElement = this.el.querySelector(".notes");
-		this.commitButton = this.el.querySelector("button.commit");
+		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
+		this._toggleButton(this.transaction.actionsCounter > 0);
 
 		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
 		this.commitButton.addEventListener('click', this._commitClick.bind(this));
@@ -21,6 +22,7 @@ class TransactionView extends FrameworkView {
 	}
 
 	/**
+	 * Prints all pending operations
 	 *
 	 * @param {Node} createElement - ul
 	 * @param {Node} updateElement - ul
@@ -47,8 +49,24 @@ class TransactionView extends FrameworkView {
 		}
 	}
 
+	/**
+	 * Handle clicking the commit button.
+	 *
+	 * @private
+	 */
 	_commitClick() {
 		this.transaction.commit();
+	}
+
+	/**
+	 * Enable or disable commit button.
+	 * Hint: use transaction.actionsCount.
+	 *
+	 * @param {Boolean} enabled
+	 * @private
+	 */
+	_toggleButton(enabled) {
+		this.commitButton.disabled = !enabled;
 	}
 
 	/**
@@ -66,12 +84,27 @@ class TransactionView extends FrameworkView {
 		}
 	}
 
+	/**
+	 * Handle writing something in the notes textarea
+	 *
+	 * @private
+	 */
 	_notesInput() {
 		let notes = this.notesElement.value;
 		if(notes === "") {
 			this.transaction.setNotes(null);
 		} else {
 			this.transaction.setNotes(notes);
+		}
+	}
+
+	trigger(that, event) {
+		if(that === this.transaction) {
+			if(event === 'transaction-add') {
+				this._toggleButton(true);
+			} else if(event === 'transaction-delete') {
+				this._toggleButton(false);
+			}
 		}
 	}
 }

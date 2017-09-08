@@ -157,6 +157,20 @@ class rootView extends FrameworkView {
 					this.stateHolder.setAll('login');
 					break;
 			}
+		} else if(that === this.transaction) {
+			// Transaction is created here, in rootView, so it makes sense to handle its messages here
+			switch(event) {
+				case 'transaction-success':
+					this.logs.add('Transaction completed', 'S');
+					// TODO: note that inner views will receive "deleted" before "success"...
+					// In this case should be irrelevant, but these "timing" issues are really annoying and I can't find
+					// an elegant solution that doesn't force the programmer to know if every single function s/he calls
+					// will fire an event or not...
+					this.transaction.completed();
+					break;
+				case 'transaction-failed':
+					this.logs.add("Failed committing transaction: " + this.transaction.lastErrorCode + ", " + this.transaction.lastErrorMessage, 'E');
+			}
 		}
 
 		if(propagate && this.currentView !== null) {

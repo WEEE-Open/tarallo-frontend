@@ -210,30 +210,11 @@ class NavigationView extends FrameworkView {
 			} else if(event === 'fetch-failed') {
 				this._requestedFailed()
 			}
-		}
-
-		if(that === this.transaction) {
-			//noinspection FallThroughInSwitchStatementJS
-			switch(event) {
-				case 'transaction-success':
-					this.logs.add('Transaction completed', 'S');
-					this.transaction.completed();
-					// TODO: note that inner views will receive "deleted" before "success"...
-					// In this case should be irrelevant, but these "timing" issues are really annoying and I can't find
-					// an elegant solution that doesn't force the programmer to know if every single function s/he calls
-					// will fire an event or not...
-				case 'transaction-add':
-				case 'transaction-delete':
-					this._transactionCount(this.transaction.actionsCounter);
-					break;
-				case 'transaction-failed':
-					// TODO: maybe events related to global/unique/singleton objects (transaction, translation, session) should be somehere else...
-					// For example in the object that creates them. Which is rootView. Or I should move "new Transaction" in this class,
-					// but I didn't want to lose pending transactions if the session expires...
-					this.logs.add("Failed getting item: " + this.transaction.lastErrorCode + ", " + this.transaction.lastErrorMessage, 'E');
+		} else if(that === this.transaction) {
+			if(event === 'transaction-add' || event === 'transaction-delete') {
+				this._transactionCount(this.transaction.actionsCounter);
 			}
 		}
-
 
 		if(this.innerView !== null) {
 			this.innerView.trigger(that, event);
