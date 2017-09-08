@@ -7,7 +7,7 @@ class Transaction extends FrameworkObject {
 		this._notes = null;
 	}
 
-	get actionsCounter() {
+	get actionsCounte() {
 		return this._create.size + this._update.size + this._remove.size;
 	}
 
@@ -21,6 +21,18 @@ class Transaction extends FrameworkObject {
 
 	get remove() {
 		return this._remove.values();
+	}
+
+	get createCount() {
+		return this._create.size;
+	}
+
+	get updateCount() {
+		return this._update.size;
+	}
+
+	get removeCount() {
+		return this._remove.size;
 	}
 
 	/**

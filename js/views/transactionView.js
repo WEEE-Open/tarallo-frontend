@@ -13,7 +13,7 @@ class TransactionView extends FrameworkView {
 
 		this.notesElement = this.el.querySelector(".notes");
 		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
-		this._toggleButton(this.transaction.actionsCounter > 0);
+		this._toggleButton(this.transaction.actionsCounte > 0);
 
 		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
 		this.commitButton.addEventListener('click', this._commitClick.bind(this));
@@ -30,22 +30,16 @@ class TransactionView extends FrameworkView {
 	 * @private
 	 */
 	_printAll(createElement, updateElement, removeElement) {
-		// TODO: replace Array.from with something better, but iterators can't tell how many elements are there,
-		// for...of does absolutely nothing for no reason, and documentation is impossible to find since everyone calls
-		// plain objects "map" and floods SERPs with useless information from 10 years ago
-		let create = Array.from(this.transaction.create);
-		if(create.length > 0) {
-			TransactionView._printTree(create, createElement);
+		if(this.transaction.createCount > 0) {
+			TransactionView._printTree(this.transaction.create, createElement);
 		}
 
-		let update = Array.from(this.transaction.update);
-		if(update.length > 0) {
-			TransactionView._printTree(update, updateElement);
+		if(this.transaction.updateCount > 0) {
+			TransactionView._printTree(this.transaction.update, updateElement);
 		}
 
-		let remove = Array.from(this.transaction.remove);
-		if(remove.length > 0) {
-			TransactionView._printTree(remove, removeElement);
+		if(this.transaction.removeCount > 0) {
+			TransactionView._printTree(this.transaction.remove, removeElement);
 		}
 	}
 
@@ -71,16 +65,16 @@ class TransactionView extends FrameworkView {
 
 	/**
 	 * @TODO make recursive, add a toString to Item and ItemUpdate (may not have codes)
-	 * @param {Item[]|ItemUpdate[]} items
+	 * @param {Iterable.<Item|ItemUpdate>} items
 	 * @param {Node} ul
 	 * @private
 	 */
 	static _printTree(items, ul) {
-		let i, li, len = items.length;
-		for(i = 0; i < len; i++) {
+		let li;
+		for(let item of items) {
 			li = document.createElement("li");
 			ul.appendChild(li);
-			li.textContent = items[i].code + ' in ' + items[i].parent;
+			li.textContent = item.code + ' in ' + item.parent;
 		}
 	}
 
