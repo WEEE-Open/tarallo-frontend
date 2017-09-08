@@ -1,13 +1,14 @@
 class Transaction extends FrameworkObject {
 	constructor(trigger) {
 		super(trigger);
-		this.actionsCounter = 0;
 		this._create = new Map();
 		this._update = new Map();
 		this._remove = new Map();
 		this._notes = null;
+	}
 
-		this._reset();
+	get actionsCounter() {
+		return this._create.size + this._update.size + this._remove.size;
 	}
 
 	get create() {
@@ -33,7 +34,6 @@ class Transaction extends FrameworkObject {
 	_push(item, map) {
 		if(!map.has(item)) {
 			map.set(item, item);
-			this.actionsCounter++;
 			this.trigger('transaction-add');
 		}
 	}
@@ -118,16 +118,11 @@ class Transaction extends FrameworkObject {
 	}
 
 	completed() {
-		this._reset();
-		this.trigger('transaction-delete');
-	}
-
-	_reset() {
-		this.actionsCounter = 0;
 		this._create.clear();
 		this._update.clear();
 		this._remove.clear();
 		this._notes = null;
+		this.trigger('transaction-delete');
 	}
 
 	//noinspection JSUnusedGlobalSymbols
