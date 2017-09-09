@@ -512,22 +512,31 @@ class ItemLocationView extends ItemView {
 	 */
 	constructor(element, item, language, logs) {
 		super(element, item, language, logs, null);
-		let locationContainer = document.createElement("div");
-		let locationContent = document.getElementById("template-location").content.cloneNode(true);
-		locationContainer.appendChild(locationContent);
+		let locationContainer = document.createElement("div"); // TODO: too many divs?
+		locationContainer.classList.add("itemandlocation");
+		locationContainer.appendChild(document.getElementById("template-location").content.cloneNode(true));
 
 		this.contentsElement = locationContainer.querySelector('.contents');
-		this.breadcrumbsElement = locationContainer.querySelector('.breadcrumbs');
-		this.locationTextBox = null;
+		this.breadcrumbsElement = locationContainer.querySelector('.breadbox .breadcrumbs');
+		this.breadsetterElement = locationContainer.querySelector('.breadbox .breadsetter');
+		this.parentTextbox = locationContainer.querySelector('.breadbox .breadsetter input');
 
-		this.breadcrumbsElement.addEventListener('focusout', this.parentInput.bind(this));
+		this.parentTextbox.addEventListener('focusout', this.parentInput.bind(this));
 
 		this.createBreadcrumbs();
+		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
+		this.moveElements();
 
-		while(element.firstChild) {
-			this.contentsElement.appendChild(element.firstChild);
+		this.el.appendChild(locationContainer);
+	}
+
+	/**
+	 * Take elements from this.el (i.e. ItemView) and move into this.contentsElement.
+	 */
+	moveElements() {
+		while(this.el.firstChild) {
+			this.contentsElement.appendChild(this.el.firstChild);
 		}
-		element.insertBefore(locationContainer, this.el.firstChild);
 	}
 
 	/**
@@ -536,31 +545,36 @@ class ItemLocationView extends ItemView {
 	 * @param {Event} event
 	 */
 	parentInput(event) {
-		// TODO: are these necessary?
 		//event.preventDefault();
 		//event.stopPropagation();
-		if(this.locationTextBox !== null) {
-			let value = this.locationTextBox.value;
-			if(value === null || value === '') {
-				this._toggleBreadcrumbsDuplicate(false);
+		let value = this.parentTextbox.value;
+		let prevParentString = this.item.getParent();
+		if(prevParentString === null) {
+			prevParentString = '';
+		}
+		if(value === '') {
+			try {
 				this.item.setParent(null);
-				event.stopPropagation();
-			} else {
-				this._toggleBreadcrumbsDuplicate(true);
-				this.item.setParent(this.locationTextBox.value);
-				event.stopPropagation();
+			} catch(e) {
+				this.logs.add(e.message, 'E');
+				return;
 			}
+			this._toggleBreadcrumbsDuplicate(false);
+			event.stopPropagation();
+		} else {
+			try {
+				this.item.setParent(this.parentTextbox.value);
+			} catch(e) {
+				this.logs.add('Cannot set parent to "' + value + '": ' + e.message, 'E');
+				this.parentTextbox.value = prevParentString;
+				return;
+			}
+			this._toggleBreadcrumbsDuplicate(true);
+			event.stopPropagation();
 		}
 	}
 
-	deleteBreadcrumbs() {
-		this.locationTextBox = null;
-		while(this.breadcrumbsElement.lastChild) {
-			this.breadcrumbsElement.removeChild(this.breadcrumbsElement.lastChild);
-		}
-	}
-
-	createBreadcrumbs(frozen) {
+	createBreadcrumbs() {
 		this.deleteBreadcrumbs();
 		let len = this.item.location.length;
 		if(len > 0) {
@@ -574,11 +588,17 @@ class ItemLocationView extends ItemView {
 				this.breadcrumbsElement.appendChild(piece);
 			}
 		}
-		this._appendEditableBreadcrumbs(this.item.exists, len > 0, frozen, this.item.getParent() !== null);
+		this._toggleParentTextbox(this.item.exists, len > 0, this.frozen, this.item.getParent() !== null);
+	}
+
+	deleteBreadcrumbs() {
+		while(this.breadcrumbsElement.lastChild) {
+			this.breadcrumbsElement.removeChild(this.breadcrumbsElement.lastChild);
+		}
 	}
 
 	/**
-	 * Decides wether to append the "set parent" textbox to breadcrumbs, and does that.
+	 * Decides wether to show the "set parent" textbox or not, and does that.
 	 * The "decides" part involved drawing a CFG, but the resulting code would have been wider than taller and
 	 * absolutely unreadable.
 	 * To make it at least more compact a truth table has been drawn and Karnaugh maps were used to simplify the
@@ -591,7 +611,7 @@ class ItemLocationView extends ItemView {
 	 * @param {boolean} parent - does item have a "parent" (user-defined, not yet saved on server)
 	 * @private
 	 */
-	_appendEditableBreadcrumbs(exists, location, frozen, parent) {
+	_toggleParentTextbox(exists, location, frozen, parent) {
 		if(
 			!exists && !location && !frozen ||
 			!exists && parent ||
@@ -599,11 +619,9 @@ class ItemLocationView extends ItemView {
 			location && !frozen ||
 			exists && !frozen
 		) {
-			let label = document.createElement('label');
-			label.textContent = 'Location: ';
-			this.locationTextBox = document.createElement('input');
-			label.appendChild(this.locationTextBox);
-			this.breadcrumbsElement.appendChild(label);
+			this.breadsetterElement.style.visibility = "visible";
+		} else {
+			this.breadsetterElement.style.visibility = "hidden";
 		}
 	}
 
@@ -623,24 +641,17 @@ class ItemLocationView extends ItemView {
 				bread[crumb].dataset.href = bread[crumb].href;
 			}
 		}
-		if(this.locationTextBox instanceof HTMLElement) {
-			this.locationTextBox.disabled = !enable;
+		if(this.parentTextbox instanceof HTMLElement) {
+			this.parentTextbox.disabled = !enable;
 		}
 	}
 
 	/**
-	 * Make "set parent" textbox in breadcrumbs editable or not
+	 * Strike out breadcrumbs if a parent has been set.
 	 *
-	 * @param {boolean} enable
+	 * @param {boolean} duplicate
 	 * @private
 	 */
-	_toggleBreadcrumbsEdit(enable) {
-		let breadbox = this.breadcrumbsElement.querySelector('label input');
-		if(breadbox !== null) {
-			breadbox.disabled = !enable;
-		}
-	}
-
 	_toggleBreadcrumbsDuplicate(duplicate) {
 		let a;
 		if(duplicate) {
@@ -660,13 +671,13 @@ class ItemLocationView extends ItemView {
 	freeze() {
 		super.freeze();
 		this._toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
-		this._toggleBreadcrumbsEdit(false);
+		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
 	}
 
 	unfreeze() {
 		super.unfreeze();
 		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
-		this._toggleBreadcrumbsEdit(true);
+		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
 	}
 }
 
