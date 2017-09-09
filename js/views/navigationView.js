@@ -21,7 +21,7 @@ class NavigationView extends FrameworkView {
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.buttonsArea = this.el.querySelector('.navbuttons');
 		this.transactionArea = this.el.querySelector('.transactioncount');
-		this._transactionCount(this.transaction.actionsCounte);
+		this._transactionCount(this.transaction.actionsCount);
 
 		this.container = this.el.querySelector('.itemholder');
 		/** @var {ItemView|null} */
@@ -212,7 +212,7 @@ class NavigationView extends FrameworkView {
 			}
 		} else if(that === this.transaction) {
 			if(event === 'transaction-add' || event === 'transaction-delete') {
-				this._transactionCount(this.transaction.actionsCounte);
+				this._transactionCount(this.transaction.actionsCount);
 			}
 		}
 

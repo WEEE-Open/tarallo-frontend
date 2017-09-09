@@ -13,7 +13,7 @@ class TransactionView extends FrameworkView {
 
 		this.notesElement = this.el.querySelector(".notes");
 		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
-		this._toggleButton(this.transaction.actionsCounte > 0);
+		this._toggleButton(this.transaction.actionsCount > 0);
 
 		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
 		this.commitButton.addEventListener('click', this._commitClick.bind(this));
