@@ -11,7 +11,7 @@ class TransactionView extends FrameworkView {
 		let modify = this.el.querySelector('.modify');
 		let remove = this.el.querySelector('.remove');
 
-		this.notesElement = this.el.querySelector(".notes");
+		this.notesElement = this.el.querySelector("textarea.notes");
 		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
 		this._toggleButton(this.transaction.actionsCount > 0);
 

@@ -52,7 +52,6 @@ class rootView extends FrameworkView {
 
 	clearContainer() {
 		rootView._clearContents(this.container);
-		// TODO: delete current view to prevent unnoticed memory leaks?
 		this.currentView = null;
 	}
 
@@ -161,7 +160,7 @@ class rootView extends FrameworkView {
 			// Transaction is created here, in rootView, so it makes sense to handle its messages here
 			switch(event) {
 				case 'transaction-success':
-					this.logs.add('Transaction completed', 'S');
+					this.logs.add('Changes committed successfully', 'S');
 					// TODO: note that inner views will receive "deleted" before "success"...
 					// In this case should be irrelevant, but these "timing" issues are really annoying and I can't find
 					// an elegant solution that doesn't force the programmer to know if every single function s/he calls

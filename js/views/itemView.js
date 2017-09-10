@@ -57,7 +57,6 @@ class ItemView extends FrameworkView {
 			this.showInsideItems();
 		}
 
-		// TODO: add a listener for code
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
 		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
 		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
