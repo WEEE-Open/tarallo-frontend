@@ -3,7 +3,7 @@
  *
  * @see ItemLocationView ItemLocationView if breadcrumbs/location are also needed
  */
-class ItemView extends FrameworkView {
+class ItemView extends Framework.View {
 	/**
 	 * View and edit an item.
 	 *

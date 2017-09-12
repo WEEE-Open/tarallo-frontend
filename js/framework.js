@@ -1,4 +1,4 @@
-class Framework {
+class TheFramework {
 	constructor() {
 		this.inEvent = false;
 		this.depth = -1;
@@ -34,7 +34,7 @@ class Framework {
 			/**
 			 * Implement this function: consume any necessary event, pass others down to subviews.
 			 *
-			 * @param {Framework.Object} that - object that changed
+			 * @param {TheFramework.Object} that - object that changed
 			 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
 			 */
 			trigger(that, event) {}
@@ -67,8 +67,8 @@ class Framework {
 	/**
 	 * Implement this function: pass events down to any existing view.
 	 *
-	 * @see Framework.View
-	 * @param {Framework.Object} that - object that changed
+	 * @see TheFramework.View
+	 * @param {TheFramework.Object} that - object that changed
 	 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
 	 */
 	propagate(that, event) {}

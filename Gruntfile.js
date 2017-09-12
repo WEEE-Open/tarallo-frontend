@@ -9,8 +9,7 @@ module.exports = function(grunt) {
 			},
 			all: {
 				src: [
-					"js/frameworkobject.js",
-					"js/frameworkview.js",
+					"js/framework.js",
 					"js/XHR.js",
 					"js/log.js",
 					"js/item.js",

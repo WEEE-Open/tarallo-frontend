@@ -1,4 +1,4 @@
-class TextView extends FrameworkView {
+class TextView extends Framework.View {
 	constructor(el, text) {
 		super(el);
 		let p = document.createElement("p");

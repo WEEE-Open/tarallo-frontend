@@ -1,4 +1,4 @@
-class stateHolder extends FrameworkObject {
+class stateHolder extends TheFramework.Object {
 	/**
 	 * Keep current URL state, keeps URL current, keeps current state URL.
 	 *

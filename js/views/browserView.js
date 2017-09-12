@@ -1,4 +1,4 @@
-class browserView extends FrameworkView {
+class browserView extends Framework.View {
 	constructor() {
 		super(window);
 		// requires a lot of ifs in view constructors for initialization, while triggering an event reuses whatever logic is already in place

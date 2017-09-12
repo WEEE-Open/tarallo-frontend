@@ -53,9 +53,9 @@ class Log {
 /**
  * Every log message
  */
-class Logs extends FrameworkObject {
-	constructor(trigger) {
-		super(trigger);
+class Logs extends Controller.Object {
+	constructor() {
+		super();
 
 		/**
 		 * Logged messages

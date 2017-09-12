@@ -1,4 +1,4 @@
-class LogsView extends FrameworkView {
+class LogsView extends Framework.View {
 	/**
 	 * Shows log messages.
 	 *

@@ -1,4 +1,4 @@
-class Transaction extends FrameworkObject {
+class Transaction extends TheFramework.Object {
 	constructor(trigger) {
 		super(trigger);
 		this._create = new Map();

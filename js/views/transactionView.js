@@ -1,4 +1,4 @@
-class TransactionView extends FrameworkView {
+class TransactionView extends Framework.View {
 	constructor(el, transaction) {
 		super(el);
 		/**

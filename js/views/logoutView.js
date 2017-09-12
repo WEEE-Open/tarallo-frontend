@@ -1,11 +1,10 @@
-class LogoutView extends FrameworkView {
+class LogoutView extends Framework.View {
 	/**
 	 * Shows which user is currently logged in, and a logout button.
 	 *
 	 * @param {HTMLElement} element
 	 * @param {Session} session
 	 * @param {Logs} logs
-	 * @see FrameworkView.constructor
 	 */
 	constructor(element, session, logs) {
 		super(element);

@@ -1,11 +1,10 @@
-class LoginView extends FrameworkView {
+class LoginView extends Framework.View {
 	/**
 	 * Shows a login form and log messages.
 	 *
 	 * @param {HTMLElement} element an HTML element
 	 * @param {Logs} logs
 	 * @param {Session} session
-	 * @see FrameworkView.constructor
 	 */
 	constructor(element, logs, session) {
 		super(element);

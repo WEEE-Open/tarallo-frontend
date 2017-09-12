@@ -1,4 +1,4 @@
-class NavigationView extends FrameworkView {
+class NavigationView extends Framework.View {
 	/**
 	 * @param {HTMLElement} el
 	 * @param {Logs} logs

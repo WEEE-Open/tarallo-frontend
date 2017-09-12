@@ -1,4 +1,4 @@
-class rootView extends FrameworkView {
+class rootView extends Framework.View {
 	/**
 	 * @param {HTMLElement} body - an HTML element (not body, actually: it's a div)
 	 * @param {stateHolder} stateHolder - throw that state somewhere!
