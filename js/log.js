@@ -53,7 +53,7 @@ class Log {
 /**
  * Every log message
  */
-class Logs extends Controller.Object {
+class Logs extends Framework.Object {
 	constructor() {
 		super();
 

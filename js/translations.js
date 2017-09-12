@@ -1,4 +1,4 @@
-class Translations extends TheFramework.Object {
+class Translations extends Framework.Object {
 	/**
 	 * @param {Function} trigger(this, event)
 	 * @param {string} code Language code

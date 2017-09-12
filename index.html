@@ -79,16 +79,8 @@
 <script>
 	(function () {
 		"use strict";
-		class Controller extends TheFramework {
-			constructor() {
-				super();
-				this.browserView = new browserView();
-			}
-
-			propagate(that, event) {
-				this.browserView.trigger(that, event);
-			}
-		}
+		// TODO: doesn't work for no reason
+		Framework.setRootView(new browserView());
 	})();
 </script>
 </body>

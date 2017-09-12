@@ -5,7 +5,7 @@ let XHR = (function() {
 	/**
 	 * @param {string} path - URL parameter (e.g. /Login)
 	 * @return {XMLHttpRequest}
-	 * @see Controller.reqSetHandler
+	 * @see XHR.reqSetHandler
 	 *
 	 * @param {Function} onfail - function(code, message)
 	 * @param {Function} onsuccess - function(data), data is decoded JSON
@@ -24,7 +24,7 @@ let XHR = (function() {
 	/**
 	 * @param {string} path URL parameter (e.g. /Login)
 	 * @return {XMLHttpRequest}
-	 * @see Controller.reqSetHandler
+	 * @see XHR.reqSetHandler
 	 *
 	 * @param {Function} onfail - function(code, message)
 	 * @param {Function} onsuccess - function(data), data is decoded JSON

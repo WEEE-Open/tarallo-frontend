@@ -1,4 +1,4 @@
-class Session extends TheFramework.Object {
+class Session extends Framework.Object {
 	constructor(trigger) {
 		super(trigger);
 

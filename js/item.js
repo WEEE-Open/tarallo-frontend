@@ -1,4 +1,4 @@
-class Item extends TheFramework.Object {
+class Item extends Framework.Object {
 	constructor(trigger) {
 		super(trigger);
 		this.features = new Map();

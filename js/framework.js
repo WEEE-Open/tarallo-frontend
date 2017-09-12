@@ -1,49 +1,43 @@
-class TheFramework {
-	constructor() {
-		this.inEvent = false;
-		this.depth = -1;
-		/** @type {StoredEvent[]} */
-		this.nextEvents = [];
+Framework = {
+	inEvent: false,
+	depth: -1,
+	/** @type {StoredEvent[]} */
+	nextEvents: [],
+	StoredEvent: class StoredEvent {
+		constructor(that, event) {
+			this.that = that;
+			this.event = event;
+		}
+	},
 
-		this.StoredEvent = class StoredEvent {
-			constructor(that, event) {
-				this.that  = that;
-				this.event = event;
-			}
-		};
+	Object: class {
+		constructor() {
+			// TODO: prevent double binding?
+			this.trigger = Framework.trigger.bind(Framework, this);
+		}
+	},
 
-		let mainTrigger = this.trigger;
-
-		this.Object = class {
-			constructor() {
-				this.trigger = mainTrigger.bind(this, this);
-			}
-		};
-
-		this.View = class {
-			/**
-			 * Pass some container element in which the view should be rendered.
-			 * New element, already existing element, cloned element returned from HTML template, anything is acceptable.
-			 *
-			 * @param {HTMLElement} element - an HTML element
-			 */
-			constructor(element) {
-				this.el = element;
-			}
-
-			/**
-			 * Implement this function: consume any necessary event, pass others down to subviews.
-			 *
-			 * @param {TheFramework.Object} that - object that changed
-			 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
-			 */
-			trigger(that, event) {}
+	View: class {
+		/**
+		 * Pass some container element in which the view should be rendered.
+		 * New element, already existing element, cloned element returned from HTML template, anything is acceptable.
+		 *
+		 * @param {HTMLElement} element - an HTML element
+		 */
+		constructor(element) {
+			this.el = element;
 		}
 
-	}
+		/**
+		 * Implement this function: consume any necessary event, pass others down to subviews.
+		 *
+		 * @param {Framework.Object} that - object that changed
+		 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
+		 */
+		trigger(that, event) {}
+	},
 
-
-	trigger(that, event) {
+	trigger: function(that, event) {
 		if(this.inEvent) {
 			this.nextEvents.push(new this.StoredEvent(that, event));
 			return;
@@ -52,7 +46,7 @@ class TheFramework {
 		this.inEvent = true;
 		this.depth++;
 
-		this.propagate(that, event);
+		this.rootView.trigger(that, event);
 
 		this.inEvent = false;
 		if(this.depth <= 0) {
@@ -62,14 +56,12 @@ class TheFramework {
 			}
 		}
 		this.depth--;
-	}
+	},
 
 	/**
-	 * Implement this function: pass events down to any existing view.
-	 *
-	 * @see TheFramework.View
-	 * @param {TheFramework.Object} that - object that changed
-	 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
+	 * @param {Framework.View} view
 	 */
-	propagate(that, event) {}
-}
+	setRootView: function(view) {
+		this.rootView = view;
+	}
+};
