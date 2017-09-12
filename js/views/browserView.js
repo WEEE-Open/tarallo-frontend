@@ -10,7 +10,8 @@ class browserView extends Framework.View {
 		// useless:
 		//window.onpopstate = this.urlChanged.bind(this);
 		window.onhashchange = this.urlChanged.bind(this);
-		this.urlChanged();
+		//this.urlChanged(); // TODO: why is this even needed? Doesn't appear to set anything useful and fires an event
+		// during initial Views setup, which causes everything to crash and burn.
 	}
 
 	urlChanged(/*event*/) {
