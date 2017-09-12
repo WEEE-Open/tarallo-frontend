@@ -10,7 +10,36 @@ class Framework {
 				this.that  = that;
 				this.event = event;
 			}
+		};
+
+		let mainTrigger = this.trigger;
+
+		this.Object = class {
+			constructor() {
+				this.trigger = mainTrigger.bind(this, this);
+			}
+		};
+
+		this.View = class {
+			/**
+			 * Pass some container element in which the view should be rendered.
+			 * New element, already existing element, cloned element returned from HTML template, anything is acceptable.
+			 *
+			 * @param {HTMLElement} element - an HTML element
+			 */
+			constructor(element) {
+				this.el = element;
+			}
+
+			/**
+			 * Implement this function: consume any necessary event, pass others down to subviews.
+			 *
+			 * @param {Framework.Object} that - object that changed
+			 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
+			 */
+			trigger(that, event) {}
 		}
+
 	}
 
 
@@ -34,4 +63,13 @@ class Framework {
 		}
 		this.depth--;
 	}
+
+	/**
+	 * Implement this function: pass events down to any existing view.
+	 *
+	 * @see Framework.View
+	 * @param {Framework.Object} that - object that changed
+	 * @param {string} event - string representing the event (add/delte/remove/push/pop/shift/create/new/whatever)
+	 */
+	propagate(that, event) {}
 }
