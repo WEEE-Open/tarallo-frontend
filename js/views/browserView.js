@@ -1,6 +1,6 @@
 class browserView extends Framework.View {
 	constructor() {
-		super(window);
+		super(null);
 		// requires a lot of ifs in view constructors for initialization, while triggering an event reuses whatever logic is already in place
 		//this.state = new stateHolder(this.trigger, browserView.splitPieces(window.location.hash));
 		this.state = new stateHolder(this.trigger);
