@@ -22,11 +22,41 @@ class ComputerView extends Framework.View {
 		this.logs = logs;
 
 		this.el.appendChild(document.getElementById("template-computer").content.cloneNode(true));
+		this.contentsElement = this.el.querySelector(".contents");
+		this.fullTemplate = document.getElementById("template-computer-component-full").content;
+		this.emptyTemplate = document.getElementById("template-computer-component-full").content;
 		// TODO: handle nulls
 		this.el.querySelector(".brand").textContent = this.item.features.get("brand");
 		this.el.querySelector(".model").textContent = this.item.features.get("model");
 		this.el.querySelector(".header button").addEventListener("click", this.editClick.bind(this));
 	}
 
+	buildContents() {
 
+	}
+
+	/**
+	 *
+	 * @param {Item} component
+	 */
+	buildComponent(component) {
+		// TODO: translations + handle nulls
+		// querySelector(".type").textContent = component.features.get("type");
+	}
+
+
+	/**
+	 * Build a card/cell/slot/whatever for a missing component/item.
+	 *
+	 * @param {string} type - RAM, CPU, and so on
+	 * @return {Node}
+	 */
+	buildMissingComponent(type) {
+		// TODO: translations + handle nulls
+		let newThing = this.emptyTemplate.cloneNode(true);
+		newThing.querySelector(".type").textContent = type;
+		newThing.classList.add("component");
+		newThing.classList.add("missing");
+		return newThing;
+	}
 }
