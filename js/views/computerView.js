@@ -25,10 +25,24 @@ class ComputerView extends Framework.View {
 		this.contentsElement = this.el.querySelector(".contents");
 		this.fullTemplate = document.getElementById("template-computer-component-full").content;
 		this.emptyTemplate = document.getElementById("template-computer-component-full").content;
-		// TODO: handle nulls
-		this.el.querySelector(".brand").textContent = this.item.features.get("brand");
-		this.el.querySelector(".model").textContent = this.item.features.get("model");
+
+		this.fillTemplate();
+		this.buildContents();
+
 		this.el.querySelector(".header button").addEventListener("click", this.editClick.bind(this));
+	}
+
+	editClick() {
+		// TODO: implement
+	}
+
+	fillTemplate() {
+		// TODO: handle nulls
+		this.el.querySelector(".header .brand").textContent = this.item.features.get("brand");
+		this.el.querySelector(".header .model").textContent = this.item.features.get("model");
+		let location = this.item.location[this.item.location.length - 1];
+		let aLocation = this.el.querySelector(".header .location").textContent = location;
+		aLocation.href = '#/View/' + location;
 	}
 
 	buildContents() {
