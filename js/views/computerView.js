@@ -46,7 +46,19 @@ class ComputerView extends Framework.View {
 	}
 
 	buildContents() {
+		let cpu = [], mobo = [], ram = [], hdd = [], odd = [], gpu =[];
+		this.contentsFinder(this.item);
+	}
 
+	/**
+	 *
+	 * @param {Item} item
+	 */
+	contentsFinder(item) {
+		for(let i = 0; i < item.inside.length; i++) {
+			// TODO: finish implementation
+			this.contentsFinder(item.inside[i]);
+		}
 	}
 
 	/**
