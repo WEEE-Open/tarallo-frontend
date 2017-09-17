@@ -12,13 +12,15 @@ class ItemView extends Framework.View {
 	 * @param {Item} item - Item to view
 	 * @param {Translations} language - Language for translated strings
 	 * @param {Logs} logs - Logs, to add error messages
+	 * @param {Transaction} transaction - Transaction, to edit and delete items
 	 * @param {ItemView|null=null} parentItemView - parent view for subitems, null if it's a root element
 	 */
-	constructor(element, item, language, logs, parentItemView) {
+	constructor(element, item, language, logs, transaction, parentItemView) {
 		super(element);
 		this.item = item;
 		this.language = language;
 		this.logs = logs;
+		this.transaction = transaction;
 		this.frozen = false;
 		/**
 		 * @type {ItemView|null}
@@ -42,9 +44,7 @@ class ItemView extends Framework.View {
 			this.showCode(item.code);
 		}
 		if(item.exists) {
-			// TODO: this should be more of a "permanent freeze" (or permafrost)
-			this.freezeCode();
-			this.freezeDelete();
+			this.permafreeze();
 		}
 		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
@@ -148,7 +148,7 @@ class ItemView extends Framework.View {
 	addInside(item) {
 		let container = document.createElement("div");
 
-		let view = new ItemView(container, item, this.language, this.logs, this);
+		let view = new ItemView(container, item, this.language, this.logs, this.transaction, this);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
 	}
@@ -160,6 +160,7 @@ class ItemView extends Framework.View {
 	 */
 	freeze() {
 		this.frozen = true;
+		// TODO: make these reversible, if not permafrozen?
 		this.freezeCode();
 		this.freezeDelete();
 		this._toggleFreezable(true);
@@ -218,6 +219,14 @@ class ItemView extends Framework.View {
 			this.subViews[i].unfreezeRecursive();
 		}
 		this.unfreeze();
+	}
+
+	permafreeze() {
+		this.freezeCode();
+		this.codeElement.classList.add('permafrost');
+		this.freezeDelete();
+		this.deleteItemButton.classList.add('permafrost');
+		this.deleteItemButton.display = 'none';
 	}
 
 	/**
@@ -435,12 +444,12 @@ class ItemView extends Framework.View {
 			return;
 		}
 
-		event.preventDefault();
-		event.stopPropagation();
-
 		if(this.item.exists) {
 			throw new Error('Cannot delete items that already exist');
 		}
+
+		event.preventDefault();
+		event.stopPropagation();
 
 		/**
 		 * For some absurd reason, PHPStorm insists this is an Item,

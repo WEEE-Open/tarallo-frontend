@@ -198,7 +198,7 @@ class NavigationView extends Framework.View {
 	}
 
 	_createItemView() {
-		this.innerView = new ItemLocationView(this.container, this.currentItem, this.language, this.logs);
+		this.innerView = new ItemLocationView(this.container, this.currentItem, this.language, this.transaction, this.logs);
 	}
 
 	trigger(that, event) {

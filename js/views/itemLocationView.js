@@ -6,10 +6,11 @@ class ItemLocationView extends ItemView {
 	 * @param {HTMLElement} element - an HTML element
 	 * @param {Item} item - item to show
 	 * @param {Translations} language - Language for translated strings
+	 * @param {Transaction} transaction - Transaction, to edit and delete items
 	 * @param {Logs} logs - Logs, to add error messages
 	 */
-	constructor(element, item, language, logs) {
-		super(element, item, language, logs, null);
+	constructor(element, item, language, transaction, logs) {
+		super(element, item, language, logs, transaction, null);
 		let locationContainer = document.createElement("div"); // TODO: too many divs?
 		locationContainer.classList.add("itemandlocation");
 		locationContainer.appendChild(document.getElementById("template-location").content.cloneNode(true));
