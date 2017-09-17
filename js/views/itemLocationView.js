@@ -19,8 +19,11 @@ class ItemLocationView extends ItemView {
 		this.breadcrumbsElement = locationContainer.querySelector('.breadbox .breadcrumbs');
 		this.breadsetterElement = locationContainer.querySelector('.breadbox .breadsetter');
 		this.parentTextbox = locationContainer.querySelector('.breadbox .breadsetter input');
+		this.deleteItemButton.parentNode.removeChild(this.deleteItemButton); // replace button
+		this.deleteItemButton = locationContainer.querySelector('.tablecloth .delete');
 
 		this.parentTextbox.addEventListener('focusout', this.parentInput.bind(this));
+		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
 
 		this.createBreadcrumbs();
 		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
@@ -71,6 +74,33 @@ class ItemLocationView extends ItemView {
 			this._toggleBreadcrumbsDuplicate(true);
 			event.stopPropagation();
 		}
+	}
+
+	freezeDelete() {
+		this.toggleDeleteButton(this.item.exists);
+	}
+
+	deleteItemClick(event) {
+		try {
+			this.transaction.addDeleted(this.item);
+		} catch(e) {
+			this.logs.add(e.message, 'E');
+			return;
+		}
+
+		this.transaction.addDeleted(this.item);
+		// TODO: hide item itself
+	}
+
+	/**
+	 * Enable or disable the "delete from server" button.
+	 * Disabled button is hidden, actually.
+	 *
+	 * @param {boolean} enabled
+	 */
+	toggleDeleteButton(enabled) {
+		this.deleteItemButton.disabled = !enabled;
+		this.deleteItemButton.visibility = 'hidden';
 	}
 
 	createBreadcrumbs() {
