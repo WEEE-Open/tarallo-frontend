@@ -39,13 +39,14 @@ class Transaction extends Framework.Object {
 	 * Layers and layers of abstraction.
 	 * Add item to a map, increment counters, fire triggers, and the like.
 	 *
-	 * @param {*} item
+	 * @param {*} key
+	 * @param {*} value
 	 * @param {Map} map
 	 * @private
 	 */
-	_push(item, map) {
-		if(!map.has(item)) {
-			map.set(item, item);
+	_push(key, value, map) {
+		if(!map.has(key)) {
+			map.set(key, value);
 			this.trigger('transaction-add');
 		}
 	}
@@ -57,39 +58,52 @@ class Transaction extends Framework.Object {
 	 * @param {Item} item
 	 */
 	add(item) {
-		this._push(item, this._create);
+		this._push(item, item, this._create);
 	}
 
 	/**
 	 * Add an item changeset(?) to upload
 	 *
-	 * @todo use ItemUpdate class
-	 * @param {ItemUpdate} item
+	 * @param {ItemUpdate} itemUpdate
+	 * @throws {Error} Items that don't exist or don't have codes
+	 * @throws {TypeError} if item is not an ItemUpdate, to prevent Item objects accidentally slipping in this method
 	 */
-	addUpdated(item) {
-		this._push(item, this._update);
+	addUpdated(itemUpdate) {
+		if(!(itemUpdate instanceof ItemUpdate)) {
+			throw new TypeError("Item updates should be instances of ItemUpdate, " + typeof itemUpdate + " given");
+		}
+		if(!itemUpdate.exists) {
+			// This is kind of complicated to explain to an user, but hopefully this message shouldn't turn up anywhere during normal operation
+			throw new Error("Cannot submit patches to items that don't exist yet, edit the new item waiting to be committed instead");
+		}
+		if(itemUpdate.code === null) {
+			throw new Error("Cannot edit items without code");
+		}
+		this._push(itemUpdate.code, itemUpdate, this._update);
 	}
 
 	/**
 	 * Add item to kill list... er, delete list
 	 *
-	 * @param {Item|string|int} item - an item with a code, or a code
+	 * @param {Item|string|int} item - an item with a code, or a code. Always pass an Item if available.
 	 * @throws {Error} when passing a non-existing item or an item without code
 	 * @throws {TypeError} for invalid parameter type
 	 */
 	addDeleted(item) {
+		let code;
 		if(item instanceof Item) {
 			if(item.exists === false) {
 				throw new Error('Cannot delete items that don\'t even exist on the server (' + item.code + ')')
 			} else if(item.code === null) {
 				throw new Error('Cannot delete items without code');
 			} else {
-				this._push(item, this._remove);
+				code = item.code;
 			}
 		} else {
-			let code = Item.sanitizeCode(item);
-			this._push(code, this._remove);
+			// "item" is actually a string here, so it needs sanitization
+			code = Item.sanitizeCode(item);
 		}
+		this._push(code, code, this._remove);
 	}
 
 	/**
