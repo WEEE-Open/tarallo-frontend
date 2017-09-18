@@ -89,7 +89,7 @@ class ItemLocationView extends ItemView {
 		}
 
 		this.transaction.addDeleted(this.item);
-		// TODO: hide item itself
+		this.trigger(this.item, 'item-deleted');
 	}
 
 	/**

@@ -510,5 +510,16 @@ class ItemView extends Framework.View {
 				// TODO: update view
 			}
 		}
+
+		if(that === this.item) {
+			if(event === 'item-deleted') {
+				// TODO: hide item
+				return; // stop propagation, unless items can be inside themselves
+			}
+		}
+
+		for(let i = 0; i < this.subViews.length; i++) {
+			this.subViews[i].trigger(that, event);
+		}
 	}
 }
