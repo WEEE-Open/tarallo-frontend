@@ -20,7 +20,7 @@ class ItemLocationView extends ItemView {
 		this.breadsetterElement = locationContainer.querySelector('.breadbox .breadsetter');
 		this.parentTextbox = locationContainer.querySelector('.breadbox .breadsetter input');
 		this.deleteItemButton.parentNode.removeChild(this.deleteItemButton); // replace button
-		this.deleteItemButton = locationContainer.querySelector('.tablecloth .delete');
+		this.deleteItemButton = locationContainer.querySelector('.breadbox .delete');
 
 		this.parentTextbox.addEventListener('focusout', this.parentInput.bind(this));
 		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
@@ -28,6 +28,7 @@ class ItemLocationView extends ItemView {
 		this.createBreadcrumbs();
 		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
 		this.moveElements();
+		this.toggleDeleteButton(this.item.exists);
 
 		this.el.appendChild(locationContainer);
 	}
@@ -100,7 +101,11 @@ class ItemLocationView extends ItemView {
 	 */
 	toggleDeleteButton(enabled) {
 		this.deleteItemButton.disabled = !enabled;
-		this.deleteItemButton.visibility = 'hidden';
+		if(enabled) {
+			this.deleteItemButton.style.visibility = 'visible';
+		} else {
+			this.deleteItemButton.style.visibility = 'hidden';
+		}
 	}
 
 	createBreadcrumbs() {

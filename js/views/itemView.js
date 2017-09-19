@@ -46,6 +46,9 @@ class ItemView extends Framework.View {
 		if(item.exists) {
 			this.permafreeze();
 		}
+		if(this.item.code !== null && this.transaction.remove.has(this.item.code)) {
+
+		}
 		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
 			this.showDefaultFeatures();
@@ -170,10 +173,10 @@ class ItemView extends Framework.View {
 	 * @see this.freeze
 	 */
 	freezeRecursive() {
+		this.freeze();
 		for(let i = 0; i < this.subViews.length; i++) {
 			this.subViews[i].freezeRecursive();
 		}
-		this.freeze();
 	}
 
 	_toggleFreezable(disabled) {
