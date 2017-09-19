@@ -478,9 +478,6 @@ class Item extends Framework.Object {
 				}
 			}
 
-			// last things last: this would prevent setCode if it was elsewhere
-			this.setExisting();
-
 			// there isn't really a way to detect here if anything has changed inside
 			// (functions return true/false for success/failure), so trigger an event anyway.
 			// this is in post-order: innermost elements trigger first, outermost last, so
@@ -505,6 +502,9 @@ class Item extends Framework.Object {
 			// it should never be undefined in normal conditions, actually, but still...
 			this.setLocation([]);
 		}
+
+		// last things last: this would prevent setCode if it was elsewhere
+		this.setExisting();
 
 		return true;
 	}
