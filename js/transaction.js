@@ -1,43 +1,34 @@
 class Transaction extends Framework.Object {
 	constructor(trigger) {
 		super(trigger);
-		this._create = new Map();
-		this._update = new Map();
-		this._remove = new Map();
-		this._notes = null;
+		/** @type {Map.<Item,Item>} this.create */
+		this.create = new Map();
+		/** @type {Map.<string,ItemUpdate>} this.update */
+		this.update = new Map();
+		/** @type {Map.<string,string>} this.remove */
+		this.remove = new Map();
+		this.notes = null;
 	}
 
 	get actionsCount() {
-		return this._create.size + this._update.size + this._remove.size;
-	}
-
-	get create() {
-		return this._create.values();
-	}
-
-	get update() {
-		return this._update.values();
-	}
-
-	get remove() {
-		return this._remove.values();
+		return this.create.size + this.update.size + this.remove.size;
 	}
 
 	get createCount() {
-		return this._create.size;
+		return this.create.size;
 	}
 
 	get updateCount() {
-		return this._update.size;
+		return this.update.size;
 	}
 
 	get removeCount() {
-		return this._remove.size;
+		return this.remove.size;
 	}
 
 	/**
 	 * Layers and layers of abstraction.
-	 * Add item to a map, increment counters, fire triggers, and the like.
+	 * Add item to a map, fire triggers, and the like.
 	 *
 	 * @param {*} key
 	 * @param {*} value
@@ -58,7 +49,7 @@ class Transaction extends Framework.Object {
 	 * @param {Item} item
 	 */
 	add(item) {
-		this._push(item, item, this._create);
+		this._push(item, item, this.create);
 	}
 
 	/**
@@ -79,7 +70,7 @@ class Transaction extends Framework.Object {
 		if(itemUpdate.code === null) {
 			throw new Error("Cannot edit items without code");
 		}
-		this._push(itemUpdate.code, itemUpdate, this._update);
+		this._push(itemUpdate.code, itemUpdate, this.update);
 	}
 
 	/**
@@ -103,7 +94,7 @@ class Transaction extends Framework.Object {
 			// "item" is actually a string here, so it needs sanitization
 			code = Item.sanitizeCode(item);
 		}
-		this._push(code, code, this._remove);
+		this._push(code, code, this.remove);
 	}
 
 	/**
@@ -113,7 +104,7 @@ class Transaction extends Framework.Object {
 	 */
 	setNotes(notes) {
 		if(notes === null || typeof notes === 'string') {
-			this._notes = notes;
+			this.notes = notes;
 		} else {
 			throw new TypeError('Notes must be null or string, ' + typeof notes + ' given');
 		}
@@ -144,10 +135,10 @@ class Transaction extends Framework.Object {
 	}
 
 	completed() {
-		this._create.clear();
-		this._update.clear();
-		this._remove.clear();
-		this._notes = null;
+		this.create.clear();
+		this.update.clear();
+		this.remove.clear();
+		this.notes = null;
 		this.trigger('transaction-delete');
 	}
 
@@ -159,18 +150,18 @@ class Transaction extends Framework.Object {
 	 */
 	toJSON() {
 		let simplified = {};
-		if(this._create.size > 0) {
+		if(this.create.size > 0) {
 			// I wonder if this is O(n) or it's optimized somehow...
-			simplified.create = Array.from(this._create.values());
+			simplified.create = Array.from(this.create.values());
 		}
-		if(this._update.size > 0) {
-			simplified.update = Array.from(this._update.values());
+		if(this.update.size > 0) {
+			simplified.update = Array.from(this.update.values());
 		}
-		if(this._remove.size > 0) {
-			simplified.delete = Array.from(this._remove.values());
+		if(this.remove.size > 0) {
+			simplified.delete = Array.from(this.remove.values());
 		}
-		if(this._notes !== null) {
-			simplified.notes = this._notes;
+		if(this.notes !== null) {
+			simplified.notes = this.notes;
 		}
 		return simplified;
 	}

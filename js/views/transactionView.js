@@ -31,15 +31,15 @@ class TransactionView extends Framework.View {
 	 */
 	_printAll(createElement, updateElement, removeElement) {
 		if(this.transaction.createCount > 0) {
-			TransactionView._printTree(this.transaction.create, createElement);
+			TransactionView._printTree(this.transaction.create.values(), createElement);
 		}
 
 		if(this.transaction.updateCount > 0) {
-			TransactionView._printTree(this.transaction.update, updateElement);
+			TransactionView._printTree(this.transaction.update.values(), updateElement);
 		}
 
 		if(this.transaction.removeCount > 0) {
-			TransactionView._printTree(this.transaction.remove, removeElement);
+			TransactionView._printTree(this.transaction.remove.values(), removeElement);
 		}
 	}
 
@@ -65,7 +65,7 @@ class TransactionView extends Framework.View {
 
 	/**
 	 * @TODO make recursive, add a toString to Item and ItemUpdate (may not have codes)
-	 * @param {Iterable.<Item|ItemUpdate>} items
+	 * @param items an Iterable type. PHPStorm suddenly stopped understanding this simple concept and began claiming that Iterable.<Item> is not an Iterable.<Item>.
 	 * @param {Node} ul
 	 * @private
 	 */
@@ -74,7 +74,11 @@ class TransactionView extends Framework.View {
 		for(let item of items) {
 			li = document.createElement("li");
 			ul.appendChild(li);
-			li.textContent = item.code + ' in ' + item.parent;
+			if(item instanceof Item) { // TODO: does this work for ItemUpdate, too?
+				li.textContent = item.code + ' in ' + item.parent;
+			} else if(typeof item === 'string') {
+				li.textContent = item;
+			}
 		}
 	}
 
