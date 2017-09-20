@@ -48,7 +48,7 @@ class ItemView extends Framework.View {
 			this.permafreeze();
 		}
 		if(this.item.code !== null && this.transaction.remove.has(this.item.code)) {
-
+			this._toggleDeleted(true);
 		}
 		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
@@ -68,6 +68,8 @@ class ItemView extends Framework.View {
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
 		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
+		//this.editItemButton.addEventListener('click', this.editItemButtonClick.bind(this));
+		//this.saveItemButton.addEventListener('click', this.saveItemButtonClick.bind(this));
 	}
 
 	/**
@@ -178,9 +180,6 @@ class ItemView extends Framework.View {
 	 */
 	freeze() {
 		this.frozen = true;
-		// TODO: make these reversible, if not permafrozen?
-		this.freezeCode();
-		this.freezeDelete();
 		this._toggleFreezable(true);
 	}
 
@@ -194,10 +193,29 @@ class ItemView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Really freeze stuff.
+	 * Don't call directly!
+	 *
+	 * @see this.freeze
+	 * @see this.unfreeze
+	 * @param {boolean} disabled
+	 * @private
+	 */
 	_toggleFreezable(disabled) {
 		this.__toggleFreezable(this.itemEl, disabled);
 	}
 
+	/**
+	 * Freeze an HTML element, recursively, depending on its classlist.
+	 * Don't even think to use this directly.
+	 *
+	 * @see this.freeze
+	 * @see this.unfreeze
+	 * @param {Node|HTMLElement} el
+	 * @param {boolean} disabled
+	 * @private
+	 */
 	__toggleFreezable(el, disabled) {
 		let elements = el.children;
 		for(let i = 0; i < elements.length; i++) {
@@ -240,9 +258,9 @@ class ItemView extends Framework.View {
 	}
 
 	permafreeze() {
-		this.freezeCode();
+		this.codeElement.disabled = true;
 		this.codeElement.classList.add('permafrost');
-		this.freezeDelete();
+		this.deleteItemButton.disabled = true;
 		this.deleteItemButton.classList.add('permafrost');
 		this.deleteItemButton.display = 'none';
 	}
@@ -444,14 +462,6 @@ class ItemView extends Framework.View {
 		this.codeElement.value = code;
 	}
 
-	freezeCode() {
-		this.codeElement.disabled = true;
-	}
-
-	freezeDelete() {
-		this.deleteItemButton.disabled = true;
-	}
-
 	/**
 	 * Handler for clicking the "delete item" button.
 	 * Deleting a root element is ignored, the event keeps propagating.
@@ -530,10 +540,19 @@ class ItemView extends Framework.View {
 			}
 		}
 
+		if(that === this.transaction) {
+			if(event === 'to-delete') {
+				if(this.item.exists && this.transaction.remove.has(this.item.code)) {
+					this._toggleDeleted(true);
+					return; // stop propagation, unless items can be inside themselves
+				}
+			}
+		}
+
 		if(that === this.item) {
-			if(event === 'item-deleted') {
-				this._toggleDeleted(true);
-				return; // stop propagation, unless items can be inside themselves
+			if(event === 'change') {
+				this.permafreeze();
+				return;
 			}
 		}
 

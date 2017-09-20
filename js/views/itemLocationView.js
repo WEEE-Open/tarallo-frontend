@@ -86,11 +86,7 @@ class ItemLocationView extends ItemView {
 			this.transaction.addDeleted(this.item);
 		} catch(e) {
 			this.logs.add(e.message, 'E');
-			return;
 		}
-
-		this.transaction.addDeleted(this.item);
-		this.trigger(this.item, 'item-deleted');
 	}
 
 	/**
