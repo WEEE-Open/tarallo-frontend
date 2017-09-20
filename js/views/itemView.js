@@ -27,18 +27,19 @@ class ItemView extends Framework.View {
 		 */
 		this.parentItemView = parentItemView ? parentItemView : null;
 		this.subViews = [];
-		this.el.appendChild(ItemView._newElement());
+		this.itemEl = ItemView._newElement();
+		this.el.appendChild(this.itemEl);
 
 		// querySelector uses depth-first search, so as long as these are before .inside there should be no problem.
 		// also, no subitems should exist at this stage...
-		this.codeElement = this.el.querySelector('.code');
-		this.featuresElement = this.el.querySelector('.features');
-		this.defaultFeaturesElement = this.el.querySelector('.defaultfeatures');
-		this.insideElement = this.el.querySelector('.inside');
-		this.selectFeatureElement = this.el.querySelector('.featuretextbox');
-		this.deleteItemButton = this.el.querySelector('.itemdeletebutton');
-		let addFieldButton = this.el.querySelector('.addfield');
-		let addItemButton = this.el.querySelector('.additem');
+		this.codeElement = this.itemEl.querySelector('.code');
+		this.featuresElement = this.itemEl.querySelector('.features');
+		this.defaultFeaturesElement = this.itemEl.querySelector('.defaultfeatures');
+		this.insideElement = this.itemEl.querySelector('.inside');
+		this.selectFeatureElement = this.itemEl.querySelector('.featuretextbox');
+		this.deleteItemButton = this.itemEl.querySelector('.itemdeletebutton');
+		let addFieldButton = this.itemEl.querySelector('.addfield');
+		let addItemButton = this.itemEl.querySelector('.additem');
 
 		if(item.code !== null) {
 			this.showCode(item.code);
@@ -157,6 +158,20 @@ class ItemView extends Framework.View {
 	}
 
 	/**
+	 * Show (or rather not show) an item that has been deleted. Or show it if it gets "undeleted".
+	 *
+	 * @param {boolean} deleted
+	 * @private
+	 */
+	_toggleDeleted(deleted) {
+		if(deleted) {
+			this.itemEl.classList.add("deleted");
+		} else {
+			this.itemEl.classList.remove("deleted");
+		}
+	}
+
+	/**
 	 * Set item as non-editable.
 	 *
 	 * @see this.unfreeze
@@ -180,7 +195,7 @@ class ItemView extends Framework.View {
 	}
 
 	_toggleFreezable(disabled) {
-		this.__toggleFreezable(this.el, disabled);
+		this.__toggleFreezable(this.itemEl, disabled);
 	}
 
 	__toggleFreezable(el, disabled) {
@@ -414,6 +429,7 @@ class ItemView extends Framework.View {
 
 	/**
 	 * Create a container element, for a single item, and return it.
+	 * This is necessary since the containing "el" isn't owned by the view so it shouldn't be changed, but hiding deleted items or other such things require hiding the entire container...
 	 *
 	 * @return {HTMLElement} container
 	 */
@@ -516,7 +532,7 @@ class ItemView extends Framework.View {
 
 		if(that === this.item) {
 			if(event === 'item-deleted') {
-				// TODO: hide item
+				this._toggleDeleted(true);
 				return; // stop propagation, unless items can be inside themselves
 			}
 		}

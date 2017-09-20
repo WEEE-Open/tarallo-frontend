@@ -81,6 +81,15 @@ template {
     padding-right: 0.1em;
 }
 
+.item.deleted > * {
+    display: none;
+}
+
+.item.deleted {
+    /* TODO: add a message saying it's deleted (and don't hide it) instead of this ugly border */
+    border: 0.3em solid red;
+}
+
 .item .freezable-hide.disabled, .item .freezable-hide:disabled {
     display: none;
 }
@@ -95,4 +104,8 @@ template {
 
 .hidden, .wip {
     display: none;
+}
+
+.itemandlocation {
+    border: 0.1em solid black;
 }
