@@ -27,18 +27,16 @@ class Transaction extends Framework.Object {
 	}
 
 	/**
-	 * Layers and layers of abstraction.
-	 * Add item to a map, fire triggers, and the like.
+	 * Add item to a map if doesn't exist.
 	 *
 	 * @param {*} key
 	 * @param {*} value
 	 * @param {Map} map
 	 * @private
 	 */
-	_push(key, value, map) {
+	static _push(key, value, map) {
 		if(!map.has(key)) {
 			map.set(key, value);
-			this.trigger('transaction-add');
 		}
 	}
 
@@ -49,7 +47,8 @@ class Transaction extends Framework.Object {
 	 * @param {Item} item
 	 */
 	add(item) {
-		this._push(item, item, this.create);
+		Transaction._push(item, item, this.create);
+		this.trigger('to-add');
 	}
 
 	/**
@@ -70,7 +69,8 @@ class Transaction extends Framework.Object {
 		if(itemUpdate.code === null) {
 			throw new Error("Cannot edit items without code");
 		}
-		this._push(itemUpdate.code, itemUpdate, this.update);
+		Transaction._push(itemUpdate.code, itemUpdate, this.update);
+		this.trigger('to-update');
 	}
 
 	/**
@@ -94,7 +94,8 @@ class Transaction extends Framework.Object {
 			// "item" is actually a string here, so it needs sanitization
 			code = Item.sanitizeCode(item);
 		}
-		this._push(code, code, this.remove);
+		Transaction._push(code, code, this.remove);
+		this.trigger('to-delete');
 	}
 
 	/**
@@ -124,22 +125,22 @@ class Transaction extends Framework.Object {
 				}
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
-				this.trigger('transaction-failed');
+				this.trigger('failed');
 			},
 			(data) => {
 				console.log(data); // TODO: remove
-				this.trigger('transaction-success');
+				this.trigger('success');
 			});
 
 		req.send(JSON.stringify(this));
 	}
 
-	completed() {
+	clear() {
 		this.create.clear();
 		this.update.clear();
 		this.remove.clear();
 		this.notes = null;
-		this.trigger('transaction-delete');
+		this.trigger('reset');
 	}
 
 	//noinspection JSUnusedGlobalSymbols

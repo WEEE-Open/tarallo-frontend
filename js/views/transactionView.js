@@ -98,9 +98,9 @@ class TransactionView extends Framework.View {
 
 	trigger(that, event) {
 		if(that === this.transaction) {
-			if(event === 'transaction-add') {
+			if(event === 'to-add' || event === 'to-update' || event === 'to-delete') {
 				this._toggleButton(true);
-			} else if(event === 'transaction-delete') {
+			} else if(event === 'reset') {
 				this._toggleButton(false);
 			}
 		}

@@ -211,7 +211,7 @@ class NavigationView extends Framework.View {
 				this._requestedFailed()
 			}
 		} else if(that === this.transaction) {
-			if(event === 'transaction-add' || event === 'transaction-delete') {
+			if(event === 'to-add' || event === 'to-update' || event === 'to-delete' || event === 'reset') {
 				this._transactionCount(this.transaction.actionsCount);
 			}
 		}
