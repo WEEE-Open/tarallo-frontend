@@ -19,7 +19,9 @@
 </template>
 <template id="template-item">
 	<label>Codice: <input class="code" type="text" placeholder="(Generato automaticamente)"></label>
-	<button class="itemeditbutton">Modifica</button><button class="itemsavebutton">Salva</button><button class="itemdeletebutton">Elimina</button>
+	<div class="itembuttons">
+		<button class="itemeditbutton">Modifica</button><button class="itemsavebutton">Salva</button><button class="itemdeletebutton">Elimina</button>
+	</div>
 	<div class="features">
 
 	</div>
@@ -42,7 +44,6 @@
 	<div class="breadbox">
 		<nav class="breadcrumbs"></nav>
 		<div class="breadsetter"><label>Set parent: <input></label></div>
-		<button class="delete">Elimina per sempre questo oggetto</button>
 	</div>
 	<div class="contents"></div>
 </template>

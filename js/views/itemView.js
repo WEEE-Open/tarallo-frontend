@@ -50,7 +50,7 @@ class ItemView extends Framework.View {
 			this.permafreeze();
 		}
 		if(this.item.code !== null && this.transaction.remove.has(this.item.code)) {
-			this._toggleDeleted(true);
+			this.toggleDeleted(true);
 		}
 		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
@@ -174,9 +174,10 @@ class ItemView extends Framework.View {
 	 * Show (or rather not show) an item that has been deleted. Or show it if it gets "undeleted".
 	 *
 	 * @param {boolean} deleted
-	 * @private
+	 * @protected
 	 */
-	_toggleDeleted(deleted) {
+	toggleDeleted(deleted) {
+		// TODO: show undo button?
 		if(deleted) {
 			this.itemEl.classList.add("deleted");
 		} else {
@@ -194,6 +195,7 @@ class ItemView extends Framework.View {
 		this._toggleFreezable(true);
 		this.editItemButton.style.display = '';
 		this.saveItemButton.style.display = 'none';
+		this.deleteItemButton.style.display = 'none';
 	}
 
 	/**
@@ -260,6 +262,7 @@ class ItemView extends Framework.View {
 		this._toggleFreezable(false);
 		this.editItemButton.style.display = 'none';
 		this.saveItemButton.style.display = '';
+		this.deleteItemButton.style.display = '';
 	}
 
 	/**
@@ -275,9 +278,6 @@ class ItemView extends Framework.View {
 	permafreeze() {
 		this.codeElement.disabled = true;
 		this.codeElement.classList.add('permafrost');
-		this.deleteItemButton.disabled = true;
-		this.deleteItemButton.classList.add('permafrost');
-		this.deleteItemButton.display = 'none';
 	}
 
 	/**
@@ -480,28 +480,21 @@ class ItemView extends Framework.View {
 	/**
 	 * Handler for clicking the "delete item" button.
 	 * Deleting a root element is ignored, the event keeps propagating.
-	 *
-	 * @param {Event} event
 	 */
-	deleteItemClick(event) {
-		if(this.parentItemView === null) {
-			return;
-		}
+	deleteItemClick() {
+		//if(this.parentItemView === null) {
+		//	return;
+		//}
 
 		if(this.item.exists) {
-			throw new Error('Cannot delete items that already exist');
+			try {
+				this.transaction.addDeleted(this.item);
+			} catch(e) {
+				this.logs.add(e.message, 'E');
+			}
+		} else {
+			this.parentItemView.deleteItemInside(this);
 		}
-
-		event.preventDefault();
-		event.stopPropagation();
-
-		/**
-		 * For some absurd reason, PHPStorm insists this is an Item,
-		 * ignoring all the JSDoc, and keeps suggesting Item methods.
-		 *
-		 * @type {ItemView|null}
-		 */
-		this.parentItemView.deleteItemInside(this);
 	}
 
 	/**
@@ -558,7 +551,7 @@ class ItemView extends Framework.View {
 		if(that === this.transaction) {
 			if(event === 'to-delete') {
 				if(this.item.exists && this.transaction.remove.has(this.item.code)) {
-					this._toggleDeleted(true);
+					this.toggleDeleted(true);
 					return; // stop propagation, unless items can be inside themselves
 				}
 			}

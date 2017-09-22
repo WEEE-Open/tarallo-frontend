@@ -19,16 +19,12 @@ class ItemLocationView extends ItemView {
 		this.breadcrumbsElement = locationContainer.querySelector('.breadbox .breadcrumbs');
 		this.breadsetterElement = locationContainer.querySelector('.breadbox .breadsetter');
 		this.parentTextbox = locationContainer.querySelector('.breadbox .breadsetter input');
-		this.deleteItemButton.parentNode.removeChild(this.deleteItemButton); // replace button
-		this.deleteItemButton = locationContainer.querySelector('.breadbox .delete');
 
 		this.parentTextbox.addEventListener('focusout', this.parentInput.bind(this));
-		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
 
 		this.createBreadcrumbs();
-		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
+		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
 		this.moveElements();
-		this.toggleDeleteButton(this.item.exists);
 
 		this.el.appendChild(locationContainer);
 	}
@@ -77,33 +73,6 @@ class ItemLocationView extends ItemView {
 		}
 	}
 
-	freezeDelete() {
-		this.toggleDeleteButton(this.item.exists);
-	}
-
-	deleteItemClick(event) {
-		try {
-			this.transaction.addDeleted(this.item);
-		} catch(e) {
-			this.logs.add(e.message, 'E');
-		}
-	}
-
-	/**
-	 * Enable or disable the "delete from server" button.
-	 * Disabled button is hidden, actually.
-	 *
-	 * @param {boolean} enabled
-	 */
-	toggleDeleteButton(enabled) {
-		this.deleteItemButton.disabled = !enabled;
-		if(enabled) {
-			this.deleteItemButton.style.visibility = 'visible';
-		} else {
-			this.deleteItemButton.style.visibility = 'hidden';
-		}
-	}
-
 	createBreadcrumbs() {
 		this.deleteBreadcrumbs();
 		let len = this.item.location.length;
@@ -118,7 +87,7 @@ class ItemLocationView extends ItemView {
 				this.breadcrumbsElement.appendChild(piece);
 			}
 		}
-		this._toggleParentTextbox(this.item.exists, len > 0, this.frozen, this.item.getParent() !== null);
+		this._toggleParentTextboxOnCondition(this.item.exists, len > 0, this.frozen, this.item.getParent() !== null);
 	}
 
 	deleteBreadcrumbs() {
@@ -141,7 +110,7 @@ class ItemLocationView extends ItemView {
 	 * @param {boolean} parent - does item have a "parent" (user-defined, not yet saved on server)
 	 * @private
 	 */
-	_toggleParentTextbox(exists, location, frozen, parent) {
+	_toggleParentTextboxOnCondition(exists, location, frozen, parent) {
 		if(
 			!exists && !location && !frozen ||
 			!exists && parent ||
@@ -149,6 +118,14 @@ class ItemLocationView extends ItemView {
 			location && !frozen ||
 			exists && !frozen
 		) {
+			this._toggleParentTextbox(true);
+		} else {
+			this._toggleParentTextbox(false);
+		}
+	}
+
+	_toggleParentTextbox(enabled) {
+		if(enabled) {
 			this.breadsetterElement.style.visibility = "visible";
 		} else {
 			this.breadsetterElement.style.visibility = "hidden";
@@ -201,12 +178,17 @@ class ItemLocationView extends ItemView {
 	freeze() {
 		super.freeze();
 		this._toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
-		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
+		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
 	}
 
 	unfreeze() {
 		super.unfreeze();
 		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
-		this._toggleParentTextbox(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
+		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
+	}
+
+	toggleDeleted(deleted) {
+		super.toggleDeleted(deleted);
+		this._toggleParentTextbox(false);
 	}
 }
