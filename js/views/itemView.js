@@ -38,6 +38,8 @@ class ItemView extends Framework.View {
 		this.insideElement = this.itemEl.querySelector('.inside');
 		this.selectFeatureElement = this.itemEl.querySelector('.featuretextbox');
 		this.deleteItemButton = this.itemEl.querySelector('.itemdeletebutton');
+		this.editItemButton = this.itemEl.querySelector('.itemeditbutton');
+		this.saveItemButton = this.itemEl.querySelector('.itemsavebutton');
 		let addFieldButton = this.itemEl.querySelector('.addfield');
 		let addItemButton = this.itemEl.querySelector('.additem');
 
@@ -68,8 +70,8 @@ class ItemView extends Framework.View {
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
 		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
 		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
-		//this.editItemButton.addEventListener('click', this.editItemButtonClick.bind(this));
-		//this.saveItemButton.addEventListener('click', this.saveItemButtonClick.bind(this));
+		this.editItemButton.addEventListener('click', this.editItemButtonClick.bind(this));
+		this.saveItemButton.addEventListener('click', this.saveItemButtonClick.bind(this));
 	}
 
 	/**
@@ -159,6 +161,15 @@ class ItemView extends Framework.View {
 		this.insideElement.appendChild(container);
 	}
 
+	editItemButtonClick() {
+		this.unfreeze();
+	}
+
+	saveItemButtonClick() {
+		// TODO: this.transaction.addUpdated(null);
+		this.freezeRecursive();
+	}
+
 	/**
 	 * Show (or rather not show) an item that has been deleted. Or show it if it gets "undeleted".
 	 *
@@ -181,6 +192,8 @@ class ItemView extends Framework.View {
 	freeze() {
 		this.frozen = true;
 		this._toggleFreezable(true);
+		this.editItemButton.style.display = '';
+		this.saveItemButton.style.display = 'none';
 	}
 
 	/**
@@ -245,6 +258,8 @@ class ItemView extends Framework.View {
 	unfreeze() {
 		this.frozen = false;
 		this._toggleFreezable(false);
+		this.editItemButton.style.display = 'none';
+		this.saveItemButton.style.display = '';
 	}
 
 	/**
