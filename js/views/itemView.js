@@ -44,7 +44,7 @@ class ItemView extends Framework.View {
 		let addItemButton = this.itemEl.querySelector('.additem');
 
 		if(item.code !== null) {
-			this.showCode(item.code);
+			this.codeElement.value = item.code;
 		}
 		if(item.exists) {
 			this.permafreeze();
@@ -78,6 +78,7 @@ class ItemView extends Framework.View {
 	 * Handler for clicking anywhere in the feature box (delete features)
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	featureClick(event) {
 		if(event.target.classList.contains("featuredeletebutton")) {
@@ -93,6 +94,7 @@ class ItemView extends Framework.View {
 	 * Empty input counts as no feature. Or as a feature with empty content. Still undecided.
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	featureInput(event) {
 		if(event.target.classList.contains('value')) {
@@ -106,6 +108,12 @@ class ItemView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Handle inserting a code
+	 *
+	 * @param {Event} event
+	 * @private
+	 */
 	codeInput(event) {
 		event.stopPropagation();
 		let code = this.codeElement.value;
@@ -126,6 +134,7 @@ class ItemView extends Framework.View {
 	 * Handler for the "add feature" button
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	addFeatureClick(event) {
 		event.stopPropagation();
@@ -140,6 +149,7 @@ class ItemView extends Framework.View {
 	 * Handler for the "add item" button
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	addItemClick(event) {
 		event.stopPropagation();
@@ -152,6 +162,7 @@ class ItemView extends Framework.View {
 	 * Create a container, attach a view and add it to the current view, for the supplied item.
 	 *
 	 * @param {Item} item - an item
+	 * @protected
 	 */
 	addInside(item) {
 		let container = document.createElement("div");
@@ -161,12 +172,22 @@ class ItemView extends Framework.View {
 		this.insideElement.appendChild(container);
 	}
 
+	/**
+	 * Handle clicking on the "edit" button to unfreeze the item.
+	 *
+	 * @private
+	 */
 	editItemButtonClick() {
 		this.unfreeze();
 	}
 
+	/**
+	 * Handle clicking on the "save" button, to save modifications and freeze the element
+	 *
+	 * @private
+	 */
 	saveItemButtonClick() {
-		// TODO: this.transaction.addUpdated(null);
+		// TODO: this.transaction.addUpdated(...);
 		this.freezeRecursive();
 	}
 
@@ -189,10 +210,11 @@ class ItemView extends Framework.View {
 	 * Set item as non-editable.
 	 *
 	 * @see this.unfreeze
+	 * @protected
 	 */
 	freeze() {
 		this.frozen = true;
-		this._toggleFreezable(true);
+		this.toggleFreezable(true);
 		this.editItemButton.style.display = '';
 		this.saveItemButton.style.display = 'none';
 		this.deleteItemButton.style.display = 'none';
@@ -200,6 +222,7 @@ class ItemView extends Framework.View {
 
 	/**
 	 * @see this.freeze
+	 * @protected
 	 */
 	freezeRecursive() {
 		this.freeze();
@@ -217,8 +240,8 @@ class ItemView extends Framework.View {
 	 * @param {boolean} disabled
 	 * @private
 	 */
-	_toggleFreezable(disabled) {
-		this.__toggleFreezable(this.itemEl, disabled);
+	toggleFreezable(disabled) {
+		this._toggleFreezable(this.itemEl, disabled);
 	}
 
 	/**
@@ -231,7 +254,7 @@ class ItemView extends Framework.View {
 	 * @param {boolean} disabled
 	 * @private
 	 */
-	__toggleFreezable(el, disabled) {
+	_toggleFreezable(el, disabled) {
 		let elements = el.children;
 		for(let i = 0; i < elements.length; i++) {
 			if(elements[i].classList.contains("inside")) {
@@ -248,7 +271,7 @@ class ItemView extends Framework.View {
 					elements[i].classList.remove('disabled');
 				}
 			}
-			this.__toggleFreezable(elements[i], disabled);
+			this._toggleFreezable(elements[i], disabled);
 		}
 	}
 
@@ -256,10 +279,11 @@ class ItemView extends Framework.View {
 	 * Set item as editable again (except for the code)
 	 *
 	 * @see this.freeze
+	 * @protected
 	 */
 	unfreeze() {
 		this.frozen = false;
-		this._toggleFreezable(false);
+		this.toggleFreezable(false);
 		this.editItemButton.style.display = 'none';
 		this.saveItemButton.style.display = '';
 		this.deleteItemButton.style.display = '';
@@ -267,6 +291,7 @@ class ItemView extends Framework.View {
 
 	/**
 	 * @see this.unfreeze
+	 * @protected
 	 */
 	unfreezeRecursive() {
 		for(let i = 0; i < this.subViews.length; i++) {
@@ -275,6 +300,11 @@ class ItemView extends Framework.View {
 		this.unfreeze();
 	}
 
+	/**
+	 * Disable changing code, as it shouldn't be done to existing items
+	 *
+	 * @protected
+	 */
 	permafreeze() {
 		this.codeElement.disabled = true;
 		this.codeElement.classList.add('permafrost');
@@ -284,6 +314,7 @@ class ItemView extends Framework.View {
 	 * Display features from the item, in editable format. Use freeze() to make them not editable.
 	 *
 	 * @see this.freeze
+	 * @private
 	 */
 	showFeatures() {
 		for(let [name, value] of this.item.features) {
@@ -297,7 +328,8 @@ class ItemView extends Framework.View {
 	 *
 	 * @param {string} name feature name
 	 * @param {string} value feature value
-	 * @see this._createFeatureElement
+	 * @see this.createFeatureElement
+	 * @private
 	 */
 	appendFeatureElement(name, value) {
 		let features = this.featuresElement.children;
@@ -308,7 +340,7 @@ class ItemView extends Framework.View {
 			}
 		}
 
-		let parent, newElement = this._createFeatureElement(name, value);
+		let parent, newElement = this.createFeatureElement(name, value);
 		let translation = this.language.get(name, this.language.features);
 		let inserted = false;
 
@@ -334,6 +366,7 @@ class ItemView extends Framework.View {
 	 *
 	 * @param {string} name - feature name
 	 * @param {Node} [element] - outermost element to delete, if already known (avoids a for loop)
+	 * @private
 	 */
 	removeFeatureElement(name, element) {
 		let thisFeature;
@@ -366,6 +399,7 @@ class ItemView extends Framework.View {
 	 *
 	 * @param {string} name feature name
 	 * @param {boolean} duplicate is duplicate
+	 * @private
 	 */
 	setDefaultFeatureDuplicate(name, duplicate) {
 		let row = this.defaultFeaturesElement.querySelector('[data-name="' + name + '"]');
@@ -384,8 +418,9 @@ class ItemView extends Framework.View {
 	 * @param {string} name feature name
 	 * @param {string} value feature value
 	 * @return {Element} new element
+	 * @private
 	 */
-	_createFeatureElement(name, value) {
+	createFeatureElement(name, value) {
 		let newElement, nameElement, valueElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
@@ -416,6 +451,7 @@ class ItemView extends Framework.View {
 
 	/**
 	 * Display default features. These are never editable.
+	 * @private
 	 */
 	showDefaultFeatures() {
 		// looks very much like showFeatures, but there are many subtle differences, using a single function didn't work too well...
@@ -444,16 +480,25 @@ class ItemView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Exactly what it says on the tin
+	 *
+	 * @protected
+	 */
 	showInsideItems() {
 		let subitem;
-		// TODO: reuse same items if possible
-		this.removeInsideItems();
+		this.removeInsideItems(); // TODO: reuse same items if possible
 		for(let i = 0; i < this.item.inside.length; i++) {
 			subitem = this.item.inside[i];
 			this.addInside(subitem);
 		}
 	}
 
+	/**
+	 * Remove items located inside this item from the view
+	 *
+	 * @protected
+	 */
 	removeInsideItems() {
 		while(this.insideElement.lastElementChild) {
 			this.insideElement.removeChild(this.insideElement.lastElementChild);
@@ -465,6 +510,7 @@ class ItemView extends Framework.View {
 	 * This is necessary since the containing "el" isn't owned by the view so it shouldn't be changed, but hiding deleted items or other such things require hiding the entire container...
 	 *
 	 * @return {HTMLElement} container
+	 * @private
 	 */
 	static _newElement() {
 		let container = document.createElement("div");
@@ -473,13 +519,11 @@ class ItemView extends Framework.View {
 		return container;
 	}
 
-	showCode(code) {
-		this.codeElement.value = code;
-	}
-
 	/**
 	 * Handler for clicking the "delete item" button.
 	 * Deleting a root element is ignored, the event keeps propagating.
+	 *
+	 * @private
 	 */
 	deleteItemClick() {
 		//if(this.parentItemView === null) {
@@ -501,6 +545,7 @@ class ItemView extends Framework.View {
 	 * Delete a subitem via its ItemView.
 	 *
 	 * @param {ItemView} removeThis - item view to delete
+	 * @protected
 	 */
 	deleteItemInside(removeThis) {
 		this.item.removeInside(removeThis.item);
@@ -512,6 +557,7 @@ class ItemView extends Framework.View {
 	 * Populate the dropdown. Useful for not filling read-only pages with a million option tags.
 	 *
 	 * @param {boolean} force repopulate if already populated or not
+	 * @private
 	 */
 	static populateFeatureDropdown(force = false) {
 		if(!force && !!this.selectFeatureElement.lastElementChild) {
