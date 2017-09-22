@@ -23,10 +23,11 @@ class ItemLocationView extends ItemView {
 		this.parentTextbox.addEventListener('focusout', this.parentInput.bind(this));
 
 		this.createBreadcrumbs();
-		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
 		this.moveElements();
 
 		this.el.appendChild(locationContainer);
+		console.log(this.itemEl);
 	}
 
 	/**
@@ -87,7 +88,7 @@ class ItemLocationView extends ItemView {
 				this.breadcrumbsElement.appendChild(piece);
 			}
 		}
-		this._toggleParentTextboxOnCondition(this.item.exists, len > 0, this.frozen, this.item.getParent() !== null);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, len > 0, this.frozen, this.item.getParent() !== null);
 	}
 
 	deleteBreadcrumbs() {
@@ -110,7 +111,7 @@ class ItemLocationView extends ItemView {
 	 * @param {boolean} parent - does item have a "parent" (user-defined, not yet saved on server)
 	 * @private
 	 */
-	_toggleParentTextboxOnCondition(exists, location, frozen, parent) {
+	toggleParentTextboxVisibilityOnCondition(exists, location, frozen, parent) {
 		if(
 			!exists && !location && !frozen ||
 			!exists && parent ||
@@ -118,13 +119,13 @@ class ItemLocationView extends ItemView {
 			location && !frozen ||
 			exists && !frozen
 		) {
-			this._toggleParentTextbox(true);
+			this.toggleParentTextboxVisibility(true);
 		} else {
-			this._toggleParentTextbox(false);
+			this.toggleParentTextboxVisibility(false);
 		}
 	}
 
-	_toggleParentTextbox(enabled) {
+	toggleParentTextboxVisibility(enabled) {
 		if(enabled) {
 			this.breadsetterElement.style.visibility = "visible";
 		} else {
@@ -148,9 +149,10 @@ class ItemLocationView extends ItemView {
 				bread[crumb].dataset.href = bread[crumb].href;
 			}
 		}
-		if(this.parentTextbox instanceof HTMLElement) {
-			this.parentTextbox.disabled = !enable;
-		}
+	}
+
+	toggleParentTextboxEnabled(enable) {
+		this.parentTextbox.disabled = !enable;
 	}
 
 	/**
@@ -178,12 +180,14 @@ class ItemLocationView extends ItemView {
 	freeze() {
 		super.freeze();
 		this._toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
-		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
+		this.toggleParentTextboxEnabled(false);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
 	}
 
 	unfreeze() {
 		super.unfreeze();
 		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
-		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
+		this.toggleParentTextboxEnabled(true);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
 	}
 }
