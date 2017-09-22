@@ -186,9 +186,4 @@ class ItemLocationView extends ItemView {
 		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
 		this._toggleParentTextboxOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
 	}
-
-	toggleDeleted(deleted) {
-		super.toggleDeleted(deleted);
-		this._toggleParentTextbox(false);
-	}
 }

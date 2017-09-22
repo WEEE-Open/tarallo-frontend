@@ -353,16 +353,6 @@ class ItemView extends Framework.View {
 		this.unfreeze();
 	}
 
-	/*
-	 * Disable changing code, as it shouldn't be done to existing items
-	 *
-	 * @protected
-	 */
-	//permafreeze() {
-		//this.codeElement.disabled = true;
-		//this.codeElement.classList.add('permafrost');
-	//}
-
 	/**
 	 * Display features from the item, in editable format. Use freeze() to make them not editable.
 	 *
