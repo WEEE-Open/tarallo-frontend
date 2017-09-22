@@ -27,7 +27,7 @@ class ItemView extends Framework.View {
 		 */
 		this.parentItemView = parentItemView ? parentItemView : null;
 		this.subViews = [];
-		this.itemEl = ItemView._newElement();
+		this.itemEl = ItemView.newElement();
 		this.el.appendChild(this.itemEl);
 
 		// querySelector uses depth-first search, so as long as these are before .inside there should be no problem.
@@ -42,6 +42,8 @@ class ItemView extends Framework.View {
 		this.saveItemButton = this.itemEl.querySelector('.itemsavebutton');
 		let addFieldButton = this.itemEl.querySelector('.addfield');
 		let addItemButton = this.itemEl.querySelector('.additem');
+
+		this.toggleButtons(false);
 
 		if(item.code !== null) {
 			this.codeElement.value = item.code;
@@ -192,6 +194,28 @@ class ItemView extends Framework.View {
 	}
 
 	/**
+	 * Handler for clicking the "delete item" button.
+	 * Deleting a root element is ignored, the event keeps propagating.
+	 *
+	 * @private
+	 */
+	deleteItemClick() {
+		//if(this.parentItemView === null) {
+		//	return;
+		//}
+
+		if(this.item.exists) {
+			try {
+				this.transaction.addDeleted(this.item);
+			} catch(e) {
+				this.logs.add(e.message, 'E');
+			}
+		} else {
+			this.parentItemView.deleteItemInside(this);
+		}
+	}
+
+	/**
 	 * Show (or rather not show) an item that has been deleted. Or show it if it gets "undeleted".
 	 *
 	 * @param {boolean} deleted
@@ -215,9 +239,7 @@ class ItemView extends Framework.View {
 	freeze() {
 		this.frozen = true;
 		this.toggleFreezable(true);
-		this.editItemButton.style.display = '';
-		this.saveItemButton.style.display = 'none';
-		this.deleteItemButton.style.display = 'none';
+		this.toggleButtons(true);
 	}
 
 	/**
@@ -284,9 +306,24 @@ class ItemView extends Framework.View {
 	unfreeze() {
 		this.frozen = false;
 		this.toggleFreezable(false);
-		this.editItemButton.style.display = 'none';
-		this.saveItemButton.style.display = '';
-		this.deleteItemButton.style.display = '';
+		this.toggleButtons(false);
+	}
+
+	/**
+	 * Show and hide the edit, save and delete buttons
+	 *
+	 * @param {boolean} frozen - item currently frozen/not in edit mode?
+	 */
+	toggleButtons(frozen) {
+		if(frozen) {
+			this.editItemButton.style.display = '';
+			this.saveItemButton.style.display = 'none';
+			this.deleteItemButton.style.display = 'none';
+		} else {
+			this.editItemButton.style.display = 'none';
+			this.saveItemButton.style.display = '';
+			this.deleteItemButton.style.display = '';
+		}
 	}
 
 	/**
@@ -512,33 +549,11 @@ class ItemView extends Framework.View {
 	 * @return {HTMLElement} container
 	 * @private
 	 */
-	static _newElement() {
+	static newElement() {
 		let container = document.createElement("div");
 		container.classList.add("item");
 		container.appendChild(document.getElementById("template-item").content.cloneNode(true));
 		return container;
-	}
-
-	/**
-	 * Handler for clicking the "delete item" button.
-	 * Deleting a root element is ignored, the event keeps propagating.
-	 *
-	 * @private
-	 */
-	deleteItemClick() {
-		//if(this.parentItemView === null) {
-		//	return;
-		//}
-
-		if(this.item.exists) {
-			try {
-				this.transaction.addDeleted(this.item);
-			} catch(e) {
-				this.logs.add(e.message, 'E');
-			}
-		} else {
-			this.parentItemView.deleteItemInside(this);
-		}
 	}
 
 	/**
