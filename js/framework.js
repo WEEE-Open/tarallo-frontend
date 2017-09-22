@@ -59,7 +59,7 @@ Framework = {
 	},
 
 	/**
-	 * @param {Framework.View} view
+	 * @param view - some sublclass of Framework.View (a concept that apparently cannot be expressed in JSDoc)
 	 */
 	setRootView: function(view) {
 		this.rootView = view;
