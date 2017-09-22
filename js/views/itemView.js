@@ -49,7 +49,7 @@ class ItemView extends Framework.View {
 			this.codeElement.value = item.code;
 		}
 		if(item.exists) {
-			this.permafreeze();
+			this.toggleCode(false);
 		}
 		if(this.item.code !== null && this.transaction.remove.has(this.item.code)) {
 			this.toggleDeleted(true);
@@ -240,6 +240,7 @@ class ItemView extends Framework.View {
 		this.frozen = true;
 		this.toggleFreezable(true);
 		this.toggleButtons(true);
+		this.toggleCode(false);
 	}
 
 	/**
@@ -307,6 +308,7 @@ class ItemView extends Framework.View {
 		this.frozen = false;
 		this.toggleFreezable(false);
 		this.toggleButtons(false);
+		this.toggleCode(true);
 	}
 
 	/**
@@ -327,6 +329,20 @@ class ItemView extends Framework.View {
 	}
 
 	/**
+	 * Enable and disable the code input box
+	 *
+	 * @param {boolean} enabled
+	 * @protected
+	 */
+	toggleCode(enabled) {
+		if(enabled && !this.item.exists) {
+			this.codeElement.disabled = false;
+		} else {
+			this.codeElement.disabled = true;
+		}
+	}
+
+	/**
 	 * @see this.unfreeze
 	 * @protected
 	 */
@@ -337,15 +353,15 @@ class ItemView extends Framework.View {
 		this.unfreeze();
 	}
 
-	/**
+	/*
 	 * Disable changing code, as it shouldn't be done to existing items
 	 *
 	 * @protected
 	 */
-	permafreeze() {
-		this.codeElement.disabled = true;
-		this.codeElement.classList.add('permafrost');
-	}
+	//permafreeze() {
+		//this.codeElement.disabled = true;
+		//this.codeElement.classList.add('permafrost');
+	//}
 
 	/**
 	 * Display features from the item, in editable format. Use freeze() to make them not editable.
