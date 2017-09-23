@@ -1,4 +1,4 @@
-class rootView extends Framework.View {
+class RootView extends Framework.View {
 	/**
 	 * @param {HTMLElement} body - an HTML element (not body, actually: it's a div)
 	 * @param {stateHolder} stateHolder - throw that state somewhere!
@@ -13,8 +13,8 @@ class rootView extends Framework.View {
 		this.translations = new Translations(this.trigger, 'it-IT');
 		this.transaction = new Transaction(this.trigger);
 
-		this.el.appendChild(rootView.createHeader());
-		this.container = rootView.createViewHolder();
+		this.el.appendChild(RootView.createHeader());
+		this.container = RootView.createViewHolder();
 		this.el.appendChild(this.container);
 		this.currentView = null;
 
@@ -51,7 +51,7 @@ class rootView extends Framework.View {
 	}
 
 	clearContainer() {
-		rootView._clearContents(this.container);
+		RootView._clearContents(this.container);
 		this.currentView = null;
 	}
 
