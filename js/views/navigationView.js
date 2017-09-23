@@ -35,6 +35,8 @@ class NavigationView extends Framework.View {
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
+
+		this._changeState(null, this.stateHolder.get(0));
 	}
 
 	/**
@@ -68,9 +70,6 @@ class NavigationView extends Framework.View {
 	_changeState(from, to) {
 		switch(to) {
 			case null:
-				if(from === null) {
-					break;
-				}
 				this._deleteContent();
 				this.innerView = new TextView(this.container, "Questa è la home temporanea.");
 				break;

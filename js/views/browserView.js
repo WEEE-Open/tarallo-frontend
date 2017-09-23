@@ -12,11 +12,13 @@ class BrowserView extends Framework.View {
 	}
 
 	/**
-	 * Read current hash, set it, create subviews and go!
+	 * Set the "init" state, to allow setting another state.
 	 */
-	goSomewhere() {
-		this.state.presetAllArray(BrowserView.splitPieces(window.location.hash));
+	presetState() {
 		this.createViewTree();
+		// set previous and current state...
+		this.state.presetAllArray(['init']);
+		this.state.presetAllArray(BrowserView.splitPieces(window.location.hash));
 	}
 
 	/**
@@ -27,7 +29,6 @@ class BrowserView extends Framework.View {
 	}
 
 	urlChanged(/*event*/) {
-		console.log("UUUUUUUUUURL!");
 		this.hashchanged = true;
 		this.state.setAllArray(BrowserView.splitPieces(window.location.hash));
 	}

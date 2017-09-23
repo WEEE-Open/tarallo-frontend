@@ -126,8 +126,11 @@ class RootView extends Framework.View {
 		} else if(that === this.session) {
 			switch(event) {
 				case 'restore-valid':
-					if(this.stateHolder.get(0) === 'login' || this.stateHolder.get(0) === null) {
+					if(this.stateHolder.get(0) === 'login') {
 						this.stateHolder.setAll();
+					} else if(this.currentView === null) {
+						// Go somewhere™ when reloading a page (after restoring session, or else everything will be in vain)
+						this._changeState(null, this.stateHolder.get(0));
 					}
 					break;
 				case 'restore-invalid':
@@ -145,7 +148,10 @@ class RootView extends Framework.View {
 					/*
 					 * This feels very wrong here, but the alternatives are even worse:
 					 * - let LoginView handle this during trigger cascades, right before being deleted
-					 * - let LogView handlet this, adding a reference to session
+					 * - let LogView handle this, adding a reference to session
+					 *
+					 * Then again, Session and Transaction and some other stuff is created here, so it makes sense
+					 * to handle their events here.
 					 */
 					this.logs.add('Login successful. Welcome, ' + this.session.username, 'S');
 					this.stateHolder.setAll();
@@ -157,14 +163,10 @@ class RootView extends Framework.View {
 					break;
 			}
 		} else if(that === this.transaction) {
-			// Transaction is created here, in rootView, so it makes sense to handle its messages here
 			switch(event) {
 				case 'success':
 					this.logs.add('Changes committed successfully', 'S');
-					// TODO: note that inner views will receive "deleted" before "success"...
-					// In this case should be irrelevant, but these "timing" issues are really annoying and I can't find
-					// an elegant solution that doesn't force the programmer to know if every single function s/he calls
-					// will fire an event or not...
+					// the "deleted" event will be delayed by the framework until this "succes" event finishes triggering
 					this.transaction.clear();
 					break;
 				case 'failed':
