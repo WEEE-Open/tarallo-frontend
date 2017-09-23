@@ -1,10 +1,9 @@
-class browserView extends Framework.View {
+class BrowserView extends Framework.View {
 	constructor() {
 		super(null);
 		// requires a lot of ifs in view constructors for initialization, while triggering an event reuses whatever logic is already in place
-		this.state = new stateHolder(this.trigger);
-		// noinspection JSPotentiallyInvalidConstructorUsage (hasn't been a warning for 6 months, and now it is!?)
-		this.rootView = new rootView(document.getElementById("body"), this.state);
+		this.state = new stateHolder();
+		this.innerView = null;
 		this.hashchanged = false; // orrible hack.
 
 		// useless:
@@ -12,9 +11,25 @@ class browserView extends Framework.View {
 		window.onhashchange = this.urlChanged.bind(this);
 	}
 
+	/**
+	 * Read current hash, set it, create subviews and go!
+	 */
+	goSomewhere() {
+		this.state.presetAllArray(BrowserView.splitPieces(window.location.hash));
+		this.createViewTree();
+	}
+
+	/**
+	 * Create the first inner view and others on cascade. This cannot be done in constructor since Framework.rootView hasn't been set before this object has been created.
+	 */
+	createViewTree() {
+		this.innerView = new RootView(document.getElementById("body"), this.state);
+	}
+
 	urlChanged(/*event*/) {
+		console.log("UUUUUUUUUURL!");
 		this.hashchanged = true;
-		this.state.setAllArray(browserView.splitPieces(window.location.hash));
+		this.state.setAllArray(BrowserView.splitPieces(window.location.hash));
 	}
 
 	/**
@@ -67,10 +82,10 @@ class browserView extends Framework.View {
 				if(this.hashchanged) {
 					this.hashchanged = false;
 				} else {
-					browserView._setUrl(this._buildUrl());
+					BrowserView._setUrl(this._buildUrl());
 				}
 			}
 		}
-		this.rootView.trigger(that,event);
+		this.innerView.trigger(that,event);
 	}
 }

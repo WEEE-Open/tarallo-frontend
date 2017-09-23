@@ -2,13 +2,12 @@ class stateHolder extends Framework.Object {
 	/**
 	 * Keep current URL state, keeps URL current, keeps current state URL.
 	 *
-	 * @param {Function} trigger
 	 * @param {int=0} start - starting position, 0 by default
 	 * @param {string[]} [path]
 	 * @param {string[]} [previousPath]
 	 */
-	constructor(trigger, path, start, previousPath) {
-		super(trigger);
+	constructor(path, start, previousPath) {
+		super();
 		if(Number.isInteger(start) && start > 0) {
 			this.start = start;
 		} else {
@@ -88,11 +87,13 @@ class stateHolder extends Framework.Object {
 	}
 
 	/**
-	 * @see stateHolder.setAll
-	 * @param {string[]} toWhat array of URL components
+	 * Set state but don't trigger anything. Useful for initialization only.
+	 *
+	 * @see stateHolder.setAllArray
+	 * @param {string[]} toWhat - array of URL components
 	 * @return {boolean} any changes?
 	 */
-	setAllArray(toWhat) {
+	presetAllArray(toWhat) {
 		if(stateHolder._same(this.getAll(), toWhat)) {
 			return false;
 		}
@@ -101,12 +102,26 @@ class stateHolder extends Framework.Object {
 		if(Array.isArray(toWhat)) {
 			this.path.splice(this.start);
 			this._appendAll(toWhat);
-			this.trigger('change');
 		} else {
 			// Should never happen anyway
 			throw new TypeError('urlState.setAll expected an array, ' + typeof toWhat + ' given');
 		}
 		return true;
+	}
+
+	/**
+	 * Set state from an array of pieces.
+	 *
+	 * @see stateHolder.setAll
+	 * @param {string[]} toWhat array of URL components
+	 * @return {boolean} any changes?
+	 */
+	setAllArray(toWhat) {
+		let changed = this.presetAllArray(toWhat);
+		if(changed) {
+			this.trigger('change');
+		}
+		return changed;
 	}
 
 	/**
