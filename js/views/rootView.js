@@ -130,7 +130,9 @@ class RootView extends Framework.View {
 						this.stateHolder.setAll();
 					} else if(this.currentView === null) {
 						// Go somewhere™ when reloading a page (after restoring session, or else everything will be in vain)
-						this._changeState(null, this.stateHolder.get(0));
+						// TODO: this is ugly. Really, really, ugly.
+						// Maybe Session could be moved to BrowserView, while still handling events here for logging?
+						this.stateHolder.setAllArray(BrowserView.splitPieces(window.location.hash));
 					}
 					break;
 				case 'restore-invalid':

@@ -35,8 +35,6 @@ class NavigationView extends Framework.View {
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
-
-		this._changeState(null, this.stateHolder.get(0));
 	}
 
 	/**

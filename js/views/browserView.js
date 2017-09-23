@@ -18,7 +18,6 @@ class BrowserView extends Framework.View {
 		this.createViewTree();
 		// set previous and current state...
 		this.state.presetAllArray(['init']);
-		this.state.presetAllArray(BrowserView.splitPieces(window.location.hash));
 	}
 
 	/**
