@@ -1,4 +1,5 @@
 Framework = {
+	rootView: null,
 	inEvent: false,
 	depth: -1,
 	/** @type {StoredEvent[]} */

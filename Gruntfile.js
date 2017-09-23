@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 					"js/translations.js",
 					"js/transaction.js",
 					"js/views/browserView.js",
+					"js/views/computerView.js",
 					"js/views/rootView.js",
 					"js/views/loginView.js",
 					"js/views/logoutView.js",

@@ -95,12 +95,11 @@
 <script>
 	(function () {
 		"use strict";
-		// TODO: doesn't work for no reason
-		Framework.setRootView(new browserView());
+		Framework.setRootView(new BrowserView());
 		/**
 		 * @var {browserView} rootView
 		 */
-		Framework.rootView.urlChanged();
+		Framework.rootView.goSomewhere();
 	})();
 </script>
 </body>
