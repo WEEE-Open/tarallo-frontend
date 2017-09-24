@@ -130,34 +130,12 @@ class NavigationView extends Framework.View {
 		this.currentItem = new Item(this.trigger);
 		this._deleteContent();
 		this._createItemView();
-		this._createSaveButton();
 	}
 
 	_transaction() {
 		this._deleteContent();
 		this.innerView = new TransactionView(this.container, this.transaction);
 	}
-
-	_createSaveButton() {
-		let button = document.createElement("button");
-		button.textContent = "SALVA.";
-		button.addEventListener('click', this._weeeSave.bind(this));
-		this.buttonsArea.appendChild(button);
-	}
-
-	/**
-	 * Handler for the save button.
-	 * WEEE Save! [cit.]
-	 *
-	 * @private
-	 */
-	_weeeSave() {
-		if(!this.currentItem.empty()) {
-			this.transaction.add(this.currentItem);
-			this._newItem();
-		}
-	}
-
 
 	_transactionCount(count) {
 		if(count === 0) {
@@ -208,8 +186,16 @@ class NavigationView extends Framework.View {
 				this._requestedFailed()
 			}
 		} else if(that === this.transaction) {
-			if(event === 'to-add' || event === 'to-update' || event === 'to-delete' || event === 'reset') {
+			// for searching:
+			// 'to-add', 'to-update', 'to-delete', 'un-add', 'un-update', 'un-delete'
+			if(event.startsWith('to-') || event.startsWith('un-') || event === 'reset') {
 				this._transactionCount(this.transaction.actionsCount);
+			}
+			if(event === 'to-add' && this.transaction.create.has(this.currentItem)) {
+				// note that this could fire if this.currentItem has already been added, is now being edited and any other item is added to transaction.
+				// a simple solution would be to un-add items from transaction when editing them, which also makes sense. Kind of.
+				// TODO: do that
+				this._newItem();
 			}
 		}
 

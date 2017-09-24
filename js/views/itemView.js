@@ -43,6 +43,8 @@ class ItemView extends Framework.View {
 		let addFieldButton = this.itemEl.querySelector('.addfield');
 		let addItemButton = this.itemEl.querySelector('.additem');
 
+		this.showSaveButton = !(this.parentItemView !== null && !this.parentItemView.item.exists && !this.item.exists);
+
 		this.toggleButtons(false);
 
 		if(item.code !== null) {
@@ -185,12 +187,18 @@ class ItemView extends Framework.View {
 
 	/**
 	 * Handle clicking on the "save" button, to save modifications and freeze the element
+	 * WEEE Save! [cit.]
 	 *
 	 * @private
 	 */
 	saveItemButtonClick() {
-		// TODO: this.transaction.addUpdated(...);
-		this.freezeRecursive();
+		if(!this.item.empty()) {
+			this.transaction.add(this.item);
+		}
+		// if the element has been removed from DOM, don't bother freezing...
+		if(!!this.el.parentNode) {
+			this.freezeRecursive();
+		}
 	}
 
 	/**
@@ -323,7 +331,7 @@ class ItemView extends Framework.View {
 			this.deleteItemButton.style.display = 'none';
 		} else {
 			this.editItemButton.style.display = 'none';
-			this.saveItemButton.style.display = '';
+			this.saveItemButton.style.display = this.showSaveButton ? '' : 'none';
 			this.deleteItemButton.style.display = '';
 		}
 	}
@@ -335,11 +343,7 @@ class ItemView extends Framework.View {
 	 * @protected
 	 */
 	toggleCode(enabled) {
-		if(enabled && !this.item.exists) {
-			this.codeElement.disabled = false;
-		} else {
-			this.codeElement.disabled = true;
-		}
+		this.codeElement.disabled = !(enabled && !this.item.exists);
 	}
 
 	/**
