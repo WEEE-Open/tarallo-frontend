@@ -182,6 +182,13 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	editItemButtonClick() {
+		if(this.item.exists) {
+			if(this.item instanceof ItemUpdate) {
+				this.logs.add('Inconsistent internal state (ItemUpdate already created), try reloading items from server (go to another page and come back)', 'E');
+				return;
+			}
+			this.item = new ItemUpdate(this.item);
+		}
 		this.unfreeze();
 	}
 
@@ -193,7 +200,18 @@ class ItemView extends Framework.View {
 	 */
 	saveItemButtonClick() {
 		if(!this.item.empty()) {
-			this.transaction.add(this.item);
+			if(this.item.exists) {
+				if(!(this.item instanceof ItemUpdate)) {
+					this.logs.add('Inconsistent internal state (item exists and isn\'t an ItemUpdate), try reloading items from server (go to another page and come back)', 'E');
+					return;
+				}
+				let itemUpdate = this.item;
+				this.item = this.item.originalItem;
+				itemUpdate.detach();
+				this.transaction.add(itemUpdate);
+			} else {
+				this.transaction.add(this.item);
+			}
 		}
 		// if the element has been removed from DOM, don't bother freezing...
 		if(!!this.el.parentNode) {

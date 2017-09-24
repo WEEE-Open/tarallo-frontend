@@ -1,6 +1,6 @@
 class ItemUpdate extends Item {
-	constructor(trigger, item) {
-		super(trigger);
+	constructor(item) {
+		super();
 		this.originalItem = item;
 	}
 
