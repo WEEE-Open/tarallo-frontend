@@ -121,6 +121,7 @@ class RootView extends Framework.View {
 	trigger(that, event) {
 		let propagate = true;
 
+		// noinspection JSUnresolvedFunction
 		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
 			propagate = this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.session) {

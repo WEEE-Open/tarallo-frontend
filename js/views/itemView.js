@@ -242,7 +242,6 @@ class ItemView extends Framework.View {
 	 * Set item as non-editable.
 	 *
 	 * @see this.unfreeze
-	 * @protected
 	 */
 	freeze() {
 		this.frozen = true;
@@ -253,7 +252,6 @@ class ItemView extends Framework.View {
 
 	/**
 	 * @see this.freeze
-	 * @protected
 	 */
 	freezeRecursive() {
 		this.freeze();
@@ -310,7 +308,6 @@ class ItemView extends Framework.View {
 	 * Set item as editable again (except for the code)
 	 *
 	 * @see this.freeze
-	 * @protected
 	 */
 	unfreeze() {
 		this.frozen = false;
@@ -348,7 +345,6 @@ class ItemView extends Framework.View {
 
 	/**
 	 * @see this.unfreeze
-	 * @protected
 	 */
 	unfreezeRecursive() {
 		for(let i = 0; i < this.subViews.length; i++) {
