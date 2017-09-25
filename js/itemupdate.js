@@ -15,22 +15,15 @@ class ItemUpdate extends Item {
 		}
 
 		super();
+		this.exists = true;
+
 		this.originalItem = item;
 
+		this.parentChanged = false;
 		this.featuresDiff = new Map();
-		this.featuresMerged = new Map();
-
-		this.exists = true;
-		this.changeParent = false;
-
-		// TODO: is this needed?
 		for(let [k,v] of this.originalItem.features) {
-			this.featuresMerged.set(k,v);
+			this.features.set(k,v);
 		}
-	}
-
-	get features() {
-		return this.featuresMerged;
 	}
 
 	/**
@@ -42,18 +35,7 @@ class ItemUpdate extends Item {
 		} else {
 			this.featuresDiff.set(name, value);
 		}
-
-		if(value === null) {
-			this.featuresMerged.delete(name);
-		} else {
-			this.featuresMerged.set(name, value);
-		}
-	}
-
-	get featuresCount() {
-		// TODO: this - features set to null + new features
-		//return this.features.size;
-		return 9001;
+		super.setFeature(name, value);
 	}
 
 	/**
@@ -95,7 +77,7 @@ class ItemUpdate extends Item {
 	 * @see Item.setParent
 	 */
 	setParent(code) {
-		this.changeParent = this.originalItem.parent !== code;
+		this.parentChanged = this.originalItem.parent !== code;
 		super.setParent(code);
 	}
 
