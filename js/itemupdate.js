@@ -8,10 +8,6 @@ class ItemUpdate extends Item {
 	 * @see Item.setFeature
 	 */
 	setFeature(name, value) {
-		// TODO: this will have a million branches. Draw a CFG to avoid catastrophic bugs and hopefully find a pattern.
-		if(typeof this.originalItem.features[name] !== 'undefined') {
-
-		}
 		if(super.setFeature(name, value)) {
 			if(value === null) {
 

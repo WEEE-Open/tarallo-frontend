@@ -13,6 +13,7 @@ module.exports = function(grunt) {
 					"js/XHR.js",
 					"js/log.js",
 					"js/item.js",
+					"js/itemupdate.js",
 					"js/session.js",
 					"js/stateholder.js",
 					"js/translations.js",
