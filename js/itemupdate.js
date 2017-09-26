@@ -16,14 +16,54 @@ class ItemUpdate extends Item {
 
 		super();
 		this.exists = true;
-
-		this.originalItem = item;
-
 		this.parentChanged = false;
 		this.featuresDiff = new Map();
+		this.insideDiff = new Set();
+
+		this.setItem(item);
+	}
+
+	/**
+	 * Set the item to be proxied and merge its content and the current changeset.
+	 * This ItemUpdate will then act as a modified Item.
+	 *
+	 * @param {Item} item
+	 */
+	setItem(item) {
+		this.originalItem = item;
+
+		if(this.parent === this.originalItem.parent) {
+			this.parentChanged = true;
+			this.parent = this.originalItem.parent;
+		} else {
+			this.parentChanged = false;
+		}
+
+		this.features.clear();
+
 		for(let [k,v] of this.originalItem.features) {
 			this.features.set(k,v);
 		}
+
+		for(let [k,v] of this.featuresDiff) {
+			if(v === null) {
+				this.features.delete(k);
+			} else {
+				this.features.set(k, v);
+			}
+		}
+		if(this.featuresDiff.size > 0) {
+			// note that "this" is an ItemUpdate, not the original Item...
+			this.trigger('features-changed');
+		}
+
+	}
+
+	/**
+	 * Remove original Item, leaving only the changeset
+	 */
+	unsetItem() {
+		this.item = null;
 	}
 
 	/**
@@ -49,16 +89,14 @@ class ItemUpdate extends Item {
 	 * @see Item.addInside
 	 */
 	addInside(other) {
-		// TODO: implement (or not?)
-		// call on item, then super?
+		// TODO: implement
 	}
 
 	/**
 	 * @see Item.removeInside
 	 */
 	removeInside(other) {
-		// TODO: implement (or not?)
-		// call on item, then super?
+		// TODO: implement
 	}
 
 	/**
@@ -70,7 +108,7 @@ class ItemUpdate extends Item {
 		return this;
 	}
 
-	// always fails since item exists (which is obvious, as it's getting updated...)
+	// always fails since item exists:
 	// setCode(code)
 
 	/**

@@ -517,6 +517,7 @@ class Item extends Framework.Object {
 			}
 
 			if(changed) {
+				// features-changed or default-features-changed
 				this.trigger(event);
 			}
 

@@ -205,10 +205,12 @@ class ItemView extends Framework.View {
 					this.logs.add('Inconsistent internal state (item exists and isn\'t an ItemUpdate), try reloading items from server (go to another page and come back)', 'E');
 					return;
 				}
+				/**
+				 * @type {ItemUpdate}
+				 */
 				let itemUpdate = this.item;
 				this.item = this.item.originalItem;
-				itemUpdate.detach();
-				this.transaction.add(itemUpdate);
+				this.transaction.add(itemUpdate.unsetItem());
 			} else {
 				this.transaction.add(this.item);
 			}
