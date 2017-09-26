@@ -18,7 +18,8 @@ class ItemUpdate extends Item {
 		this.exists = true;
 		this.parentChanged = false;
 		this.featuresDiff = new Map();
-		this.insideDiff = new Set();
+		/** @type {Map.<Item,Item|null>} */
+		this.insideDiff = new Map();
 
 		this.setItem(item);
 	}
@@ -55,6 +56,22 @@ class ItemUpdate extends Item {
 		if(this.featuresDiff.size > 0) {
 			// note that "this" is an ItemUpdate, not the original Item...
 			this.trigger('features-changed');
+		}
+
+		this.inside.clear();
+
+		for(let [subitem, setTo] of this.insideDiff) {
+			if(setTo !== null) {
+				this.inside.add(subitem);
+			}
+		}
+
+		for(let subitem of this.originalItem.inside) {
+			// this.inside contains added or modified items.
+			// If this item isn't here and isn't marked as deleted, add it
+			if(!this.inside.has(subitem) && this.insideDiff.get(subitem) !== null) {
+				this.inside.add(subitem);
+			}
 		}
 
 	}
