@@ -1,13 +1,13 @@
 class Item extends Framework.Object {
 	constructor(trigger) {
 		super(trigger);
-		this.features = new Map();
-		this.defaultFeaturesCount = 0;
 		/**
 		 * @type {null|string}
 		 */
 		this.lastErrorCode = null;
 		this.lastErrorMessage = null;
+
+		this.features = new Map();
 		this.defaultFeatures = new Map();
 		this.inside = [];
 		/**
@@ -56,6 +56,10 @@ class Item extends Framework.Object {
 		return this.features.size;
 	}
 
+	get defaultFeaturesCount() {
+		return this.features.size;
+	}
+
 	/**
 	 * Set parent to replace location once saved on the server
 	 *
@@ -80,7 +84,6 @@ class Item extends Framework.Object {
 		return this.parent;
 	}
 
-	// TODO: use a proxy to build another object with null features when removed, new features when added, etc... for "update" queries
 	/**
 	 * Create, Update and Delete features
 	 *
@@ -126,7 +129,6 @@ class Item extends Framework.Object {
 				return false;
 			} else {
 				delete this.defaultFeatures[name];
-				this.defaultFeaturesCount--;
 				return true;
 			}
 		}
@@ -135,7 +137,6 @@ class Item extends Framework.Object {
 			return false;
 		} else {
 			this.defaultFeatures[name] = value;
-			this.defaultFeaturesCount++;
 			return true;
 		}
 	}
