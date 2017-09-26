@@ -13,12 +13,35 @@ class TransactionView extends Framework.View {
 
 		this.notesElement = this.el.querySelector("textarea.notes");
 		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
-		this._toggleButton(this.transaction.actionsCount > 0);
+		this.toggleButton(this.transaction.actionsCount > 0);
 
-		this.notesElement.addEventListener('blur', this._notesInput.bind(this));
-		this.commitButton.addEventListener('click', this._commitClick.bind(this));
+		this.notesElement.addEventListener('blur', this.notesInput.bind(this));
+		this.commitButton.addEventListener('click', this.commitClick.bind(this));
 
-		this._printAll(create, modify, remove);
+		this.printAll(create, modify, remove);
+	}
+
+	/**
+	 * Handle clicking the commit button.
+	 *
+	 * @private
+	 */
+	commitClick() {
+		this.transaction.commit();
+	}
+
+	/**
+	 * Handle writing something in the notes textarea
+	 *
+	 * @private
+	 */
+	notesInput() {
+		let notes = this.notesElement.value;
+		if(notes === "") {
+			this.transaction.setNotes(null);
+		} else {
+			this.transaction.setNotes(notes);
+		}
 	}
 
 	/**
@@ -29,27 +52,18 @@ class TransactionView extends Framework.View {
 	 * @param {Node} removeElement - ul
 	 * @private
 	 */
-	_printAll(createElement, updateElement, removeElement) {
+	printAll(createElement, updateElement, removeElement) {
 		if(this.transaction.createCount > 0) {
-			TransactionView._printTree(this.transaction.create.values(), createElement);
+			TransactionView.printTree(this.transaction.create.values(), createElement);
 		}
 
 		if(this.transaction.updateCount > 0) {
-			TransactionView._printTree(this.transaction.update.values(), updateElement);
+			TransactionView.printTree(this.transaction.update.values(), updateElement);
 		}
 
 		if(this.transaction.removeCount > 0) {
-			TransactionView._printTree(this.transaction.remove.values(), removeElement);
+			TransactionView.printTree(this.transaction.remove.values(), removeElement);
 		}
-	}
-
-	/**
-	 * Handle clicking the commit button.
-	 *
-	 * @private
-	 */
-	_commitClick() {
-		this.transaction.commit();
 	}
 
 	/**
@@ -59,7 +73,7 @@ class TransactionView extends Framework.View {
 	 * @param {Boolean} enabled
 	 * @private
 	 */
-	_toggleButton(enabled) {
+	toggleButton(enabled) {
 		this.commitButton.disabled = !enabled;
 	}
 
@@ -69,7 +83,7 @@ class TransactionView extends Framework.View {
 	 * @param {Node} ul
 	 * @private
 	 */
-	static _printTree(items, ul) {
+	static printTree(items, ul) {
 		let li;
 		for(let item of items) {
 			li = document.createElement("li");
@@ -82,26 +96,12 @@ class TransactionView extends Framework.View {
 		}
 	}
 
-	/**
-	 * Handle writing something in the notes textarea
-	 *
-	 * @private
-	 */
-	_notesInput() {
-		let notes = this.notesElement.value;
-		if(notes === "") {
-			this.transaction.setNotes(null);
-		} else {
-			this.transaction.setNotes(notes);
-		}
-	}
-
 	trigger(that, event) {
 		if(that === this.transaction) {
 			if(event === 'to-add' || event === 'to-update' || event === 'to-delete') {
-				this._toggleButton(true);
+				this.toggleButton(true);
 			} else if(event === 'reset') {
-				this._toggleButton(false);
+				this.toggleButton(false);
 			}
 		}
 	}
