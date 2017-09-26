@@ -7,9 +7,18 @@ class Item extends Framework.Object {
 		this.lastErrorCode = null;
 		this.lastErrorMessage = null;
 
+		/**
+		 * @type {Map.<string,string|int>}
+		 */
 		this.features = new Map();
+		/**
+		 * @type {Map.<string,string|int>}
+		 */
 		this.defaultFeatures = new Map();
-		this.inside = [];
+		/**
+		 * @type {Set.<Item>}
+		 */
+		this.inside = new Set();
 		/**
 		 * User-defined parent, to replace location. Available only if explicitly set by the user.
 		 *
@@ -140,35 +149,21 @@ class Item extends Framework.Object {
 	 * @param {Item} other item to be place inside
 	 */
 	addInside(other) {
-		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
-		this.inside.push(other);
+		this.inside.add(other);
 	}
 
 	/**
-	 * Remove an Item. Beware of the O(n) complexity.
+	 * Remove an Item.
 	 *
 	 * @param {Item} other item to be removed
 	 * @returns {boolean} true if found and removed, false if not found
 	 */
 	removeInside(other) {
-		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
-		let pos = this.inside.indexOf(other);
-		if(pos > -1) {
-			this._removeInsideIndex(pos);
-			return true;
-		} else {
-			return false;
+		let found = this.inside.has(other);
+		if(found) {
+			this.inside.delete(other);
 		}
-	}
-
-	/**
-	 * Remove an Item from its index.
-	 *
-	 * @param {int} pos item to be removed
-	 * @private
-	 */
-	_removeInsideIndex(pos) {
-		this.inside.splice(pos, 1);
+		return found;
 	}
 
 	/**
@@ -355,13 +350,13 @@ class Item extends Framework.Object {
 		if(this.features.size > 0) {
 			return false;
 		}
+		if(this.inside.size > 0) {
+			return false;
+		}
 		if(this.code !== null) {
 			return false;
 		}
 		if(this.parent !== null) {
-			return false;
-		}
-		if(this.inside.length > 0) {
 			return false;
 		}
 		if(this.location.length > 0) {
@@ -406,17 +401,20 @@ class Item extends Framework.Object {
 		}
 
 		if(Array.isArray(item.content)) {
-			let insideCodes = {};
+			let changedInside = false;
+			let newInsideCodes = {};
+			/** @type {Map.<string,Item>} */
+			let currentlyInside = new Map();
 			// remove items without a code, since they don't exist on the server and cannot be updated
-			for(let i = 0; i < this.inside.length; i++) {
-				if(this.inside[i].code !== null) {
-					this._removeInsideIndex(i);
+			// and map whatever remains with its code. This will crash and burn if there are duplicate codes,
+			// which should be impossible.
+			for(let item of this.inside) {
+				if(item.code !== null) {
+					changedInside = true;
+					this.inside.delete(item);
 				}
+				currentlyInside.set(item.code, item);
 			}
-
-			// this avoids checking against newly added items, which is pointless
-			// note that this will fail catastrophically if addInside sorts or reorders items in any way.
-			let previousLength = this.inside.length;
 
 			for(let i = 0; i < item.content.length; i++) {
 				if(typeof item.content[i].code === 'number') {
@@ -424,15 +422,10 @@ class Item extends Framework.Object {
 				}
 
 				if(typeof item.content[i].code === 'string') {
-					insideCodes[item.content[i].code] = true;
-					let previousItem = null;
-					for(let i = 0; i < previousLength; i++) {
-						if(this.inside[i].code === item.content[i].code) {
-							previousItem = this.inside[i];
-							break;
-						}
-					}
-					if(previousItem === null) {
+					newInsideCodes[item.content[i].code] = true;
+					let previousItem = currentlyInside.get(item.content[i].code);
+					if(previousItem === undefined) {
+						// new item (get returns undefined when not found
 						previousItem = new Item(this.trigger);
 						try {
 							previousItem.setCode(item.content[i].code);
@@ -442,6 +435,7 @@ class Item extends Framework.Object {
 							return false;
 						}
 						this.addInside(previousItem);
+						changedInside = true;
 					}
 					previousItem._parseItem(item.content[i]);
 				} else {
@@ -451,17 +445,18 @@ class Item extends Framework.Object {
 				}
 			}
 
-			for(let i = 0; i < previousLength; i++) {
-				if(!insideCodes[this.inside[i].code]) {
-					this._removeInsideIndex(i);
+			for(let [code, item] of currentlyInside) {
+				if(!newInsideCodes[code]) {
+					changedInside = true;
+					this.inside.delete(item);
 				}
 			}
 
-			// there isn't really a way to detect here if anything has changed inside
-			// (functions return true/false for success/failure), so trigger an event anyway.
-			// this is in post-order: innermost elements trigger first, outermost last, so
-			// the handler can be non-recursive.
-			this.trigger('inside-changed');
+			// this is in post-order: innermost elements trigger first, outermost last.
+			// inside-changed means there are new or removed elements inside, it says nothing on what happened to existing items
+			if(changedInside) {
+				this.trigger('inside-changed');
+			}
 		}
 
 		if(Array.isArray(item.location)) {
@@ -553,8 +548,8 @@ class Item extends Framework.Object {
 				simplified.features[name] = value;
 			}
 		}
-		if(this.inside.length > 0) {
-			simplified.content = this.inside;
+		if(this.inside.size > 0) {
+			simplified.content = Array.from(this.inside.values());
 		}
 
 		return simplified;

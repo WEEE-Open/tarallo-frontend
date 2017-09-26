@@ -63,7 +63,7 @@ class ItemView extends Framework.View {
 		if(item.featuresCount > 0) {
 			this.showFeatures();
 		}
-		if(item.inside.length > 0) {
+		if(item.inside.size > 0) {
 			this.showInsideItems();
 		}
 
@@ -549,10 +549,8 @@ class ItemView extends Framework.View {
 	 * @protected
 	 */
 	showInsideItems() {
-		let subitem;
 		this.removeInsideItems(); // TODO: reuse same items if possible
-		for(let i = 0; i < this.item.inside.length; i++) {
-			subitem = this.item.inside[i];
+		for(let subitem of this.item.inside) {
 			this.addInside(subitem);
 		}
 	}
