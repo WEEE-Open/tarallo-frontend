@@ -36,10 +36,10 @@ class ItemUpdate extends Item {
 		this.code = this.originalItem.code;
 
 		if(this.parent === this.originalItem.parent) {
+			this.parentChanged = false;
+		} else {
 			this.parentChanged = true;
 			this.parent = this.originalItem.parent;
-		} else {
-			this.parentChanged = false;
 		}
 
 		this.features.clear();
@@ -138,13 +138,42 @@ class ItemUpdate extends Item {
 		super.setParent(code);
 	}
 
+	/**
+	 * @see Item.empty
+	 */
+	empty() {
+		if(this.featuresDiff.size > 0) {
+			return false;
+		}
+		if(this.insideDiff.size > 0) {
+			return false;
+		}
+		return !this.parentChanged;
+	}
+
 	//noinspection JSUnusedGlobalSymbols
 	/**
-	 * Serialize to JSON. Actually, convert to a serializable object. This gets called by JSON.stringify internally.
-	 *
-	 * @return {{}} whatever, JSON.stringify will serialize it
+	 * @see Item.toJSON
 	 */
 	toJSON() {
-		// TODO: implement
+		let simplified = {};
+
+		// TODO: setting/unsetting as default, changing default item
+
+		simplified.code = this.code;
+		if(this.parentChanged) {
+			simplified.parent = this.parent;
+		}
+		if(this.featuresDiff.size > 0) {
+			simplified.features = {};
+			for(let [name, value] of this.featuresDiff) {
+				simplified.features[name] = value;
+			}
+		}
+		if(this.insideDiff.size > 0) {
+			simplified.content = Array.from(this.inside.values());
+		}
+
+		return simplified;
 	}
 }
