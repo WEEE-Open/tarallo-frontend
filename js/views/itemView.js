@@ -199,25 +199,29 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	saveItemButtonClick() {
-		if(!this.item.empty()) {
-			if(this.item.exists) {
-				if(!(this.item instanceof ItemUpdate)) {
-					this.logs.add('Inconsistent internal state (item exists and isn\'t an ItemUpdate), try reloading items from server (go to another page and come back)', 'E');
-					return;
-				}
-				/**
-				 * @type {ItemUpdate}
-				 */
-				let itemUpdate = this.item;
-				this.item = this.item.originalItem;
-				try {
-					itemUpdate.unsetItem();
+		if(this.item.exists) {
+			if(!(this.item instanceof ItemUpdate)) {
+				this.logs.add('Inconsistent internal state (item exists and isn\'t an ItemUpdate), try reloading items from server (go to another page and come back)', 'E');
+				return;
+			}
+			/**
+			 * @type {ItemUpdate}
+			 */
+			let itemUpdate = this.item;
+			this.item = this.item.originalItem;
+			try {
+				itemUpdate.unsetItem();
+				if(itemUpdate.empty()) {
+					this.logs.add('No changes to commit in item ' + itemUpdate.code, 'W')
+				} else {
 					this.transaction.addUpdated(itemUpdate);
-				} catch(e) {
-					this.logs.add(e.message, 'E');
-					return;
 				}
-			} else {
+			} catch(e) {
+				this.logs.add(e.message, 'E');
+				return;
+			}
+		} else {
+			if(!this.item.empty()) {
 				this.transaction.add(this.item);
 			}
 		}
