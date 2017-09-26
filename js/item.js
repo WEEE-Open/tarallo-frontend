@@ -17,13 +17,6 @@ class Item extends Framework.Object {
 		 */
 		this.parent = null;
 		/**
-		 * Current parent, available right here and right now, not the real one that may be in the database.
-		 * Null if none.
-		 *
-		 * @type {null|Item}
-		 */
-		this.treeParent = null;
-		/**
 		 * Already exists on the server.
 		 * If it exists, code cannot be changed anymore.
 		 *
@@ -149,7 +142,6 @@ class Item extends Framework.Object {
 	addInside(other) {
 		// not every item may have a code, so using an associative array / object / hash table / map isn't possible
 		this.inside.push(other);
-		other._setTreeParent(this);
 	}
 
 	/**
@@ -176,21 +168,7 @@ class Item extends Framework.Object {
 	 * @private
 	 */
 	_removeInsideIndex(pos) {
-		let old = this.inside.splice(pos, 1);
-		old[0]._setTreeParent(null);
-	}
-
-	/**
-	 * Set parent of an Item. null means "no parent".
-	 * This is the immediate parent, an Item object available right here and right now to be displayed to the user,
-	 * not the real parent that the item may have somewhere in the database, nor the item code set as parent by the user.
-	 *
-	 * @param {Item|null} item
-	 * @private
-	 */
-	_setTreeParent(item) {
-		this.treeParent = item;
-		return this;
+		this.inside.splice(pos, 1);
 	}
 
 	/**
