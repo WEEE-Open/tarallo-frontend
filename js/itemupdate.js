@@ -33,6 +33,8 @@ class ItemUpdate extends Item {
 	setItem(item) {
 		this.originalItem = item;
 
+		this.code = this.originalItem.code;
+
 		if(this.parent === this.originalItem.parent) {
 			this.parentChanged = true;
 			this.parent = this.originalItem.parent;

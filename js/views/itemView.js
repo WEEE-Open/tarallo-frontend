@@ -210,7 +210,13 @@ class ItemView extends Framework.View {
 				 */
 				let itemUpdate = this.item;
 				this.item = this.item.originalItem;
-				this.transaction.add(itemUpdate.unsetItem());
+				try {
+					itemUpdate.unsetItem();
+					this.transaction.addUpdated(itemUpdate);
+				} catch(e) {
+					this.logs.add(e.message, 'E');
+					return;
+				}
 			} else {
 				this.transaction.add(this.item);
 			}
