@@ -49,8 +49,11 @@ class NavigationView extends Framework.View {
 			code = code.trim();
 			if(code !== '') {
 				let changed = this.stateHolder.setAll('view', code);
-				if(!changed) {
+				if(!changed && this.innerView !== null && this.currentItem !== null) {
 					this._refresh();
+				} else {
+					// TODO: recover from broken view (e.g. server answered 500, user retries with same item)
+					// = display a message or retry and rerender or whatever.
 				}
 			} else {
 				this.logs.add('To view an item type its code', 'I');
@@ -86,7 +89,7 @@ class NavigationView extends Framework.View {
 	}
 
 	_requestItem(code) {
-		if(this.innerView !== null && this.currentItem.code === this.code) {
+		if(this.innerView !== null && this.currentItem !== null && this.currentItem.code === this.code) {
 			this._refresh();
 		} else {
 			this.logs.add("Requested item " + code, 'I');
