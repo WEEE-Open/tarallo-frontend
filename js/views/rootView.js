@@ -8,10 +8,10 @@ class RootView extends Framework.View {
 
 		this.stateHolder = stateHolder;
 
-		this.session = new Session(this.trigger);
-		this.logs = new Logs(this.trigger);
-		this.translations = new Translations(this.trigger, 'it-IT');
-		this.transaction = new Transaction(this.trigger);
+		this.session = new Session();
+		this.logs = new Logs();
+		this.translations = new Translations('it-IT');
+		this.transaction = new Transaction();
 
 		this.el.appendChild(RootView.createHeader());
 		this.container = RootView.createViewHolder();
@@ -26,6 +26,7 @@ class RootView extends Framework.View {
 	 * Return site header elements
 	 *
 	 * @return {HTMLElement}
+	 * @private
 	 */
 	static createHeader() {
 		let header = document.createElement("header");
@@ -43,6 +44,7 @@ class RootView extends Framework.View {
 	 * Create some random divs, because that's what "modern" web is all about.
 	 *
 	 * @return {HTMLElement}
+	 * @private
 	 */
 	static createViewHolder() {
 		let div = document.createElement("div");
@@ -50,8 +52,13 @@ class RootView extends Framework.View {
 		return div;
 	}
 
+	/**
+	 * Remove subview and clear its container
+	 *
+	 * @private
+	 */
 	clearContainer() {
-		RootView._clearContents(this.container);
+		RootView.clearContents(this.container);
 		this.currentView = null;
 	}
 
@@ -61,7 +68,7 @@ class RootView extends Framework.View {
 	 * @param {HTMLElement} container
 	 * @private
 	 */
-	static _clearContents(container) {
+	static clearContents(container) {
 		while(container.firstChild) {
 			container.removeChild(container.firstChild);
 		}
@@ -75,7 +82,7 @@ class RootView extends Framework.View {
 	 * @return {boolean} - keep propagating change or not?
 	 * @private
 	 */
-	_changeState(from, to) {
+	changeState(from, to) {
 		// Going where guests can't go
 		if(this.session.username === null && to !== 'login') {
 			this.stateHolder.setAll('login');
@@ -89,31 +96,46 @@ class RootView extends Framework.View {
 
 		switch(to) {
 			case 'login':
-				this._login();
+				this.login();
 				break;
 			case null:
 			case 'add':
 			case 'view':
 			case 'transaction':
-				this._nav();
+				this.nav();
 				break;
 			default:
-				this._what();
+				this.what();
 		}
 		return true;
 	}
 
-	_what() {
+	/**
+	 * Go to an "unknown state" page
+	 *
+	 * @private
+	 */
+	what() {
 		this.clearContainer();
 		this.currentView = new TextView(this.container, "What? What's this state?");
 	}
 
-	_nav() {
+	/**
+	 * Go to a page with navigation controls
+	 *
+	 * @private
+	 */
+	nav() {
 		this.clearContainer();
 		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations, this.transaction);
 	}
 
-	_login() {
+	/**
+	 * Go to login page
+	 *
+	 * @private
+	 */
+	login() {
 		this.clearContainer();
 		this.currentView = new LoginView(this.container, this.logs, this.session);
 	}
@@ -123,7 +145,7 @@ class RootView extends Framework.View {
 
 		// noinspection JSUnresolvedFunction
 		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
-			propagate = this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
+			propagate = this.changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.session) {
 			switch(event) {
 				case 'restore-valid':

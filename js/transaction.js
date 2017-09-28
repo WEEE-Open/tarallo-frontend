@@ -1,6 +1,6 @@
 class Transaction extends Framework.Object {
-	constructor(trigger) {
-		super(trigger);
+	constructor() {
+		super();
 		/** @type {Map.<Item,Item>} this.create */
 		this.create = new Map();
 		/** @type {Map.<string,ItemUpdate>} this.update */

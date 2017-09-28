@@ -1,6 +1,6 @@
 class Session extends Framework.Object {
-	constructor(trigger) {
-		super(trigger);
+	constructor() {
+		super();
 
 		/**
 		 * Current username, or null if logged out

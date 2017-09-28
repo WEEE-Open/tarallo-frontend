@@ -158,8 +158,7 @@ class ItemView extends Framework.View {
 	addItemClick(event) {
 		event.stopPropagation();
 		event.preventDefault();
-		let item = new Item(this.trigger);
-		this.addInside(item);
+		this.addInside(new Item());
 	}
 
 	/**

@@ -121,7 +121,7 @@ class NavigationView extends Framework.View {
 	 */
 	newItemView() {
 		this.requestedItem = null;
-		this.currentItem = new Item(this.trigger);
+		this.currentItem = new Item();
 		this.deleteContent();
 		this.createItemView();
 	}
@@ -158,7 +158,7 @@ class NavigationView extends Framework.View {
 		} else {
 			this.logs.add("Requested item " + code, 'I');
 			try {
-				this.requestedItem = new Item(this.trigger).setCode(code).getFromServer();
+				this.requestedItem = new Item().setCode(code).getFromServer();
 			} catch(err) {
 				this.logs.add('Error getting item: ' + err, 'E');
 				this.requestedItem = null;

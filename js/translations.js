@@ -3,8 +3,8 @@ class Translations extends Framework.Object {
 	 * @param {Function} trigger(this, event)
 	 * @param {string} code Language code
 	 */
-	constructor(trigger, code) {
-		super(trigger);
+	constructor(code) {
+		super();
 		this._setLanguage(code)
 	}
 

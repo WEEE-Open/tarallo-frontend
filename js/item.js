@@ -1,6 +1,6 @@
 class Item extends Framework.Object {
-	constructor(trigger) {
-		super(trigger);
+	constructor() {
+		super();
 		/**
 		 * @type {null|string}
 		 */
@@ -426,7 +426,7 @@ class Item extends Framework.Object {
 					let previousItem = currentlyInside.get(item.content[i].code);
 					if(previousItem === undefined) {
 						// new item (get returns undefined when not found
-						previousItem = new Item(this.trigger);
+						previousItem = new Item();
 						try {
 							previousItem.setCode(item.content[i].code);
 						} catch(e) {
