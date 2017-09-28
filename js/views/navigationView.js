@@ -24,12 +24,18 @@ class NavigationView extends Framework.View {
 		this.transactionCount(this.transaction.actionsCount);
 
 		this.container = this.el.querySelector('.itemholder');
-		/** @var {ItemView|null} */
+		/** Whatever subview there's right now
+		 *  @var {ItemView|null} */
 		this.innerView = null;
-		/** @var {Item|null} */
+		/** Current item (for "add new" and viewing a single item, search results are handled elsewhere)
+		 *  @var {Item|null} */
 		this.currentItem = null;
-		/** @var {Item|null} */
+		/** Last request item (for "add new" and viewing a single item, search results are handled elsewhere)
+		 *  @var {Item|null} */
 		this.requestedItem = null;
+		/** StateHolder pieces of the last search done
+		 *  @var {string[]} */
+		this.lastSearch = [];
 
 		this.viewItemButton.addEventListener('click', this.ViewItemClick.bind(this));
 
@@ -82,6 +88,10 @@ class NavigationView extends Framework.View {
 	 * @private
 	 */
 	changeState(from, to) {
+		if(from === 'search') {
+			this.lastSearch = this.stateHolder.getAllOld().shift();
+		}
+
 		switch(to) {
 			case null:
 				this.deleteContent();
@@ -97,6 +107,9 @@ class NavigationView extends Framework.View {
 				break;
 			case 'transaction':
 				this.transactionView();
+				break;
+			case 'search':
+				this.searchView();
 				break;
 		}
 	}
@@ -121,6 +134,16 @@ class NavigationView extends Framework.View {
 	transactionView() {
 		this.deleteContent();
 		this.innerView = new TransactionView(this.container, this.transaction);
+	}
+
+	/**
+	 * Show SearchView
+	 *
+	 * @private
+	 */
+	searchView() {
+		this.deleteContent();
+		this.innerView = new SearchView(this.container);
 	}
 
 	/**
