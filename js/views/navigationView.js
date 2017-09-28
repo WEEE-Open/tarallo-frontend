@@ -93,10 +93,10 @@ class NavigationView extends Framework.View {
 				}
 				break;
 			case 'add':
-				this.newItem();
+				this.newItemView();
 				break;
 			case 'transaction':
-				this.transaction();
+				this.transactionView();
 				break;
 		}
 	}
@@ -106,7 +106,7 @@ class NavigationView extends Framework.View {
 	 *
 	 * @private
 	 */
-	newItem() {
+	newItemView() {
 		this.requestedItem = null;
 		this.currentItem = new Item(this.trigger);
 		this.deleteContent();
@@ -118,7 +118,7 @@ class NavigationView extends Framework.View {
 	 *
 	 * @private
 	 */
-	transaction() {
+	transactionView() {
 		this.deleteContent();
 		this.innerView = new TransactionView(this.container, this.transaction);
 	}
@@ -252,8 +252,11 @@ class NavigationView extends Framework.View {
 			if(event === 'to-add' && this.transaction.create.has(this.currentItem)) {
 				// note that this could fire if this.currentItem has already been added, is now being edited and any other item is added to transaction.
 				// a simple solution would be to un-add items from transaction when editing them, which also makes sense. Kind of.
-				// TODO: do that
-				this.newItem();
+				// However, if I go and edit an un-added item and switch view, that item's gone.
+				// Handling this in changeView works only for NavigationView subviews, adding a deconstruct method to views could be useful
+				// but will make the application a lot more complex... adding a lastModified property in Transaction it's simpler, maybe?
+				// TODO: do something
+				this.newItemView();
 			}
 		}
 
