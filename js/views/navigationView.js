@@ -21,7 +21,7 @@ class NavigationView extends Framework.View {
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.buttonsArea = this.el.querySelector('.navbuttons');
 		this.transactionArea = this.el.querySelector('.transactioncount');
-		this._transactionCount(this.transaction.actionsCount);
+		this.transactionCount(this.transaction.actionsCount);
 
 		this.container = this.el.querySelector('.itemholder');
 		/** @var {ItemView|null} */
@@ -31,7 +31,7 @@ class NavigationView extends Framework.View {
 		/** @var {Item|null} */
 		this.requestedItem = null;
 
-		this.viewItemButton.addEventListener('click', this._handleViewItem.bind(this));
+		this.viewItemButton.addEventListener('click', this.ViewItemClick.bind(this));
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
@@ -41,8 +41,9 @@ class NavigationView extends Framework.View {
 	 * Handles clicking the "view item" button.
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
-	_handleViewItem(event) {
+	ViewItemClick(event) {
 		event.preventDefault();
 		let code = this.viewItemTextElement.value;
 		if(typeof code === 'string') {
@@ -50,7 +51,7 @@ class NavigationView extends Framework.View {
 			if(code !== '') {
 				let changed = this.stateHolder.setAll('view', code);
 				if(!changed && this.innerView !== null && this.currentItem !== null) {
-					this._refresh();
+					this.refreshFromServer();
 				} else {
 					// TODO: recover from broken view (e.g. server answered 500, user retries with same item)
 					// = display a message or retry and rerender or whatever.
@@ -61,36 +62,76 @@ class NavigationView extends Framework.View {
 		}
 	}
 
-	_refresh() {
+	/**
+	 * Reload this.currentItem from server and update it.
+	 *
+	 * @private
+	 */
+	refreshFromServer() {
 		this.logs.add("Refreshing item " + this.currentItem.code, 'I');
 		this.requestedItem = this.currentItem;
 		this.requestedItem.getFromServer();
 		// TODO: this triggers A LOT of code-changed and feature-changed, even though nothing changed: look into this.
 	}
 
-	_changeState(from, to) {
+	/**
+	 * Change state.
+	 *
+	 * @param {string|null} from - whatever stateHolder said
+	 * @param {string|null} to - whatever stateHolder says
+	 * @private
+	 */
+	changeState(from, to) {
 		switch(to) {
 			case null:
-				this._deleteContent();
+				this.deleteContent();
 				this.innerView = new TextView(this.container, "Questa è la home temporanea.");
 				break;
 			case 'view':
 				if(this.stateHolder.get(1) !== null) {
-					this._requestItem(this.stateHolder.get(1));
+					this.requestItem(this.stateHolder.get(1));
 				}
 				break;
 			case 'add':
-				this._newItem();
+				this.newItem();
 				break;
 			case 'transaction':
-				this._transaction();
+				this.transaction();
 				break;
 		}
 	}
 
-	_requestItem(code) {
+	/**
+	 * Switch to new item/add item view (create a new item, place it into this.currentItem and show it)
+	 *
+	 * @private
+	 */
+	newItem() {
+		this.requestedItem = null;
+		this.currentItem = new Item(this.trigger);
+		this.deleteContent();
+		this.createItemView();
+	}
+
+	/**
+	 * Show TransactionView
+	 *
+	 * @private
+	 */
+	transaction() {
+		this.deleteContent();
+		this.innerView = new TransactionView(this.container, this.transaction);
+	}
+
+	/**
+	 * Request an Item from server, or refresh it if it's also this.currentItem.
+	 *
+	 * @param {string|int|null} code
+	 * @private
+	 */
+	requestItem(code) {
 		if(this.innerView !== null && this.currentItem !== null && this.currentItem.code === this.code) {
-			this._refresh();
+			this.refreshFromServer();
 		} else {
 			this.logs.add("Requested item " + code, 'I');
 			try {
@@ -103,44 +144,47 @@ class NavigationView extends Framework.View {
 			}
 		}
 
-		this._inRequest(true);
+		this.inRequest(true);
 	}
 
-	_requestedFailed() {
+	/**
+	 * Handle failed item requests from server.
+	 *
+	 * @private
+	 */
+	requestedFailed() {
 		this.logs.add("Failed getting item: " + this.requestedItem.lastErrorCode + ", " + this.requestedItem.lastErrorMessage, 'E');
 		this.requestedItem = null;
-		this._inRequest(false);
+		this.inRequest(false);
 	}
 
-	_requestedReady() {
+	/**
+	 * Handle successful requests from server and render item, or update render.
+	 *
+	 * @private
+	 */
+	requestedReady() {
 		let itemChanged = this.innerView === null || this.currentItem !== this.requestedItem;
 
 		if(itemChanged) {
-			this._deleteContent();
+			this.deleteContent();
 		}
 		this.currentItem = this.requestedItem;
 		this.requestedItem = null;
 		if(itemChanged) {
-			this._createItemView();
+			this.createItemView();
 			this.innerView.freezeRecursive();
 		}
-		this._inRequest(false);
+		this.inRequest(false);
 	}
 
-	_newItem() {
-		// TODO: does this make sense?
-		this.requestedItem = null;
-		this.currentItem = new Item(this.trigger);
-		this._deleteContent();
-		this._createItemView();
-	}
-
-	_transaction() {
-		this._deleteContent();
-		this.innerView = new TransactionView(this.container, this.transaction);
-	}
-
-	_transactionCount(count) {
+	/**
+	 * Update transaction counter
+	 *
+	 * @param {int} count
+	 * @private
+	 */
+	transactionCount(count) {
 		if(count === 0) {
 			this.transactionArea.style.display = 'none';
 		} else {
@@ -153,8 +197,9 @@ class NavigationView extends Framework.View {
 	 * Basically disable the "view item" button while an item is loading.
 	 *
 	 * @param {boolean} state - true if there's a request going on, false otherwise
+	 * @private
 	 */
-	_inRequest(state) {
+	inRequest(state) {
 		this.viewItemButton.disabled = state;
 		if(this.innerView !== null) {
 			if(state) {
@@ -165,7 +210,12 @@ class NavigationView extends Framework.View {
 		}
 	}
 
-	_deleteContent() {
+	/**
+	 * Delete subviews and nuke this.innerView
+	 *
+	 * @private
+	 */
+	deleteContent() {
 		this.innerView = null;
 		while(this.container.lastElementChild) {
 			this.container.removeChild(this.container.lastElementChild);
@@ -175,30 +225,35 @@ class NavigationView extends Framework.View {
 		}
 	}
 
-	_createItemView() {
+	/**
+	 * Create an Item(Location)View and place it inside this.innerView
+	 *
+	 * @private
+	 */
+	createItemView() {
 		this.innerView = new ItemLocationView(this.container, this.currentItem, this.language, this.transaction, this.logs);
 	}
 
 	trigger(that, event) {
 		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
-			this._changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
+			this.changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {
-				this._requestedReady()
+				this.requestedReady()
 			} else if(event === 'fetch-failed') {
-				this._requestedFailed()
+				this.requestedFailed()
 			}
 		} else if(that === this.transaction) {
 			// for searching:
 			// 'to-add', 'to-update', 'to-delete', 'un-add', 'un-update', 'un-delete'
 			if(event.startsWith('to-') || event.startsWith('un-') || event === 'reset') {
-				this._transactionCount(this.transaction.actionsCount);
+				this.transactionCount(this.transaction.actionsCount);
 			}
 			if(event === 'to-add' && this.transaction.create.has(this.currentItem)) {
 				// note that this could fire if this.currentItem has already been added, is now being edited and any other item is added to transaction.
 				// a simple solution would be to un-add items from transaction when editing them, which also makes sense. Kind of.
 				// TODO: do that
-				this._newItem();
+				this.newItem();
 			}
 		}
 
