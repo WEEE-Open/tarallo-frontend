@@ -19,7 +19,28 @@ class SearchView extends Framework.View {
 
 		this.state = state;
 		if(state.hasContent()) {
-			preset = state.getAll()
+			preset = state.getAll();
+		}
+
+		this.pairs = new Map();
+		this.presetPairs(preset);
+	}
+
+	/**
+	 *
+	 * @param {string[]} preset
+	 */
+	presetPairs(preset) {
+		if(preset.length % 2 === 1) {
+			throw new Error("Search fields must be even, odd number of fields (" + preset.length + ") given");
+		}
+
+		while(preset.length >= 2) {
+			let pair = new this.SearchPair(preset[preset.length - 2], preset[preset.length - 1]);
+			let pairElement;
+			this.pairs.set(pairElement, pair);
+			preset.pop();
+			preset.pop();
 		}
 	}
 
@@ -29,3 +50,36 @@ class SearchView extends Framework.View {
 		}
 	}
 }
+
+Object.defineProperty(SearchView.SearchPair, 'features', {
+	/**
+	 * @private
+	 */
+	value: class SearchPair {
+		constructor(key, value) {
+			switch(key) {
+				case 'Location':
+					if(typeof value !== "string" || value === "") {
+						throw new TypeError(" Location must be a non-empty string, " + value + " given");
+					}
+					break;
+				case 'Search':
+					// TODO: new SearchTriplet, stuff=things, asd>90001, etc...
+				case 'Sort':
+					// TODO: +stuff,-things, etc...
+				case 'Depth':
+				case 'Parent':
+					value = parseInt(value);
+					if(Number.isNaN(value) || value < 0) {
+						throw new TypeError(key + " must be a positive integer, " + value + " given");
+					}
+					break;
+				default:
+					throw new Error("Unexpected search key: " + key);
+			}
+		}
+	},
+	writable: false,
+	enumerable: true,
+	configurable: false
+});
