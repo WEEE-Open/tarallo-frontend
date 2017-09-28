@@ -1,4 +1,31 @@
 module.exports = function(grunt) {
+	let concatThese = [
+			"js/framework.js",
+			"js/XHR.js",
+			"js/log.js",
+			"js/item.js",
+			"js/itemupdate.js",
+			"js/session.js",
+			"js/stateholder.js",
+			"js/translations.js",
+			"js/transaction.js",
+			"js/views/browserView.js",
+			"js/views/computerView.js",
+			"js/views/rootView.js",
+			"js/views/loginView.js",
+			"js/views/logoutView.js",
+			"js/views/logsView.js",
+			"js/views/navigationView.js",
+			"js/views/textView.js",
+			"js/views/transactionView.js",
+			"js/views/itemView.js",
+			"js/views/itemLocationView.js",
+			"js/views/searchView.js"
+			];
+
+	let watchThese = concatThese.slice();
+	watchThese.push('Gruntfile.js');
+
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 
@@ -8,36 +35,14 @@ module.exports = function(grunt) {
 				sourceMap: true,
 			},
 			all: {
-				src: [
-					"js/framework.js",
-					"js/XHR.js",
-					"js/log.js",
-					"js/item.js",
-					"js/itemupdate.js",
-					"js/session.js",
-					"js/stateholder.js",
-					"js/translations.js",
-					"js/transaction.js",
-					"js/views/browserView.js",
-					"js/views/computerView.js",
-					"js/views/rootView.js",
-					"js/views/loginView.js",
-					"js/views/logoutView.js",
-					"js/views/logsView.js",
-					"js/views/navigationView.js",
-					"js/views/textView.js",
-					"js/views/transactionView.js",
-					"js/views/itemView.js",
-					"js/views/itemLocationView.js",
-					"js/views/searchView.js"
-				],
+				src: concatThese,
 				dest: 'dist/all.js',
 			},
 		},
 
 		watch: {
 			js: {
-				files: ['js/**/*.js'],
+				files: watchThese,
 				tasks: ['concat'],
 			}
 		}
