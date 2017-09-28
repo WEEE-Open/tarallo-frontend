@@ -143,7 +143,7 @@ class NavigationView extends Framework.View {
 	 */
 	searchView() {
 		this.deleteContent();
-		this.innerView = new SearchView(this.container);
+		this.innerView = new SearchView(this.container, this.stateHolder.emit(1), this.lastSearch);
 	}
 
 	/**

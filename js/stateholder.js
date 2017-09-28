@@ -125,6 +125,15 @@ class stateHolder extends Framework.Object {
 	}
 
 	/**
+	 * Is there anything in the visibile portion of the state?
+	 *
+	 * @return {boolean}
+	 */
+	hasContent() {
+		return this.path.length > start;
+	}
+
+	/**
 	 * Return another urlState object, starting from a specific URL piece
 	 *
 	 * @param {int} start - how many URL pieces to skip

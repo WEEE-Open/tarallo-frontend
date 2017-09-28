@@ -102,6 +102,7 @@ class RootView extends Framework.View {
 			case 'add':
 			case 'view':
 			case 'transaction':
+			case 'search':
 				this.nav();
 				break;
 			default:
