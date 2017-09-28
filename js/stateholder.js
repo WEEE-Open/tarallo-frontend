@@ -94,14 +94,14 @@ class stateHolder extends Framework.Object {
 	 * @return {boolean} any changes?
 	 */
 	presetAllArray(toWhat) {
-		if(stateHolder._same(this.getAll(), toWhat)) {
+		if(stateHolder.same(this.getAll(), toWhat)) {
 			return false;
 		}
 
-		this._backupPath();
+		this.backupPath();
 		if(Array.isArray(toWhat)) {
 			this.path.splice(this.start);
-			this._appendAll(toWhat);
+			this.appendAll(toWhat);
 		} else {
 			// Should never happen anyway
 			throw new TypeError('urlState.setAll expected an array, ' + typeof toWhat + ' given');
@@ -132,7 +132,7 @@ class stateHolder extends Framework.Object {
 	 * @see this.equals
 	 */
 	emit(start) {
-		return new this.constructor(this.trigger, this.path, start, this.previousPath);
+		return new this.constructor(this.path, start + this.start, this.previousPath);
 	}
 
 	/**
@@ -143,7 +143,7 @@ class stateHolder extends Framework.Object {
 	 * @return {boolean} are they identical?
 	 * @private
 	 */
-	static _same(before, after) {
+	static same(before, after) {
 		if(after.length === before.length) {
 			let equal = true;
 			for(let i = 0; i < after.length; i++) {
@@ -165,9 +165,9 @@ class stateHolder extends Framework.Object {
 	 * @param {string[]} what
 	 * @private
 	 */
-	_appendAll(what) {
+	appendAll(what) {
 		for(let i = 0; i < what.length; i++) {
-			this._appendOne(what[i]);
+			this.appendOne(what[i]);
 		}
 	}
 
@@ -177,14 +177,19 @@ class stateHolder extends Framework.Object {
 	 * @param {string} what
 	 * @private
 	 */
-	_appendOne(what) {
+	appendOne(what) {
 		if(typeof what !== 'string') {
 			throw new TypeError('Cannot insert ' + typeof what + ' into state, only strings are allowed');
 		}
 		this.path.push(what);
 	}
 
-	_backupPath() {
+	/**
+	 * Save path as this.previousPath
+	 *
+	 * @private
+	 */
+	backupPath() {
 		while(this.previousPath.length > 0) {
 			this.previousPath.pop();
 		}
@@ -200,6 +205,7 @@ class stateHolder extends Framework.Object {
 	 * @see this.emit
 	 */
 	equals(other) {
+		// Note that this is a pointer comparison
 		return this.path === other.path && this.previousPath === other.previousPath;
 	}
 
