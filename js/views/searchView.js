@@ -37,8 +37,7 @@ class SearchView extends Framework.View {
 
 		while(preset.length >= 2) {
 			let pair = new this.SearchPair(preset[preset.length - 2], preset[preset.length - 1]);
-			let pairElement;
-			this.pairs.set(pairElement, pair);
+			this.pairs.set(pair.element, pair);
 			preset.pop();
 			preset.pop();
 		}
@@ -77,6 +76,18 @@ Object.defineProperty(SearchView.SearchPair, 'features', {
 				default:
 					throw new Error("Unexpected search key: " + key);
 			}
+			this.key = key;
+			this.value = value;
+
+			this.element = this.createTextBox();
+		}
+
+		createTextBox() {
+			let element = document.createElement("div");
+			element.classList.add("control");
+
+
+			return element;
 		}
 	},
 	writable: false,
