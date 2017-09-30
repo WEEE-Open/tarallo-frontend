@@ -29,7 +29,7 @@ class SearchView extends Framework.View {
 		this.controlsElement = this.el.querySelector('.searchbuttons');
 
 		/** Maps an element of the search controls to its SearchPair.
-		 *  @type {Map.<Node|HTMLElement,SearchPair>}
+		 *  @type {Map.<Node|HTMLElement,SearchView.SearchPair>}
 		 */
 		this.searchPairs = new Map();
 		/** @type {Set.<string>} */
@@ -56,10 +56,16 @@ class SearchView extends Framework.View {
 
 		while(preset.length >= 2) {
 			let key = preset[preset.length - 2], value = preset[preset.length - 1];
-			let pair = new SearchView.SearchPair(key, value, this.searchKeys.has(key));
 
-			this.searchKeys.add(key);
-			this.searchPairs.set(pair.element, pair);
+			try {
+				let pair = new SearchView.SearchPair(key, value, this.searchKeys.has(key));
+
+				this.searchKeys.add(key);
+				this.searchPairs.set(pair.element, pair);
+			} catch(e) {
+				this.logs.add(e.message, 'E');
+			}
+
 			preset.pop();
 			preset.pop();
 		}
