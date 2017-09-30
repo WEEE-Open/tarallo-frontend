@@ -35,27 +35,33 @@ class SearchView extends Framework.View {
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
 		 */
-		this.pairs = new Map();
+		this.elementPairs = new Map();
 
-		try {
-			this.presetPairs(preset, search);
-		} catch(e) {
-			this.logs.add(e.message, 'E');
-		}
+		this.presetPairs(preset);
 
 		for(let pair of this.search.pairs) {
-			let control = SearchView.createTextBox(pair.key, pair.value);
-			this.pairs.set(control, pair);
+			let control = SearchView.createTextBox(pair);
+			this.elementPairs.set(control, pair);
 			this.controlsElement.appendChild(control);
 		}
+
+		this.toggleSearchButton(this.search.hasContent());
 	}
 
-	static createTextBox(key, value) {
+	/**
+	 * Create a simple textbox with a label.
+	 *
+	 * @param {Search.Pair} pair - The mighty pair itself, which contains a key and a value due to its class nature, which PHPStorm can't fathom
+	 * @param {string} pair.key - This has to be specified JUST BECAUSE.
+	 * @param {string} pair.value - This has to be specified JUST BECAUSE.
+	 * @return {Element}
+	 */
+	static createTextBox(pair) {
 		let control = document.createElement("div");
 		control.classList.add("control");
 		control.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
-		control.querySelector('label').firstChild.textContent = key + ': '; // TODO: something better.
-		control.querySelector('label input').value = value;
+		control.querySelector('label').firstChild.textContent = pair.key + ': '; // TODO: something better.
+		control.querySelector('label input').value = pair.value;
 
 		return control;
 	}
@@ -72,30 +78,44 @@ class SearchView extends Framework.View {
 	 * @private
 	 */
 	inRequest(state) {
-		this.searchButton.disabled = state;
+
+	}
+
+	/**
+	 * Show/hide search button.
+	 *
+	 * @param {boolean} enabled
+	 * @private
+	 */
+	toggleSearchButton(enabled) {
+		this.searchButton.disabled = !enabled;
 	}
 
 	/**
 	 * Put those strings into a Search!
 	 *
 	 * @param {string[]} preset - StateHolder pieces or anything similar
-	 * @param {Search} search - Search.
 	 */
-	presetPairs(preset, search) {
+	presetPairs(preset) {
 		if(preset.length % 2 === 1) {
-			throw new Error("Search fields must be even, odd number of fields (" + preset.length + ") given");
+			this.logs.add("Search fields must be even, odd number of fields (" + preset.length + ") given", 'E');
+			return;
 		}
 
 		while(preset.length >= 2) {
 			let key = preset[preset.length - 2], value = preset[preset.length - 1];
 
+			let pair;
 			try {
-				let pair = new SearchView.Pair(key, value, this.keys.has(key));
-
-				this.keys.add(key);
-				this.pairs.set(pair.element, pair);
+				 pair = this.search.add(key, value);
 			} catch(e) {
 				this.logs.add(e.message, 'E');
+				pair = null;
+			}
+
+			if(pair !== null) {
+				let element = SearchView.createTextBox(pair);
+				this.elementPairs.set(element, pair);
 			}
 
 			preset.pop();
@@ -106,6 +126,15 @@ class SearchView extends Framework.View {
 	trigger(that, event) {
 		if(that instanceof stateHolder && this.state.equals(that)) {
 
+		} else if(that === this.search) {
+			switch(event) {
+				case 'add-content':
+					this.toggleSearchButton(true);
+					break;
+				case 'remove-content':
+					this.toggleSearchButton(false);
+					break;
+			}
 		}
 	}
 }
