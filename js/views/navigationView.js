@@ -21,6 +21,7 @@ class NavigationView extends Framework.View {
 		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.buttonsArea = this.el.querySelector('.navbuttons');
 		this.transactionArea = this.el.querySelector('.transactioncount');
+
 		this.transactionCount(this.transaction.actionsCount);
 
 		this.container = this.el.querySelector('.itemholder');
@@ -33,9 +34,9 @@ class NavigationView extends Framework.View {
 		/** Last request item (for "add new" and viewing a single item, search results are handled elsewhere)
 		 *  @var {Item|null} */
 		this.requestedItem = null;
-		/** StateHolder pieces of the last search done
-		 *  @var {string[]} */
-		this.lastSearch = [];
+		/** @var {Search|null}
+		 *  @private */
+		this.lastSearch = null;
 
 		this.viewItemButton.addEventListener('click', this.ViewItemClick.bind(this));
 
@@ -89,7 +90,12 @@ class NavigationView extends Framework.View {
 	 */
 	changeState(from, to) {
 		if(from === 'search' && to !== 'search') {
-			this.lastSearch = this.stateHolder.getAllOld().slice(1);
+			if(this.innerView instanceof SearchView) {
+				/** @type {Search} */
+				this.lastSearch = this.innerView.search;
+			} else {
+				this.lastSearch = null;
+			}
 		}
 
 		switch(to) {

@@ -13,17 +13,20 @@ class SearchView extends Framework.View {
 	 * @param {HTMLElement} element - An element where controls and results will be placed
 	 * @param {Logs} logs - Logs for logging logs of logs logging logs
 	 * @param {stateHolder} state - Current state
-	 * @param {string[]|[]|null} preset - Set these search fields, but don't actually search anything. Will be discarded if state contains anything significant.
+	 * @param {Search|null} preset - Set these search fields, but don't actually search anything. Will be discarded if state contains anything significant.
 	 */
 	constructor(element, logs, state, preset) {
 		super(element);
 
 		this.state = state;
 		this.logs = logs;
-		this.search = new Search();
 
 		if(state.hasContent()) {
-			preset = state.getAll();
+			this.search = this.fromState(state.getAll());
+		} else if(preset instanceof Search) {
+			this.search = preset;
+		} else {
+			this.search = new Search();
 		}
 
 		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
@@ -36,8 +39,6 @@ class SearchView extends Framework.View {
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
 		 */
 		this.elementPairs = new Map();
-
-		this.presetPairs(preset);
 
 		for(let pair of this.search.pairs) {
 			let control = SearchView.createTextBox(pair);
@@ -94,33 +95,32 @@ class SearchView extends Framework.View {
 	/**
 	 * Put those strings into a Search!
 	 *
-	 * @param {string[]} preset - StateHolder pieces or anything similar
+	 * @param {string[]} pieces - StateHolder pieces or anything similar
+	 * @return {Search}
 	 */
-	presetPairs(preset) {
-		if(preset.length % 2 === 1) {
-			this.logs.add("Search fields must be even, odd number of fields (" + preset.length + ") given", 'E');
-			return;
+	fromState(pieces) {
+		let search = new Search();
+
+		if(pieces.length % 2 === 1) {
+			this.logs.add("Search fields must be even, odd number of fields (" + pieces.length + ") given", 'E');
+			return search;
 		}
 
-		while(preset.length >= 2) {
-			let key = preset[preset.length - 2], value = preset[preset.length - 1];
-
+		while(pieces.length >= 2) {
+			let key = pieces[pieces.length - 2], value = pieces[pieces.length - 1];
 			let pair;
 			try {
-				 pair = this.search.add(key, value);
+				pair = search.add(key, value);
 			} catch(e) {
 				this.logs.add(e.message, 'E');
 				pair = null;
 			}
 
-			if(pair !== null) {
-				let element = SearchView.createTextBox(pair);
-				this.elementPairs.set(element, pair);
-			}
-
-			preset.pop();
-			preset.pop();
+			pieces.pop();
+			pieces.pop();
 		}
+
+		return search;
 	}
 
 	trigger(that, event) {
