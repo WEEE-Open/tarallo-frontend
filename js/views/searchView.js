@@ -20,6 +20,7 @@ class SearchView extends Framework.View {
 
 		this.state = state;
 		this.logs = logs;
+		this.search = new Search();
 
 		if(state.hasContent()) {
 			preset = state.getAll();
@@ -27,29 +28,60 @@ class SearchView extends Framework.View {
 
 		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
 		this.controlsElement = this.el.querySelector('.searchbuttons');
+		this.searchButton = this.el.querySelector('.searchbutton');
+
+		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 
 		/** Maps an element of the search controls to its SearchPair.
-		 *  @type {Map.<Node|HTMLElement,SearchView.SearchPair>}
+		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
 		 */
-		this.searchPairs = new Map();
-		/** @type {Set.<string>} */
-		this.searchKeys = new Set();
+		this.pairs = new Map();
 
 		try {
-			this.presetPairs(preset);
+			this.presetPairs(preset, search);
 		} catch(e) {
 			this.logs.add(e.message, 'E');
 		}
-		for(let control of this.searchPairs.keys()) {
+
+		for(let pair of this.search.pairs) {
+			let control = SearchView.createTextBox(pair.key, pair.value);
+			this.pairs.set(control, pair);
 			this.controlsElement.appendChild(control);
 		}
 	}
 
+	static createTextBox(key, value) {
+		let control = document.createElement("div");
+		control.classList.add("control");
+		control.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
+		control.querySelector('label').firstChild.textContent = key + ': '; // TODO: something better.
+		control.querySelector('label input').value = value;
+
+		return control;
+	}
+
+	searchButtonClick() {
+		this.inRequest(true);
+	}
+
 	/**
+	 * Basically disable the search button while results are loading.
 	 *
-	 * @param {string[]} preset
+	 * @param {boolean} state - true if there's a request going on, false otherwise
+	 * @see NavigationView.inRequest - feeling a bit of déjà vu?
+	 * @private
 	 */
-	presetPairs(preset) {
+	inRequest(state) {
+		this.searchButton.disabled = state;
+	}
+
+	/**
+	 * Put those strings into a Search!
+	 *
+	 * @param {string[]} preset - StateHolder pieces or anything similar
+	 * @param {Search} search - Search.
+	 */
+	presetPairs(preset, search) {
 		if(preset.length % 2 === 1) {
 			throw new Error("Search fields must be even, odd number of fields (" + preset.length + ") given");
 		}
@@ -58,10 +90,10 @@ class SearchView extends Framework.View {
 			let key = preset[preset.length - 2], value = preset[preset.length - 1];
 
 			try {
-				let pair = new SearchView.SearchPair(key, value, this.searchKeys.has(key));
+				let pair = new SearchView.Pair(key, value, this.keys.has(key));
 
-				this.searchKeys.add(key);
-				this.searchPairs.set(pair.element, pair);
+				this.keys.add(key);
+				this.pairs.set(pair.element, pair);
 			} catch(e) {
 				this.logs.add(e.message, 'E');
 			}
@@ -77,58 +109,3 @@ class SearchView extends Framework.View {
 		}
 	}
 }
-
-Object.defineProperty(SearchView, 'SearchPair', {
-	/**
-	 * @private
-	 */
-	value: class SearchPair {
-		constructor(key, value, duplicate) {
-			switch(key) {
-				case 'Location':
-					if(typeof value !== "string" || value === "") {
-						throw new Error(" Location must be a non-empty string, " + value + " given");
-					}
-					break;
-				case 'Search':
-					// TODO: new SearchTriplet, stuff=things, asd>90001, etc...
-					break;
-				case 'Sort':
-					if(duplicate) {
-						throw new Error("Duplicate key: Sort");
-					}
-					// TODO: +stuff,-things, etc...
-					break;
-				case 'Depth':
-				case 'Parent':
-					if(duplicate) {
-						throw new Error("Duplicate key: " + key);
-					}
-					value = parseInt(value);
-					if(Number.isNaN(value) || value < 0) {
-						throw new Error(key + " must be a positive integer, " + value + " given");
-					}
-					break;
-				default:
-					throw new Error("Unexpected search key: " + key);
-			}
-			this.key = key;
-			this.value = value;
-
-			this.element = this.createTextBox();
-		}
-
-		createTextBox() {
-			let control = document.createElement("div");
-			control.classList.add("control");
-			control.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
-			control.querySelector('label').firstChild.textContent = this.key + ': '; // TODO: something better.
-			control.querySelector('label input').value = this.value;
-
-			return control;
-		}
-	},
-	writable: false,
-	enumerable: true,
-	configurable: false
-});
