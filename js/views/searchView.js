@@ -39,6 +39,8 @@ class SearchView extends Framework.View {
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
 		 */
 		this.elementPairs = new Map();
+		this.currentItems = null;
+		this.requestedItems = null;
 
 		for(let pair of this.search.pairs) {
 			let control = SearchView.createTextBox(pair);
@@ -68,6 +70,7 @@ class SearchView extends Framework.View {
 	}
 
 	searchButtonClick() {
+		// TODO: set state, if unchanged (see return value) call function directly, else wait for event, then wait for items
 		this.inRequest(true);
 	}
 
@@ -79,7 +82,7 @@ class SearchView extends Framework.View {
 	 * @private
 	 */
 	inRequest(state) {
-
+		this.toggleSearchButton(!state);
 	}
 
 	/**
