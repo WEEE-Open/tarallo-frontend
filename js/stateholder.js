@@ -130,7 +130,7 @@ class stateHolder extends Framework.Object {
 	 * @return {boolean}
 	 */
 	hasContent() {
-		return this.path.length > start;
+		return this.path.length > this.start;
 	}
 
 	/**
