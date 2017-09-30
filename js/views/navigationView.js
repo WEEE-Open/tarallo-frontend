@@ -88,8 +88,8 @@ class NavigationView extends Framework.View {
 	 * @private
 	 */
 	changeState(from, to) {
-		if(from === 'search') {
-			this.lastSearch = this.stateHolder.getAllOld().shift();
+		if(from === 'search' && to !== 'search') {
+			this.lastSearch = this.stateHolder.getAllOld().slice(1);
 		}
 
 		switch(to) {
@@ -258,7 +258,7 @@ class NavigationView extends Framework.View {
 	}
 
 	trigger(that, event) {
-		if(that instanceof stateHolder && that.equals(this.stateHolder) && event === 'change') {
+		if(that instanceof stateHolder && this.stateHolder.equals(that) && event === 'change') {
 			this.changeState(this.stateHolder.getOld(0), this.stateHolder.get(0));
 		} else if(that === this.requestedItem) {
 			if(event === 'fetch-success') {

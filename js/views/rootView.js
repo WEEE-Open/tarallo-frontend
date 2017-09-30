@@ -127,8 +127,10 @@ class RootView extends Framework.View {
 	 * @private
 	 */
 	nav() {
-		this.clearContainer();
-		this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations, this.transaction);
+		if(!(this.currentView instanceof NavigationView)) {
+			this.clearContainer();
+			this.currentView = new NavigationView(this.container, this.logs, this.session, this.stateHolder, this.translations, this.transaction);
+		}
 	}
 
 	/**

@@ -72,7 +72,7 @@ class stateHolder extends Framework.Object {
 	 * @see stateHolder.getAll
 	 */
 	getAllOld() {
-		return this.path.slice(this.start);
+		return this.previousPath.slice(this.start);
 	}
 
 	/**
