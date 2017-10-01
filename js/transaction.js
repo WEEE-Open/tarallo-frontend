@@ -128,7 +128,6 @@ class Transaction extends Framework.Object {
 				this.trigger('failed');
 			},
 			(data) => {
-				console.log(data); // TODO: remove
 				this.trigger('success');
 			});
 

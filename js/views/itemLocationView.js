@@ -27,7 +27,6 @@ class ItemLocationView extends ItemView {
 		this.moveElements();
 
 		this.el.appendChild(locationContainer);
-		console.log(this.itemEl);
 	}
 
 	/**
