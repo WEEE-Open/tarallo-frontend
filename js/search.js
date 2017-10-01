@@ -86,6 +86,16 @@ class Search extends Framework.Object {
 	}
 
 	/**
+	 * Does key exist in this search?
+	 *
+	 * @param {string} key
+	 * @return {boolean}
+	 */
+	containsKey(key) {
+		return this.keys.has(key);
+	}
+
+	/**
 	 * Ever wanted to throw a Search inside StateHolder? No? Well, you can: get an array here and use it on setAll or whatever.
 	 *
 	 * @return {string[]}
@@ -118,6 +128,10 @@ Object.defineProperty(Search, 'Pair', {
 		 * @see Search.add - use this instead
 		 */
 		constructor(key, value, duplicate) {
+			if(!value.canDuplicate() && duplicate) {
+				throw new Error("Duplicate key: Sort");
+			}
+
 			switch(key) {
 				case 'Location':
 					if(typeof value !== "string" || value === "") {
@@ -128,16 +142,10 @@ Object.defineProperty(Search, 'Pair', {
 					// TODO: new SearchTriplet, stuff=things, asd>90001, etc...
 					break;
 				case 'Sort':
-					if(duplicate) {
-						throw new Error("Duplicate key: Sort");
-					}
 					// TODO: +stuff,-things, etc...
 					break;
 				case 'Depth':
 				case 'Parent':
-					if(duplicate) {
-						throw new Error("Duplicate key: " + key);
-					}
 					value = parseInt(value);
 					if(Number.isNaN(value) || value < 0) {
 						throw new Error(key + " must be a positive integer, " + value + " given");
@@ -148,6 +156,23 @@ Object.defineProperty(Search, 'Pair', {
 			}
 			this.key = key;
 			this.value = value;
+		}
+
+		/**
+		 * Is a key allowed to exist multiple times in the same search?
+		 *
+		 * @param {string} key
+		 * @return {boolean}
+		 */
+		static canDuplicate(key) {
+			switch(key) {
+				case 'Depth':
+				case 'Parent':
+				case 'Sort':
+					return false;
+				default:
+					return true;
+			}
 		}
 	},
 	writable: false,

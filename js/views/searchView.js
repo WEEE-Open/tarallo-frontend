@@ -24,9 +24,9 @@ class SearchView extends Framework.View {
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
 		this.elementsPairs = new Map();
-		/** Nodes that don't exist in Search (yet)
-		 *  @type {WeakSet.<Node|HTMLElement>} */
-		this.elementsUnpaired = new WeakSet();
+		/** Nodes that don't exist in Search (yet), mapped to their key
+		 *  @type {WeakMap.<Node|HTMLElement, string>} */
+		this.elementsUnpaired = new WeakMap();
 
 		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
 		this.controlsElement = this.el.querySelector('.searchcontrols');
@@ -83,9 +83,27 @@ class SearchView extends Framework.View {
 		if(event.target.nodeName === "BUTTON") {
 			event.stopPropagation();
 			let key = event.target.dataset.key;
+			if(!Search.Pair.canDuplicate(key)) {
+				let duplicate = false;
+				if(this.search.containsKey(key)) {
+					duplicate = true;
+				} else {
+					let controls = this.controlsElement.querySelectorAll('.control');
+					for(let control of controls) {
+						if(this.elementsUnpaired.get(control) === key) {
+							duplicate = true;
+							break;
+						}
+					}
+				}
+				if(duplicate) {
+					this.logs.add('Cannot add duplicate key ' + key, 'E');
+					return;
+				}
+			}
 			let control = SearchView.createTextBox(key, null);
 			this.controlsElement.appendChild(control);
-			this.elementsUnpaired.add(control);
+			this.elementsUnpaired.set(control, key);
 		}
 	}
 
