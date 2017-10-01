@@ -35,6 +35,7 @@ class SearchView extends Framework.View {
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 		this.buttonsElement.addEventListener('click', this.addButtonClick.bind(this));
+		this.controlsElement.addEventListener('focusout', this.handleSearchControlsFocus.bind(this));
 
 		if(preset instanceof Search && !this.state.hasContent()) {
 			this.search = preset;
@@ -104,6 +105,37 @@ class SearchView extends Framework.View {
 			let control = SearchView.createTextBox(key, null);
 			this.controlsElement.appendChild(control);
 			this.elementsUnpaired.set(control, key);
+		}
+	}
+
+	/**
+	 * Handle unfocusing stuff (textboxes, and hopefully dropdowns) in controls area.
+	 *
+	 * @param {Event} event
+	 */
+	handleSearchControlsFocus(event) {
+		/** @type {HTMLElement|EventTarget} */
+		let control = event.target;
+		while(!control.classList.contains('control') && control.parentNode) {
+			control = control.parentNode;
+		}
+		if(!control.parentNode) {
+			return;
+		}
+		event.stopPropagation();
+		// TODO: use elementsPairs/elementsUnpaired to get key, determine which kind of textbox it is, query selectors accordingly
+		let box = control.querySelector('input');
+		if(box.value === '') {
+			if(this.elementsUnpaired.has(control)) {
+				this.elementsUnpaired.delete(control);
+			} else if(this.elementsPairs.has(control)) {
+				this.search.remove(this.elementsPairs.get(control));
+			} else {
+				this.logs.add("Last removed search key was never created, apparently (this is a bug)", 'W');
+			}
+			this.controlsElement.removeChild(control);
+		} else {
+
 		}
 	}
 
