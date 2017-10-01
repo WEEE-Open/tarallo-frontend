@@ -85,10 +85,19 @@ class Search extends Framework.Object {
 		}
 	}
 
+	/**
+	 * Ever wanted to throw a Search inside StateHolder? No? Well, you can: get an array here and use it on setAll or whatever.
+	 *
+	 * @return {string[]}
+	 */
 	serialize() {
+		let array = [];
 		for(let pair of this.pairs) {
-
+			array.push(pair.key);
+			array.push(pair.value);
 		}
+
+		return array;
 	}
 }
 

@@ -94,8 +94,11 @@ class SearchView extends Framework.View {
 	 */
 	searchButtonClick() {
 		this.inRequest(true);
-		this.searchCommit = this.state.setAll(this.search.serialize());
-		if(!this.searchCommit) {
+		// setAllAray fires an event before returning, this has to be set before calling setAllArray so that trigger can notice it
+		this.searchCommit = true;
+		let changed = this.state.setAllArray(this.search.serialize());
+		if(!changed) {
+			this.searchCommit = false;
 			this.doSearch();
 		}
 	}
