@@ -115,7 +115,10 @@ class NavigationView extends Framework.View {
 				this.transactionView();
 				break;
 			case 'search':
-				this.searchView();
+				// can't remeber if other states allow this extreme memoization technique or not
+				if(from !== 'search') {
+					this.searchView();
+				}
 				break;
 		}
 	}

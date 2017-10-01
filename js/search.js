@@ -84,6 +84,12 @@ class Search extends Framework.Object {
 			throw new Error("Removing unexisting key " + key);
 		}
 	}
+
+	serialize() {
+		for(let pair of this.pairs) {
+
+		}
+	}
 }
 
 /**

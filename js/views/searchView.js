@@ -20,26 +20,46 @@ class SearchView extends Framework.View {
 
 		this.state = state;
 		this.logs = logs;
-		this.changingState = false;
+
+		/** Maps an element of the search controls to its SearchPair.
+		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
+		 */
+		this.elementPairs = new Map();
 
 		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
 		this.controlsElement = this.el.querySelector('.searchbuttons');
 		this.searchButton = this.el.querySelector('.searchbutton');
 
-		if(state.hasContent()) {
-			this.search = this.fromState(state.getAll());
-		} else if(preset instanceof Search) {
+		if(preset instanceof Search && !this.state.hasContent()) {
 			this.search = preset;
 		} else {
 			this.search = new Search();
 		}
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
+	}
 
-		/** Maps an element of the search controls to its SearchPair.
-		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
-		 */
-		this.elementPairs = new Map();
+	/**
+	 * @param {Search} to
+	 */
+	set search(to) {
+		this._search = to;
+		this.render();
+		this.toggleSearchButton(to.hasContent());
+	}
+
+	/**
+	 * @return {Search}
+	 */
+	get search() {
+		return this._search;
+	}
+
+	render() {
+		this.elementPairs.clear();
+		while(this.controlsElement.lastChild) {
+			this.controlsElement.removeChild(this.controlsElement.lastChild);
+		}
 
 		for(let pair of this.search.pairs) {
 			let control = SearchView.createTextBox(pair);
@@ -48,21 +68,6 @@ class SearchView extends Framework.View {
 		}
 
 		this.toggleSearchButton(this.search.hasContent());
-	}
-
-	/**
-	 * @param {Search|null} to
-	 */
-	set search(to) {
-		this._search = to;
-		this.toggleSearchButton(to instanceof Search && to.hasContent());
-	}
-
-	/**
-	 * @return {Search|null}
-	 */
-	get search() {
-		return this._search;
 	}
 
 	/**
@@ -89,8 +94,8 @@ class SearchView extends Framework.View {
 	 */
 	searchButtonClick() {
 		this.inRequest(true);
-		this.changingState = this.state.setAll(this.search.serialize());
-		if(!this.changingState) {
+		this.searchCommit = this.state.setAll(this.search.serialize());
+		if(!this.searchCommit) {
 			this.doSearch();
 		}
 	}
@@ -158,16 +163,15 @@ class SearchView extends Framework.View {
 
 	trigger(that, event) {
 		if(that instanceof stateHolder && this.state.equals(that)) {
-			if(this.changingState) {
-				this.changingState = false;
+			if(this.searchCommit) {
+				this.searchCommit = false;
 				this.doSearch();
 			} else if(this.state.hasContent()) {
-				// When going to /search this fires, with empty this.state, and it may overwrite a restored search!
-				// Doing nothing if this.state is empty is the only sensible thing I could think of.
 				this.search = this.fromState(this.state.getAll());
 				this.doSearch();
 			}
-		} else if(that === this.search) {
+		} else // noinspection JSValidateTypes - PHPStorm decided that Search isn't a Framework.Object anymore, just because there's a getter
+			if(that === this.search) {
 			switch(event) {
 				case 'add-content':
 					this.toggleSearchButton(true);
