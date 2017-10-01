@@ -23,7 +23,7 @@ class SearchView extends Framework.View {
 
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
-		this.elementsPairs = new Map();
+		this.elementsPairs = new WeakMap();
 		/** Nodes that don't exist in Search (yet), mapped to their key
 		 *  @type {WeakMap.<Node|HTMLElement, string>} */
 		this.elementsUnpaired = new WeakMap();
@@ -98,7 +98,7 @@ class SearchView extends Framework.View {
 					}
 				}
 				if(duplicate) {
-					this.logs.add('Cannot add duplicate key ' + key, 'E');
+					this.logs.add('Cannot add duplicate key ' + key, 'W');
 					return;
 				}
 			}
@@ -125,7 +125,9 @@ class SearchView extends Framework.View {
 		event.stopPropagation();
 		// TODO: use elementsPairs/elementsUnpaired to get key, determine which kind of textbox it is, query selectors accordingly
 		let box = control.querySelector('input');
-		if(box.value === '') {
+		let value = box.value;
+		if(value === '') {
+			// delete search keys
 			if(this.elementsUnpaired.has(control)) {
 				this.elementsUnpaired.delete(control);
 			} else if(this.elementsPairs.has(control)) {
@@ -135,7 +137,38 @@ class SearchView extends Framework.View {
 			}
 			this.controlsElement.removeChild(control);
 		} else {
-
+			// add/modify search keys
+			let prev = '';
+			if(this.elementsUnpaired.has(control)) {
+				// promote that pair!
+				let newPair = null;
+				try {
+					newPair = this.search.add(this.elementsUnpaired.get(control), value);
+					this.addPair(newPair, control);
+				} catch(e) {
+					this.logs.add(e.message, 'E');
+					// TODO: rollback also depends on textbox type, make a function and use it here
+					box.value = prev;
+					// avoid broken half-states
+					if(newPair !== null) {
+						this.search.remove(newPair);
+					}
+				}
+			} else if(this.elementsPairs.has(control)) {
+				// edit pair
+				let pair = this.elementsPairs.get(control);
+				prev = prev.value;
+				try {
+					pair.set(pair.key, value);
+				} catch(e) {
+					this.logs.add(e.message, 'E');
+					// TODO: rollback thing
+					box.value = prev;
+				}
+			} else {
+				this.logs.add("That key didn't actually exist (this is a bug)", 'E');
+				this.controlsElement.removeChild(control);
+			}
 		}
 	}
 
@@ -143,18 +176,38 @@ class SearchView extends Framework.View {
 	 * Create textboxes for current search keys and display them
 	 */
 	render() {
-		this.elementsPairs.clear();
 		while(this.controlsElement.lastChild) {
 			this.controlsElement.removeChild(this.controlsElement.lastChild);
 		}
 
 		for(let pair of this.search.pairs) {
-			let control = SearchView.createTextBox(pair.key, pair.value);
-			this.elementsPairs.set(control, pair);
-			this.controlsElement.appendChild(control);
+			this.addPair(pair);
 		}
 
 		this.toggleSearchButton(this.search.hasContent());
+	}
+
+	/**
+	 * Add a Pair to current page, display it, place it into the map.
+	 * Removing is unnecessary since it's a weakmap, just delete the element from the page.
+	 *
+	 * @param {Search.Pair} pair - a real & true Pair, as recognized by international laws and by Search (i.e. it must be in this.search.pairs)
+	 * @param {Node|HTMLElement|null} control=null - current element. Will be created if null.
+	 */
+	addPair(pair, control = null) {
+		if(!this.search.pairs.has(pair)) {
+			// noinspection JSUnresolvedVariable
+			throw new Error("Cannot add pair (" + pair.key + " : " + pair.value + ") to SearchView since it doesn't exist in Search");
+		}
+
+		if(control === null) {
+			// noinspection JSUnresolvedVariable
+			control = SearchView.createTextBox(pair.key, pair.value);
+			this.controlsElement.appendChild(control);
+		} else {
+			this.elementsUnpaired.delete(control);
+		}
+		this.elementsPairs.set(control, pair);
 	}
 
 	/**

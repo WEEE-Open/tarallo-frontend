@@ -131,7 +131,10 @@ Object.defineProperty(Search, 'Pair', {
 			if(!this.constructor.canDuplicate(key) && duplicate) {
 				throw new Error("Duplicate key: Sort");
 			}
+			this.set(key, value);
+		}
 
+		set(key, value) {
 			switch(key) {
 				case 'Location':
 					if(typeof value !== "string" || value === "") {
