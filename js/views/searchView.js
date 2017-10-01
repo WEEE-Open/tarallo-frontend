@@ -20,6 +20,11 @@ class SearchView extends Framework.View {
 
 		this.state = state;
 		this.logs = logs;
+		this.changingState = false;
+
+		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
+		this.controlsElement = this.el.querySelector('.searchbuttons');
+		this.searchButton = this.el.querySelector('.searchbutton');
 
 		if(state.hasContent()) {
 			this.search = this.fromState(state.getAll());
@@ -29,18 +34,12 @@ class SearchView extends Framework.View {
 			this.search = new Search();
 		}
 
-		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
-		this.controlsElement = this.el.querySelector('.searchbuttons');
-		this.searchButton = this.el.querySelector('.searchbutton');
-
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
 		 */
 		this.elementPairs = new Map();
-		this.currentItems = null;
-		this.requestedItems = null;
 
 		for(let pair of this.search.pairs) {
 			let control = SearchView.createTextBox(pair);
@@ -49,6 +48,21 @@ class SearchView extends Framework.View {
 		}
 
 		this.toggleSearchButton(this.search.hasContent());
+	}
+
+	/**
+	 * @param {Search|null} to
+	 */
+	set search(to) {
+		this._search = to;
+		this.toggleSearchButton(to instanceof Search && to.hasContent());
+	}
+
+	/**
+	 * @return {Search|null}
+	 */
+	get search() {
+		return this._search;
 	}
 
 	/**
@@ -69,9 +83,25 @@ class SearchView extends Framework.View {
 		return control;
 	}
 
+	/**
+	 * Handle clicking on the search button.
+	 * Sets the URL and waits for the StateHolder "change" event. If URL is actually unchanged, calls this.doSearch directly.
+	 */
 	searchButtonClick() {
-		// TODO: set state, if unchanged (see return value) call function directly, else wait for event, then wait for items
 		this.inRequest(true);
+		this.changingState = this.state.setAll(this.search.serialize());
+		if(!this.changingState) {
+			this.doSearch();
+		}
+	}
+
+	doSearch() {
+		if(!this.search.hasContent()) {
+			throw new Error("Trying to do an empty search");
+		}
+		console.log("Ok, cerco");
+		console.log(this.search);
+		// TODO: XHR + wait for results (or let Search do this?)
 	}
 
 	/**
@@ -128,7 +158,15 @@ class SearchView extends Framework.View {
 
 	trigger(that, event) {
 		if(that instanceof stateHolder && this.state.equals(that)) {
-
+			if(this.changingState) {
+				this.changingState = false;
+				this.doSearch();
+			} else if(this.state.hasContent()) {
+				// When going to /search this fires, with empty this.state, and it may overwrite a restored search!
+				// Doing nothing if this.state is empty is the only sensible thing I could think of.
+				this.search = this.fromState(this.state.getAll());
+				this.doSearch();
+			}
 		} else if(that === this.search) {
 			switch(event) {
 				case 'add-content':
