@@ -128,7 +128,7 @@ Object.defineProperty(Search, 'Pair', {
 		 * @see Search.add - use this instead
 		 */
 		constructor(key, value, duplicate) {
-			if(!value.canDuplicate() && duplicate) {
+			if(!this.constructor.canDuplicate(key) && duplicate) {
 				throw new Error("Duplicate key: Sort");
 			}
 
