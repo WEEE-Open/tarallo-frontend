@@ -13,7 +13,7 @@ class SearchView extends Framework.View {
 	 * @param {HTMLElement} element - An element where controls and results will be placed
 	 * @param {Logs} logs - Logs for logging logs of logs logging logs
 	 * @param {stateHolder} state - Current state
-	 * @param {Search|null} preset - Set these search fields, but don't actually search anything. Will be discarded if state contains anything significant.
+	 * @param {Search|null} preset - Set this Search, but don't actually search anything. Will be discarded if state contains anything significant.
 	 */
 	constructor(element, logs, state, preset) {
 		super(element);
@@ -22,21 +22,25 @@ class SearchView extends Framework.View {
 		this.logs = logs;
 
 		/** Maps an element of the search controls to its SearchPair.
-		 *  @type {Map.<Node|HTMLElement,Search.Pair>}
-		 */
-		this.elementPairs = new Map();
+		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
+		this.elementsPairs = new Map();
+		/** Nodes that don't exist in Search (yet)
+		 *  @type {WeakSet.<Node|HTMLElement>} */
+		this.elementsUnpaired = new WeakSet();
 
 		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
-		this.controlsElement = this.el.querySelector('.searchbuttons');
+		this.controlsElement = this.el.querySelector('.searchcontrols');
+		this.buttonsElement = this.el.querySelector('.searchbuttons');
 		this.searchButton = this.el.querySelector('.searchbutton');
+
+		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
+		this.buttonsElement.addEventListener('click', this.addButtonClick.bind(this));
 
 		if(preset instanceof Search && !this.state.hasContent()) {
 			this.search = preset;
 		} else {
 			this.search = new Search();
 		}
-
-		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 	}
 
 	/**
@@ -55,39 +59,6 @@ class SearchView extends Framework.View {
 		return this._search;
 	}
 
-	render() {
-		this.elementPairs.clear();
-		while(this.controlsElement.lastChild) {
-			this.controlsElement.removeChild(this.controlsElement.lastChild);
-		}
-
-		for(let pair of this.search.pairs) {
-			let control = SearchView.createTextBox(pair);
-			this.elementPairs.set(control, pair);
-			this.controlsElement.appendChild(control);
-		}
-
-		this.toggleSearchButton(this.search.hasContent());
-	}
-
-	/**
-	 * Create a simple textbox with a label.
-	 *
-	 * @param {Search.Pair} pair - The mighty pair itself, which contains a key and a value due to its class nature, which PHPStorm can't fathom
-	 * @param {string} pair.key - This has to be specified JUST BECAUSE.
-	 * @param {string} pair.value - This has to be specified JUST BECAUSE.
-	 * @return {Element}
-	 */
-	static createTextBox(pair) {
-		let control = document.createElement("div");
-		control.classList.add("control");
-		control.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
-		control.querySelector('label').firstChild.textContent = pair.key + ': '; // TODO: something better.
-		control.querySelector('label input').value = pair.value;
-
-		return control;
-	}
-
 	/**
 	 * Handle clicking on the search button.
 	 * Sets the URL and waits for the StateHolder "change" event. If URL is actually unchanged, calls this.doSearch directly.
@@ -101,6 +72,58 @@ class SearchView extends Framework.View {
 			this.searchCommit = false;
 			this.doSearch();
 		}
+	}
+
+	/**
+	 * Handle clicking on any of the "add search key" buttons
+	 *
+	 * @param {Event} event
+	 */
+	addButtonClick(event) {
+		if(event.target.nodeName === "BUTTON") {
+			event.stopPropagation();
+			let key = event.target.dataset.key;
+			let control = SearchView.createTextBox(key, null);
+			this.controlsElement.appendChild(control);
+			this.elementsUnpaired.add(control);
+		}
+	}
+
+	/**
+	 * Create textboxes for current search keys and display them
+	 */
+	render() {
+		this.elementsPairs.clear();
+		while(this.controlsElement.lastChild) {
+			this.controlsElement.removeChild(this.controlsElement.lastChild);
+		}
+
+		for(let pair of this.search.pairs) {
+			let control = SearchView.createTextBox(pair.key, pair.value);
+			this.elementsPairs.set(control, pair);
+			this.controlsElement.appendChild(control);
+		}
+
+		this.toggleSearchButton(this.search.hasContent());
+	}
+
+	/**
+	 * Create a simple textbox with a label.
+	 *
+	 * @param {string} key
+	 * @param {string|null} value
+	 * @return {Element}
+	 */
+	static createTextBox(key, value) {
+		let control = document.createElement("div");
+		control.classList.add("control");
+		control.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
+		control.querySelector('label').firstChild.textContent = key + ': '; // TODO: something better.
+		if(value !== null) {
+			control.querySelector('label input').value = value;
+		}
+
+		return control;
 	}
 
 	doSearch() {
@@ -143,7 +166,7 @@ class SearchView extends Framework.View {
 		let search = new Search();
 
 		if(pieces.length % 2 === 1) {
-			this.logs.add("Search fields must be even, odd number of fields (" + pieces.length + ") given", 'E');
+			this.logs.add("Search key-values pairs must be even, odd number of pairs (" + pieces.length + ") given", 'E');
 			return search;
 		}
 
