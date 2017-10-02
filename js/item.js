@@ -256,7 +256,7 @@ class Item extends Framework.Object {
 		}
 
 		let req = XHR.GET('/Location/' + this.code,
-			(code, message) => {
+			(code, message/*, data*/) => {
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
 				this.trigger('fetch-failed');

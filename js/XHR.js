@@ -54,7 +54,7 @@ let XHR = (function() {
 	 * "http-status": got another code (contained in "message") instead of 200
 	 *
 	 * @param {XMLHttpRequest|EventTarget} xhr - XMLHttpRequest, which implements EventTarget. Had to be specified to stop PHPStorm from complaining.
-	 * @param {Function} onfail function(code, message)
+	 * @param {Function} onfail function(code, message, data) - code is always a string, message is either string or null, data can be whatever (usually null)
 	 * @param {Function} onsuccess function(data), data is decoded JSON
 	 */
 	function reqSetHandler(xhr, onfail, onsuccess) {
@@ -62,44 +62,47 @@ let XHR = (function() {
 			if(xhr.status === 200) {
 				let json;
 				try {
-					// TODO: argument object is not assignable to string?
-					json = JSON.parse(xhr.response);
+					json = JSON.parse(xhr.responseText);
 				} catch(err) {
-					onfail("json-parse-error");
+					onfail("json-parse-error", null, null);
 					return;
 				}
 				if(json.status === "success") {
-					if(typeof json.data !== 'undefined') {
-						onsuccess(json.data);
+					if(typeof json.data === 'undefined') {
+						onfail("malformed-response", null, null);
 					} else {
-						onfail("malformed-response");
+						onsuccess(json.data);
 					}
 				} else if(json.status === "error") {
 					if(typeof json.message === 'string') {
-						onfail("response-error", json.message);
+						onfail("response-error", json.message, null);
 					} else {
-						onfail("malformed-response");
+						onfail("malformed-response", null, null);
 					}
 				} else if(json.status === "fail") {
+					let message;
 					if(typeof json.data === 'undefined') {
 						json.data = null;
+						message = null;
 					} else if(typeof json.data !== 'object') {
-						onfail("malformed-response");
+						onfail("malformed-response", null, null);
+					} else if(typeof json.data.message === 'string') {
+						message = json.data.message;
 					}
-					onfail("response-fail", json.data);
+					onfail("response-fail", message, json.data);
 				}
 			} else {
-				onfail("http-status", xhr.status);
+				onfail("http-status", xhr.status, null);
 			}
 		});
 		xhr.addEventListener("error", function() {
-			onfail("network-error");
+			onfail("network-error", null, null);
 		});
 		xhr.addEventListener("abort", function() {
-			onfail("request-abort");
+			onfail("request-abort", null, null);
 		});
 		xhr.addEventListener("timeout", function() {
-			onfail("request-timeout");
+			onfail("request-timeout", null, null);
 		})
 	}
 

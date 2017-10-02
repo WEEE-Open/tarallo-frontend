@@ -113,21 +113,12 @@ class Transaction extends Framework.Object {
 
 	commit() {
 		let req = XHR.POST('/Edit',
-			(code, data) => {
-				// TODO: this needs to be handled inside XHR... maybe this function should be (code, message, data)?
-				let message;
-				if(typeof data === 'undefined' || data === null) {
-					message = null;
-				} else if(typeof data === 'string') {
-					message = data;
-				} else {
-					message = typeof data.message === 'undefined' ? "no message (!?)" : data.message;
-				}
+			(code, message /*, data*/) => {
 				this.lastErrorCode = code;
-				this.lastErrorMessage = message;
+				this.lastErrorMessage = message === null ? 'No message (!?)' : message;
 				this.trigger('failed');
 			},
-			(data) => {
+			(/*data*/) => {
 				this.trigger('success');
 			});
 

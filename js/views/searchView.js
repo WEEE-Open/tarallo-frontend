@@ -233,8 +233,6 @@ class SearchView extends Framework.View {
 		if(!this.search.hasContent()) {
 			throw new Error("Trying to do an empty search");
 		}
-		console.log("Ok, cerco");
-		console.log(this.search);
 		// TODO: XHR + wait for results (or let Search do this?)
 	}
 
