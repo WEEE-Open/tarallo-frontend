@@ -112,7 +112,7 @@ class Transaction extends Framework.Object {
 	}
 
 	commit() {
-		let req = XHR.POST('/Edit',
+		let req = XHR.POST(['Edit'],
 			(code, message /*, data*/) => {
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message === null ? 'No message (!?)' : message;

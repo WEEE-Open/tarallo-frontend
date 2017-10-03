@@ -30,7 +30,7 @@ class Session extends Framework.Object {
 	}
 
 	send(username, password) {
-		let req = XHR.POST('/Session',
+		let req = XHR.POST(['Session'],
 			(code, message/*, data*/) => {
 				this.lastError = code;
 				this.lastErrorDetails = message;
@@ -75,7 +75,7 @@ class Session extends Framework.Object {
 	}
 
 	restore() {
-		let req = XHR.GET('/Session',
+		let req = XHR.GET(['Session'],
 			(code, message/*, data*/) => {
 				this.lastError = code;
 				this.lastErrorDetails = message;

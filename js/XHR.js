@@ -3,7 +3,7 @@ let XHR = (function() {
 	const pathPrefix = 'http://tarallo.local:8081/index.php?path=';
 
 	/**
-	 * @param {string} path - URL parameter (e.g. /Login)
+	 * @param {string[]} path URL parameter (e.g. ['Login'])
 	 * @return {XMLHttpRequest}
 	 * @see XHR.reqSetHandler
 	 *
@@ -12,7 +12,7 @@ let XHR = (function() {
 	 */
 	function POST(path, onfail, onsuccess) {
 		let req = new XMLHttpRequest();
-		req.open("POST", pathPrefix + path, true);
+		req.open("POST", pathPrefix + '/' + encodeAndJoin(path), true);
 		req.setRequestHeader('Accept', 'application/json');
 		req.setRequestHeader('Content-Type', 'application/json');
 		req.withCredentials = true;
@@ -22,7 +22,7 @@ let XHR = (function() {
 	}
 
 	/**
-	 * @param {string} path URL parameter (e.g. /Login)
+	 * @param {string[]} path URL parameter (e.g. ['Location', 'asd'])
 	 * @return {XMLHttpRequest}
 	 * @see XHR.reqSetHandler
 	 *
@@ -31,12 +31,26 @@ let XHR = (function() {
 	 */
 	function GET(path, onfail, onsuccess) {
 		let req = new XMLHttpRequest();
-		req.open("GET", pathPrefix + path, true);
+		req.open("GET", pathPrefix + '/' + encodeAndJoin(path), true);
 		req.setRequestHeader('Accept', 'application/json');
 		req.withCredentials = true;
 		req.timeout = TIMEOUT;
 		this.reqSetHandler(req, onfail, onsuccess);
 		return req;
+	}
+
+	/**
+	 * Encode and join. That's it.
+	 * Done in non-O(n²) complexity (should be O(n))
+	 *
+	 * @param {string[]} array
+	 * @return {string}
+	 */
+	function encodeAndJoin(array) {
+		for(let i = 0; i < array.length; i++) {
+			array[i] = encodeURIComponent(array[i]);
+		}
+		return array.join("/");
 	}
 
 	/**
