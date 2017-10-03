@@ -1,3 +1,13 @@
+/**
+ * Show an item, and its location as breadcrumbs.
+ * Use for top-level items only.
+ *
+ * @param {HTMLElement} element - an HTML element
+ * @param {Item} item - item to show
+ * @param {Translations} language - Language for translated strings
+ * @param {Transaction} transaction - Transaction, to edit and delete items
+ * @param {Logs} logs - Logs, to add error messages
+ */
 class ItemLocationView extends ItemView {
 	/**
 	 * Show an item, and its location as breadcrumbs.
