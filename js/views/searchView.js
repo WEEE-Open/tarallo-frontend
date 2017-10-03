@@ -12,14 +12,18 @@ class SearchView extends Framework.View {
 	 * @see ItemView
 	 * @param {HTMLElement} element - An element where controls and results will be placed
 	 * @param {Logs} logs - Logs for logging logs of logs logging logs
+	 * @param {Translations} translations - Translations
+	 * @param {Transaction} transaction - Used by Item(Location)View when editing
 	 * @param {stateHolder} state - Current state
 	 * @param {Search|null} preset - Set this Search, but don't actually search anything. Will be discarded if state contains anything significant.
 	 */
-	constructor(element, logs, state, preset) {
+	constructor(element, logs, translations, transaction, state, preset) {
 		super(element);
 
 		this.state = state;
 		this.logs = logs;
+		this.translations = translations;
+		this.transaction = transaction;
 
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
@@ -32,6 +36,7 @@ class SearchView extends Framework.View {
 		this.controlsElement = this.el.querySelector('.searchcontrols');
 		this.buttonsElement = this.el.querySelector('.searchbuttons');
 		this.searchButton = this.el.querySelector('.searchbutton');
+		this.resultsElement = this.el.querySelector('.results');
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 		this.buttonsElement.addEventListener('click', this.addButtonClick.bind(this));
@@ -46,6 +51,7 @@ class SearchView extends Framework.View {
 
 	/**
 	 * @param {Search} to
+	 * @private
 	 */
 	set search(to) {
 		this._search = to;
@@ -63,9 +69,10 @@ class SearchView extends Framework.View {
 	/**
 	 * Handle clicking on the search button.
 	 * Sets the URL and waits for the StateHolder "change" event. If URL is actually unchanged, calls this.doSearch directly.
+	 *
+	 * @private
 	 */
 	searchButtonClick() {
-		this.inRequest(true);
 		// setAllAray fires an event before returning, this has to be set before calling setAllArray so that trigger can notice it
 		this.searchCommit = true;
 		let changed = this.state.setAllArray(this.search.serialize());
@@ -79,6 +86,7 @@ class SearchView extends Framework.View {
 	 * Handle clicking on any of the "add search key" buttons
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	addButtonClick(event) {
 		if(event.target.nodeName === "BUTTON") {
@@ -112,6 +120,7 @@ class SearchView extends Framework.View {
 	 * Handle unfocusing stuff (textboxes, and hopefully dropdowns) in controls area.
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	handleSearchControlsFocus(event) {
 		/** @type {HTMLElement|EventTarget} */
@@ -174,6 +183,7 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Create textboxes for current search keys and display them
+	 * @private
 	 */
 	render() {
 		while(this.controlsElement.lastChild) {
@@ -193,6 +203,7 @@ class SearchView extends Framework.View {
 	 *
 	 * @param {Search.Pair} pair - a real & true Pair, as recognized by international laws and by Search (i.e. it must be in this.search.pairs)
 	 * @param {Node|HTMLElement|null} control=null - current element. Will be created if null.
+	 * @private
 	 */
 	addPair(pair, control = null) {
 		if(!this.search.pairs.has(pair)) {
@@ -216,6 +227,7 @@ class SearchView extends Framework.View {
 	 * @param {string} key
 	 * @param {string|null} value
 	 * @return {Element}
+	 * @private
 	 */
 	static createTextBox(key, value) {
 		let control = document.createElement("div");
@@ -229,11 +241,45 @@ class SearchView extends Framework.View {
 		return control;
 	}
 
+	/**
+	 * Search. SEARCH. NOW.
+	 * @private
+	 */
 	doSearch() {
-		if(!this.search.hasContent()) {
-			throw new Error("Trying to do an empty search");
+		this.inRequest(true);
+		this.clearResults();
+		try {
+			this.search.getFromServer();
+		} catch(e) {
+			this.logs.add(e.message, 'E');
+			this.inRequest(false);
 		}
-		// TODO: XHR + wait for results (or let Search do this?)
+	}
+
+	/**
+	 * Remove all results from display
+	 *
+	 * @private
+	 */
+	clearResults() {
+		while(this.resultsElement.lastChild) {
+			this.resultsElement.removeChild(this.resultsElement.lastChild);
+		}
+	}
+
+	/**
+	 * Remove all results from display
+	 *
+	 * @param {Item[]} results
+	 * @private
+	 */
+	displayResults(results) {
+		for(let item of results) {
+			let container = document.createElement("div");
+			this.resultsElement.appendChild(container);
+			let view = new ItemLocationView(container, item, this.translations, this.transaction, this.logs);
+			view.freezeRecursive();
+		}
 	}
 
 	/**
@@ -262,6 +308,7 @@ class SearchView extends Framework.View {
 	 *
 	 * @param {string[]} pieces - StateHolder pieces or anything similar
 	 * @return {Search}
+	 * @private
 	 */
 	fromState(pieces) {
 		let search = new Search();
@@ -305,6 +352,22 @@ class SearchView extends Framework.View {
 					break;
 				case 'remove-content':
 					this.toggleSearchButton(false);
+					break;
+				case 'success':
+					this.inRequest(false);
+					let results = this.search.results;
+					if(results === null) {
+						this.logs.add('Search done, nothing found', 'S');
+					} else if(results.length === 0) {
+						this.logs.add('Search done but lost results along the way somehow (this is a bug)', 'W');
+					} else {
+						this.logs.add('Search done, ' + results.length + ' items found', 'S');
+						this.displayResults(results);
+					}
+					break;
+				case 'failed':
+					this.inRequest(false);
+					this.logs.add('Search failed (' + this.search.lastErrorCode + '): ' + this.search.lastErrorMessage, 'E');
 					break;
 			}
 		}

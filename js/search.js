@@ -2,6 +2,10 @@ class Search extends Framework.Object {
 	constructor() {
 		super();
 
+		this.lastErrorCode = null;
+		this.lastErrorMessage = null;
+		this.results = null;
+
 		/** @type {Map.<string,int>}
 		 *  @private */
 		this.keys = new Map();
@@ -93,6 +97,81 @@ class Search extends Framework.Object {
 	 */
 	containsKey(key) {
 		return this.keys.has(key);
+	}
+
+	/**
+	 * Send query, get response.
+	 * All results will be parsed before the "success" event and will be available in this.results.
+	 *
+	 * @return {Search}
+	 */
+	getFromServer() {
+		this.results = null;
+
+		if(!this.hasContent()) {
+			throw new Error("Trying to do an empty search");
+		}
+
+		let req = XHR.GET(this.serialize(),
+			(code, message/*, data*/) => {
+				this.lastErrorCode = code;
+				this.lastErrorMessage = message;
+				this.trigger('failed');
+			},
+			(data) => {
+				if(this.parseData(data)) {
+					this.trigger('success');
+				} else {
+					this.trigger('failed');
+				}
+			});
+		req.send();
+
+		return this;
+	}
+
+	/**
+	 * Parse data straight from server.
+	 *
+	 * @param {object} data
+	 * @return {boolean}
+	 * @private
+	 */
+	parseData(data) {
+		if(typeof data !== 'object') {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected object from server, got ' + (typeof data);
+			return false;
+		}
+
+		if(!Array.isArray(data.items)) {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected an "items" array from server, got ' + (typeof data.items);
+			return false;
+		}
+
+		if(data.items.length === 0) {
+			this.lastErrorCode = 'not-found';
+			this.lastErrorMessage = 'No results';
+			return false;
+		}
+
+		let itemRoots = [];
+		for(let rawItem of data.items) {
+			let item = new Item();
+			let success = item.parseItem(rawItem);
+			if(!success) {
+				this.lastErrorCode = item.lastErrorCode;
+				this.lastErrorMessage = item.lastErrorMessage;
+				return false;
+			} else {
+				itemRoots.push(item);
+			}
+		}
+
+		this.results = itemRoots;
+
+		return true;
 	}
 
 	/**

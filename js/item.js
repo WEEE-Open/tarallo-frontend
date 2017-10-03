@@ -324,7 +324,7 @@ class Item extends Framework.Object {
 			return false;
 		}
 
-		return this._parseItem(data.items[0]);
+		return this.parseItem(data.items[0]);
 	}
 
 	/**
@@ -374,9 +374,8 @@ class Item extends Framework.Object {
 	 *
 	 * @param {object} item - item to be parsed
 	 * @return {boolean} - true for success, false for failure. Of any kind.
-	 * @private
 	 */
-	_parseItem(item) {
+	parseItem(item) {
 		if(typeof item.code === 'number') {
 			item.code = item.code.toString();
 		}
@@ -437,7 +436,7 @@ class Item extends Framework.Object {
 						this.addInside(previousItem);
 						changedInside = true;
 					}
-					previousItem._parseItem(item.content[i]);
+					previousItem.parseItem(item.content[i]);
 				} else {
 					this.lastErrorCode = 'malformed-response';
 					this.lastErrorMessage = 'Invalid item code: expected string or int, got ' + (typeof item.code);
