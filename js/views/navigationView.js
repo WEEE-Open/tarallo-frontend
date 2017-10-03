@@ -12,6 +12,7 @@ class NavigationView extends Framework.View {
 		this.language = translations;
 		this.transaction = transaction;
 		this.stateHolder = stateHolder;
+		this.translations = translations;
 		this.logs = logs;
 
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
