@@ -41,7 +41,7 @@ let XHR = (function() {
 
 	/**
 	 * Set some event handlers and wire them to two functions: onfail, onsuccess.
-	 * 44 lines of code and just as much branches.
+	 * 47 lines of code and just as much branches.
 	 *
 	 * Error codes:
 	 * "network-error"
@@ -90,6 +90,8 @@ let XHR = (function() {
 						message = json.data.message;
 					}
 					onfail("response-fail", message, json.data);
+				} else {
+					onfail("malformed-response", "No JSend status", null);
 				}
 			} else {
 				onfail("http-status", xhr.status, null);
