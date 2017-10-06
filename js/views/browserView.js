@@ -45,6 +45,9 @@ class BrowserView extends Framework.View {
 		while(pieces[0] === '') {
 			pieces.shift();
 		}
+		for(let i = 0; i < pieces.length; i++) {
+			pieces[i] = decodeURIComponent(pieces[i]);
+		}
 		return pieces;
 	}
 

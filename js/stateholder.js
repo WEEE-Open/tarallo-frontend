@@ -187,7 +187,9 @@ class stateHolder extends Framework.Object {
 	 * @private
 	 */
 	appendOne(what) {
-		if(typeof what !== 'string') {
+		if(typeof what === 'number') {
+			what = what.toString();
+		} else if(typeof what !== 'string') {
 			throw new TypeError('Cannot insert ' + typeof what + ' into state, only strings are allowed');
 		}
 		this.path.push(what);
