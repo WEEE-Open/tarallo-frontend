@@ -48,6 +48,7 @@ Object.defineProperty(Translations.it, 'features', {
 		"model": "Modello",
 		"frequency-hz": "Frequenza",
 		"color": "Colore",
+		"type": "Tipo",
 		"works": "Funziona"
 	},
 	writable: false,

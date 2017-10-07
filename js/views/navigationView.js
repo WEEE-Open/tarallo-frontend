@@ -163,9 +163,11 @@ class NavigationView extends Framework.View {
 	 * @private
 	 */
 	requestItem(code) {
-		if(this.innerView !== null && this.currentItem !== null && this.currentItem.code === this.code) {
+		if((this.innerView instanceof ItemView || this.innerView instanceof ItemLocationView) && this.currentItem !== null && this.currentItem.code === this.code) {
 			this.refreshFromServer();
 		} else {
+			this.innerView = null;
+			this.deleteContent();
 			this.logs.add("Requested item " + code, 'I');
 			try {
 				this.requestedItem = new Item().setCode(code).getFromServer();
