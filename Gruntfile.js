@@ -1,4 +1,6 @@
 module.exports = function(grunt) {
+	"use strict";
+
 	let concatThese = [
 			"js/framework.js",
 			"js/XHR.js",
