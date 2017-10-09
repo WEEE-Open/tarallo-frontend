@@ -1,9 +1,28 @@
 * {
 	box-sizing: content-box;
+	font-family: sans-serif;
 }
 
 template {
 	display: none;
+}
+
+body {
+	margin: 0;
+}
+
+header {
+	margin: 0 0 1em 0;
+	box-shadow: 0 0.3rem 0.6rem rgba(0,0,0,0.29);
+	padding: 0.5em;
+}
+
+header h1, header p {
+	margin: 0.5rem 0 0 0;
+}
+
+header h1 {
+	font-size: x-large;
 }
 
 .logs {
