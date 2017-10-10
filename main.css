@@ -25,6 +25,36 @@ header h1 {
 	font-size: x-large;
 }
 
+input, button {
+	color: black;
+	background: white;
+	border: 1px solid #ccc;
+	border-radius: 0.3em;
+	margin: 0.2em;
+	padding: 0.2em 0.4em;
+	font-size: 100%;
+	transition: box-shadow,border-color 0.3s ease-out;
+}
+
+button:hover {
+	/* TODO: optimize transition by using opacity of the ::after pseudo element instead of box-shadow */
+	border-color: #aaa;
+	box-shadow: 0 0 0.15rem rgba(0,0,0,0.29);
+	transition: box-shadow,border-color 0.1s ease-in;
+}
+
+button:active {
+	background-color: #eee;
+}
+
+button:focus {
+	outline:none;
+}
+
+button::-moz-focus-inner {
+	border:0;
+}
+
 .logs {
 	margin: 1em 0;
 	height: 7em; /* (1 em + 0.2 em + 0.2 em) × number of lines */
@@ -75,7 +105,7 @@ header h1 {
 .item > .features, .item > .defaultfeatures, .item > .inside {
 	margin: 0.25em 0;
 	padding: 0.5em;
-	border: 0.1em dashed #3c3c3c;
+	border: 0.1em dashed #333;
 }
 
 .item > .features input, .item > .defaultfeatures input {
