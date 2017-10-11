@@ -1,111 +1,160 @@
 * {
-    box-sizing: content-box;
+	box-sizing: content-box;
+	font-family: sans-serif;
 }
 
 template {
-    display: none;
+	display: none;
+}
+
+body {
+	margin: 0;
+}
+
+header {
+	margin: 0 0 1em 0;
+	box-shadow: 0 0.3rem 0.6rem rgba(0,0,0,0.29);
+	padding: 0.5em;
+}
+
+header h1, header p {
+	margin: 0.5rem 0 0 0;
+}
+
+header h1 {
+	font-size: x-large;
+}
+
+input, button {
+	color: black;
+	background: white;
+	border: 1px solid #ccc;
+	border-radius: 0.3em;
+	margin: 0.2em;
+	padding: 0.2em 0.4em;
+	font-size: 100%;
+	transition: box-shadow,border-color 0.3s ease-out;
+}
+
+button:hover {
+	/* TODO: optimize transition by using opacity of the ::after pseudo element instead of box-shadow */
+	border-color: #aaa;
+	box-shadow: 0 0 0.15rem rgba(0,0,0,0.29);
+	transition: box-shadow,border-color 0.1s ease-in;
+}
+
+button:active {
+	background-color: #eee;
+}
+
+button:focus {
+	outline:none;
+}
+
+button::-moz-focus-inner {
+	border:0;
 }
 
 .logs {
-    margin: 1em 0;
-    height: 7em; /* (1 em + 0.2 em + 0.2 em) × number of lines */
-    overflow: auto;
-    resize: vertical;
+	margin: 1em 0;
+	height: 7em; /* (1 em + 0.2 em + 0.2 em) × number of lines */
+	overflow: auto;
+	resize: vertical;
 }
 
 .logs div {
-    padding: 0.2em 0.2em;
-    transition: color 1.2s ease-in, background-color 1.2s ease-in;
+	padding: 0.2em 0.2em;
+	transition: color 1.2s ease-in, background-color 1.2s ease-in;
 }
 
 .logs .info.new {
-    color: #00529B;
-    background-color: #BDE5F8;
+	color: #00529B;
+	background-color: #BDE5F8;
 }
 .logs .success.new {
-    color: #4F8A10;
-    background-color: #DFF2BF;
+	color: #4F8A10;
+	background-color: #DFF2BF;
 }
 .logs .warning.new {
-    color: #9F6000;
-    background-color: #FEEFB3;
+	color: #9F6000;
+	background-color: #FEEFB3;
 }
 
 .logs .error.new {
-    color: #D8000C;
-    background-color: #FFBABA;
+	color: #D8000C;
+	background-color: #FFBABA;
 }
 
 .logs .date {
-    margin-right: 1em;
+	margin-right: 1em;
 }
 
 .item {
-    border: 0.1em solid black;
-    padding: 0.5em;
+	border: 0.1em solid black;
+	padding: 0.5em;
 }
 
 .inside div, .itemholder div {
-    margin: 0.5em 0 0 0;
+	margin: 0.5em 0 0 0;
 }
 
 .inside div:first-of-type, .itemholder div:first-of-type {
-    margin: 0;
+	margin: 0;
 }
 
 .item > .features, .item > .defaultfeatures, .item > .inside {
-    margin: 0.25em 0;
-    padding: 0.5em;
-    border: 0.1em dashed #3c3c3c;
+	margin: 0.25em 0;
+	padding: 0.5em;
+	border: 0.1em dashed #333;
 }
 
 .item > .features input, .item > .defaultfeatures input {
-    border: 0.1em solid #ccc;
-    border-radius: 0.3em;
-    margin: 0.1em;
-    padding: 0.5em;
-    background: rgba(0,0,0,0);
+	border: 0.1em solid #ccc;
+	border-radius: 0.3em;
+	margin: 0.1em;
+	padding: 0.5em;
+	background: rgba(0,0,0,0);
 
 }
 
 .item > .features input:disabled, .item > .defaultfeatures input:disabled {
-    border: 0.1em solid rgba(0,0,0,0);
-    margin: 0.1em;
+	border: 0.1em solid rgba(0,0,0,0);
+	margin: 0.1em;
 }
 
 .item .featuredeletebutton {
-    margin: 0.2em;
-    font-family: monospace;
-    width: 1em;
-    padding-left: 0.1em;
-    padding-right: 0.1em;
+	margin: 0.2em;
+	font-family: monospace;
+	width: 1em;
+	padding-left: 0.1em;
+	padding-right: 0.1em;
 }
 
 .item.deleted > * {
-    display: none;
+	display: none;
 }
 
 .item.deleted {
-    /* TODO: add a message saying it's deleted (and don't hide it) instead of this ugly border */
-    border: 0.3em solid red;
+	/* TODO: add a message saying it's deleted (and don't hide it) instead of this ugly border */
+	border: 0.3em solid red;
 }
 
 .item .freezable-hide.disabled, .item .freezable-hide:disabled {
-    display: none;
+	display: none;
 }
 
 .defaultfeatures .feature.duplicate, .breadcrumbs .duplicate {
-    text-decoration: line-through;
+	text-decoration: line-through;
 }
 
 .itembuttons {
-    float: right;
+	float: right;
 }
 
 .hidden, .wip {
-    display: none;
+	display: none;
 }
 
 .itemandlocation {
-    border: 0.1em solid black;
+	border: 0.1em solid black;
 }
