@@ -222,7 +222,12 @@ class ItemView extends Framework.View {
 				return;
 			}
 		} else {
-			if(!this.item.empty()) {
+			/**
+			 * @var {Item} this.item
+			 */
+			if(this.item.empty()) {
+				this.logs.add('Empty item, nothing done', 'W');
+			} else {
 				this.transaction.add(this.item);
 				saved = true;
 			}
