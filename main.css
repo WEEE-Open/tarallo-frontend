@@ -51,6 +51,10 @@ input, button {
 	transition: box-shadow,border-color 0.3s ease-out;
 }
 
+.item input {
+	transition: none;
+}
+
 .item input:disabled {
 	border-color: rgba(0,0,0,0);
 }

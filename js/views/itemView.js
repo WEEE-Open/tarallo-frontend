@@ -212,7 +212,9 @@ class ItemView extends Framework.View {
 			try {
 				itemUpdate.unsetItem();
 				if(itemUpdate.empty()) {
-					this.logs.add('No changes to commit in item ' + itemUpdate.code, 'W')
+					this.logs.add('No changes to commit in item ' + itemUpdate.code, 'W');
+					// this allows freezing an element even when nothing has been modified
+					saved = true;
 				} else {
 					this.transaction.addUpdated(itemUpdate);
 					saved = true;
