@@ -35,12 +35,17 @@ class ItemLocationView extends ItemView {
 		this.createBreadcrumbs();
 		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
 		this.moveElements();
+		if(this.item instanceof ItemUpdate) {
+			this.toggleBreadcrumbsDuplicate(this.item.parentChanged);
+		}
 
 		this.el.appendChild(locationContainer);
 	}
 
 	/**
 	 * Take elements from this.el (i.e. ItemView) and move into this.contentsElement.
+	 *
+	 * @private
 	 */
 	moveElements() {
 		while(this.el.firstChild) {
@@ -52,6 +57,7 @@ class ItemLocationView extends ItemView {
 	 * Handle inserting parent code in breadcrumbs textbox
 	 *
 	 * @param {Event} event
+	 * @private
 	 */
 	parentInput(event) {
 		//event.preventDefault();
@@ -68,7 +74,7 @@ class ItemLocationView extends ItemView {
 				this.logs.add(e.message, 'E');
 				return;
 			}
-			this._toggleBreadcrumbsDuplicate(false);
+			this.toggleBreadcrumbsDuplicate(false);
 			event.stopPropagation();
 		} else {
 			try {
@@ -78,11 +84,16 @@ class ItemLocationView extends ItemView {
 				this.parentTextbox.value = prevParentString;
 				return;
 			}
-			this._toggleBreadcrumbsDuplicate(true);
+			this.toggleBreadcrumbsDuplicate(true);
 			event.stopPropagation();
 		}
 	}
 
+	/**
+	 * (re)create breadcrumbs and fill parent textbox, then calculate if parent textbox should be visibile
+	 *
+	 * @private
+	 */
 	createBreadcrumbs() {
 		this.deleteBreadcrumbs();
 		let len = this.item.location.length;
@@ -97,9 +108,17 @@ class ItemLocationView extends ItemView {
 				this.breadcrumbsElement.appendChild(piece);
 			}
 		}
+		if(this.item.parent !== null) {
+			this.breadsetterElement.querySelector('input').value = this.item.parent;
+		}
 		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, len > 0, this.frozen, this.item.getParent() !== null);
 	}
 
+	/**
+	 * Completely delete all breadcrumbs
+	 *
+	 * @private
+	 */
 	deleteBreadcrumbs() {
 		while(this.breadcrumbsElement.lastChild) {
 			this.breadcrumbsElement.removeChild(this.breadcrumbsElement.lastChild);
@@ -128,18 +147,22 @@ class ItemLocationView extends ItemView {
 			location && !frozen ||
 			exists && !frozen
 		) {
-			this.toggleParentTextboxVisibility(true);
-		} else {
-			this.toggleParentTextboxVisibility(false);
-		}
-	}
-
-	toggleParentTextboxVisibility(enabled) {
-		if(enabled) {
 			this.breadsetterElement.style.visibility = "visible";
 		} else {
 			this.breadsetterElement.style.visibility = "hidden";
 		}
+		// condition for enabled/disabled is very simple instead:
+		this.toggleParentTextboxEnabled(!frozen);
+	}
+
+	/**
+	 * Enable and disable parent textbox.
+	 * Note that this is independent from visibility.
+	 *
+	 * @param {boolean} enable
+	 */
+	toggleParentTextboxEnabled(enable) {
+		this.parentTextbox.disabled = !enable;
 	}
 
 	/**
@@ -148,7 +171,7 @@ class ItemLocationView extends ItemView {
 	 * @param {boolean} enable
 	 * @private
 	 */
-	_toggleBreadcrumbsNavigation(enable) {
+	toggleBreadcrumbsNavigation(enable) {
 		let bread = this.breadcrumbsElement.querySelectorAll('a');
 		for(let crumb = 0; crumb < bread.length; crumb++) {
 			if(enable) {
@@ -160,17 +183,13 @@ class ItemLocationView extends ItemView {
 		}
 	}
 
-	toggleParentTextboxEnabled(enable) {
-		this.parentTextbox.disabled = !enable;
-	}
-
 	/**
 	 * Strike out breadcrumbs if a parent has been set.
 	 *
 	 * @param {boolean} duplicate
 	 * @private
 	 */
-	_toggleBreadcrumbsDuplicate(duplicate) {
+	toggleBreadcrumbsDuplicate(duplicate) {
 		let a;
 		if(duplicate) {
 			a = this.breadcrumbsElement.querySelectorAll('a:not(.duplicate)');
@@ -188,15 +207,13 @@ class ItemLocationView extends ItemView {
 
 	freeze() {
 		super.freeze();
-		this._toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
-		this.toggleParentTextboxEnabled(false);
+		this.toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
 		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
 	}
 
 	unfreeze() {
 		super.unfreeze();
-		this._toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
-		this.toggleParentTextboxEnabled(true);
+		this.toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
 		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
 	}
 }

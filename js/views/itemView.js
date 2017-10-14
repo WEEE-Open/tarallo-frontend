@@ -213,19 +213,17 @@ class ItemView extends Framework.View {
 				this.logs.add('Inconsistent internal state (item exists and isn\'t an ItemUpdate), try reloading items from server (go to another page and come back)', 'E');
 				return;
 			}
-			/**
-			 * @type {ItemUpdate}
-			 */
-			let itemUpdate = this.item;
-			this.item = this.item.originalItem;
 			try {
-				itemUpdate.unsetItem();
-				if(itemUpdate.empty()) {
-					this.logs.add('No changes to commit in item ' + itemUpdate.code, 'W');
+				/**
+				 * @type {ItemUpdate}
+				 */
+				if(this.item.empty()) {
+					this.logs.add('No changes to commit in item ' + this.item.code, 'W');
 					// this allows freezing an element even when nothing has been modified
 					saved = true;
 				} else {
-					this.transaction.addUpdated(itemUpdate);
+					this.transaction.addUpdated(this.item);
+					this.item.unsetItem();
 					saved = true;
 				}
 			} catch(e) {

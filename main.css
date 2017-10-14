@@ -64,7 +64,7 @@ input, button {
 	transition: none;
 }
 
-.item input:disabled {
+.item input:disabled, .breadbox input:disabled {
 	border-color: rgba(0,0,0,0);
 }
 
