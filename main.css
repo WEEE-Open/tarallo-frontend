@@ -12,17 +12,32 @@ body {
 }
 
 header {
-	margin: 0 0 1em 0;
-	box-shadow: 0 0.3rem 0.6rem rgba(0,0,0,0.29);
+	margin: 0;
 	padding: 0.5em;
-}
-
-header h1, header p {
-	margin: 0.5rem 0 0 0;
+	background-color: #333333;
+	color: #ccc;
+	border-bottom: 1px solid #ccc;
 }
 
 header h1 {
+	margin: 0 0.5rem 0 0;
 	font-size: x-large;
+	display: inline-block;
+}
+
+header p {
+	margin: 0.5rem 0 0 0;
+	font-size: small;
+	display: inline-block;
+}
+
+nav#main, div.logoutview {
+	padding: 0.5em 0.5em 0.25em 0.5em;
+}
+
+nav#main {
+	padding: 0.25em 0.5em 0.5em 0.5em;
+	box-shadow: 0 0.3em 0.6em -0.3em rgba(0,0,0,0.29);
 }
 
 input, button {
@@ -34,6 +49,10 @@ input, button {
 	padding: 0.2em 0.4em;
 	font-size: 100%;
 	transition: box-shadow,border-color 0.3s ease-out;
+}
+
+.item input:disabled {
+	border-color: rgba(0,0,0,0);
 }
 
 button:hover {
@@ -106,20 +125,6 @@ button::-moz-focus-inner {
 	margin: 0.25em 0;
 	padding: 0.5em;
 	border: 0.1em dashed #333;
-}
-
-.item > .features input, .item > .defaultfeatures input {
-	border: 0.1em solid #ccc;
-	border-radius: 0.3em;
-	margin: 0.1em;
-	padding: 0.5em;
-	background: rgba(0,0,0,0);
-
-}
-
-.item > .features input:disabled, .item > .defaultfeatures input:disabled {
-	border: 0.1em solid rgba(0,0,0,0);
-	margin: 0.1em;
 }
 
 .item .featuredeletebutton {
