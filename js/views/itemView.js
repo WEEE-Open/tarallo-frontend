@@ -17,7 +17,14 @@ class ItemView extends Framework.View {
 	 */
 	constructor(element, item, language, logs, transaction, parentItemView) {
 		super(element);
-		this.item = item;
+		if(item.code !== null && transaction.update.has(item.code)) {
+			/** @type {Item|ItemUpdate} */
+			this.item = transaction.update.get(item.code);
+			this.item.setItem(item);
+		} else {
+			/** @type {Item|ItemUpdate} */
+			this.item = item;
+		}
 		this.language = language;
 		this.logs = logs;
 		this.transaction = transaction;
@@ -182,11 +189,13 @@ class ItemView extends Framework.View {
 	 */
 	editItemButtonClick() {
 		if(this.item.exists) {
-			if(this.item instanceof ItemUpdate) {
-				this.logs.add('Inconsistent internal state (ItemUpdate already created), try reloading items from server (go to another page and come back)', 'E');
-				return;
+			//if(this.item instanceof ItemUpdate) {
+			//	this.logs.add('Inconsistent internal state (ItemUpdate already created), try reloading items from server (go to another page and come back)', 'E');
+			//	return;
+			//}
+			if(!(this.item instanceof ItemUpdate)) {
+				this.item = new ItemUpdate(this.item);
 			}
-			this.item = new ItemUpdate(this.item);
 		}
 		this.unfreeze();
 	}

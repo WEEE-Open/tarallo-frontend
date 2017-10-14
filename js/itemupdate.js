@@ -31,6 +31,10 @@ class ItemUpdate extends Item {
 	 * @param {Item} item
 	 */
 	setItem(item) {
+		/**
+		 * @type {Item}
+		 * @private
+		 */
 		this.originalItem = item;
 
 		this.code = this.originalItem.code;
