@@ -15,7 +15,7 @@ header {
 	margin: 0;
 	padding: 0.5em;
 	background-color: #333333;
-	color: #ccc;
+	color: #eee;
 	border-bottom: 1px solid #ccc;
 }
 
@@ -31,7 +31,16 @@ header p {
 	display: inline-block;
 }
 
-nav#main, div.logoutview {
+div.logoutview, div.transactioncount {
+	display: inline-block;
+}
+
+div.transactioncount {
+	color: #333333;
+	font-weight: bold;
+}
+
+nav#main, div.logoutview, div.transactioncount {
 	padding: 0.5em 0.5em 0.25em 0.5em;
 }
 
