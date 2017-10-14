@@ -40,12 +40,7 @@ class ItemUpdate extends Item {
 		this.code = this.originalItem.code;
 		this.location = this.originalItem.location;
 
-		if(this.parent === this.originalItem.parent) {
-			this.parentChanged = false;
-		} else {
-			this.parentChanged = true;
-			this.parent = this.originalItem.parent;
-		}
+		this.parentChanged = this.parent !== this.originalItem.parent;
 
 		this.features.clear();
 

@@ -40,7 +40,6 @@ class Transaction extends Framework.Object {
 		}
 	}
 
-	// TODO: il server al momento non genera codici. Farglieli generare.
 	/**
 	 * Add new Item
 	 *
