@@ -38,6 +38,7 @@ class ItemUpdate extends Item {
 		this.originalItem = item;
 
 		this.code = this.originalItem.code;
+		this.location = this.originalItem.location;
 
 		if(this.parent === this.originalItem.parent) {
 			this.parentChanged = false;
@@ -105,6 +106,7 @@ class ItemUpdate extends Item {
 	 * @see Item.setDefaultFeature
 	 */
 	setDefaultFeature(name, value) {
+		// this is used only by parseItem, which fortunately never handles ItemUpdate
 		throw new Error("Cannot set default features in item changesets (how did you even get here!?)");
 	}
 
@@ -112,14 +114,16 @@ class ItemUpdate extends Item {
 	 * @see Item.addInside
 	 */
 	addInside(other) {
-		// TODO: implement
+		// this is used only by parseItem, which fortunately never handles ItemUpdate
+		throw new Error("Not implemented");
 	}
 
 	/**
 	 * @see Item.removeInside
 	 */
 	removeInside(other) {
-		// TODO: implement
+		// this is used only by parseItem, which fortunately never handles ItemUpdate
+		throw new Error("Not implemented");
 	}
 
 	/**
