@@ -62,19 +62,26 @@
 	<div class="pagecontrols">
 		<div class="logoutview"></div><div class="transactioncount"></div>
 		<nav id="main">
-			<a href="#/">Home</a><a href="#/transaction">Transactions</a><a href="#/add">Add new</a><a class="quickviewitembutton">View</a><a class="quickmoveitembutton">Move</a><a href="#/search">Search</a>
+			<a href="#/">Home</a
+			><a href="#/transaction">Transactions</a
+			><a href="#/add">Add new</a
+			><a class="quickbutton view">View</a
+			><a class="quickbutton move">Move</a
+			><a href="#/search">Search</a
+			><a class="quickbutton logsview">Logs</a>
 		</nav>
 		<div class="quickmoveitem" style="display:none;">
 			<label>Sposta oggetto: <input type="text"></label>
-			<label>dentro a: <input type="text"></label>
-			<button class="viewitembutton">Sposta</button>
+			<label>dentro a: <input type="text"></label><button class="moveitembutton">Sposta</button>
 		</div>
 		<div class="quickviewitem" style="display:none;">
 			<label>Code: <input type="text" class="viewitemtext"></label>
 			<button class="viewitembutton">View item</button>
 		</div>
+		<div class="quickviewlogs" style="display:none;">
+			<div class="logs"></div>
+		</div>
 	</div>
-	<div class="logs"></div>
 	<div class="itemholder"></div>
 	<div class="navbuttons"></div>
 </template>

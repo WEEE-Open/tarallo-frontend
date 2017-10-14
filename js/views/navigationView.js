@@ -28,6 +28,8 @@ class NavigationView extends Framework.View {
 		this.container = this.el.querySelector('.itemholder');
 		this.quickMoveItemElement = this.el.querySelector('.quickmoveitem');
 		this.quickViewItemElement = this.el.querySelector('.quickviewitem');
+		this.quickViewLogsElement = this.el.querySelector('.quickviewlogs');
+		this.quickViewLogsButton  = this.el.querySelector('.quickbutton.logsview');
 		/** Whatever subview there's right now
 		 *  @var {ItemView|null} */
 		this.innerView = null;
@@ -42,8 +44,9 @@ class NavigationView extends Framework.View {
 		this.lastSearch = null;
 
 		this.viewItemButton.addEventListener('click', this.ViewItemClick.bind(this));
-		this.el.querySelector('.quickmoveitembutton').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickMoveItemElement));
-		this.el.querySelector('.quickviewitembutton').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewItemElement));
+		this.el.querySelector('.quickbutton.move').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickMoveItemElement));
+		this.el.querySelector('.quickbutton.view').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewItemElement));
+		this.quickViewLogsButton.addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewLogsElement));
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
@@ -82,11 +85,26 @@ class NavigationView extends Framework.View {
 	 */
 	static quickActionClick(element, event) {
 		if(event.target.classList.contains('quickopen')) {
-			event.target.classList.remove('quickopen');
-			element.style.display = 'none';
+			NavigationView.toggleQuickActions(false, event.target, element);
 		} else {
-			event.target.classList.add('quickopen');
+			NavigationView.toggleQuickActions(true, event.target, element);
+		}
+	}
+
+	/**
+	 * Toggle open and closed quick actions in the menu bar
+	 *
+	 * @param {boolean} open - true to open, false to close
+	 * @param {HTMLElement|Node|EventTarget} button
+	 * @param {HTMLElement|Node} element
+	 */
+	static toggleQuickActions(open, button, element) {
+		if(open) {
 			element.style.display = '';
+			button.classList.add('quickopen');
+		} else {
+			element.style.display = 'none';
+			button.classList.remove('quickopen');
 		}
 	}
 
@@ -312,6 +330,14 @@ class NavigationView extends Framework.View {
 				// but will make the application a lot more complex... adding a lastModified property in Transaction it's simpler, maybe?
 				// TODO: do something
 				this.newItemView();
+			}
+		} else if(that === this.logs && event === 'push') {
+			switch(this.logs.getLast().severity) {
+				case 'S':
+				case 'W':
+				case 'E':
+					NavigationView.toggleQuickActions(true, this.quickViewLogsButton, this.quickViewLogsElement);
+					break;
 			}
 		}
 
