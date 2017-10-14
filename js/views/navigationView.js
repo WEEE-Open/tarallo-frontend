@@ -26,6 +26,8 @@ class NavigationView extends Framework.View {
 		this.transactionCount(this.transaction.actionsCount);
 
 		this.container = this.el.querySelector('.itemholder');
+		this.quickMoveItemElement = this.el.querySelector('.quickmoveitem');
+		this.quickViewItemElement = this.el.querySelector('.quickviewitem');
 		/** Whatever subview there's right now
 		 *  @var {ItemView|null} */
 		this.innerView = null;
@@ -40,6 +42,8 @@ class NavigationView extends Framework.View {
 		this.lastSearch = null;
 
 		this.viewItemButton.addEventListener('click', this.ViewItemClick.bind(this));
+		this.el.querySelector('.quickmoveitembutton').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickMoveItemElement));
+		this.el.querySelector('.quickviewitembutton').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewItemElement));
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
@@ -67,6 +71,22 @@ class NavigationView extends Framework.View {
 			} else {
 				this.logs.add('To view an item type its code', 'I');
 			}
+		}
+	}
+
+	/**
+	 * Handles clicking on the "quick" view/move menu items
+	 *
+	 * @param {HTMLElement|Node} element - what has to be shown/hidden
+	 * @param {Event} event
+	 */
+	static quickActionClick(element, event) {
+		if(event.target.classList.contains('quickopen')) {
+			event.target.classList.remove('quickopen');
+			element.style.display = 'none';
+		} else {
+			event.target.classList.add('quickopen');
+			element.style.display = '';
 		}
 	}
 

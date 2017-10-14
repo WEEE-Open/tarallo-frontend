@@ -59,16 +59,21 @@
 	<button class="commit" value="SALVAAAAAAAAA">Salva</button>
 </template>
 <template id="template-navigation">
-	<div class="logoutview"></div><div class="transactioncount"></div>
-	<nav id="main">
-		<!-- TODO: what are these classes for? -->
-		<a href="#/" class="homebutton">Home</a>
-		<a href="#/transaction" class="transactionbutton">Transactions</a>
-		<a href="#/add" class="addnewbutton">Add new</a>
-		<a href="#/search" class="searchbutton">Search</a>
-		<label>Code: <input type="text" class="viewitemtext"></label>
-		<button class="viewitembutton">View item</button>
-	</nav>
+	<div class="pagecontrols">
+		<div class="logoutview"></div><div class="transactioncount"></div>
+		<nav id="main">
+			<a href="#/">Home</a><a href="#/transaction">Transactions</a><a href="#/add">Add new</a><a class="quickviewitembutton">View</a><a class="quickmoveitembutton">Move</a><a href="#/search">Search</a>
+		</nav>
+		<div class="quickmoveitem" style="display:none;">
+			<label>Sposta oggetto: <input type="text"></label>
+			<label>dentro a: <input type="text"></label>
+			<button class="viewitembutton">Sposta</button>
+		</div>
+		<div class="quickviewitem" style="display:none;">
+			<label>Code: <input type="text" class="viewitemtext"></label>
+			<button class="viewitembutton">View item</button>
+		</div>
+	</div>
 	<div class="logs"></div>
 	<div class="itemholder"></div>
 	<div class="navbuttons"></div>
