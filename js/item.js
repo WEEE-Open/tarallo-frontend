@@ -467,7 +467,22 @@ class Item extends Framework.Object {
 			if(item.location.length === 0) {
 				this.setLocation([]);
 			} else {
+				let changed = false;
+				let oldLocation = this.location;
 				this.setLocation(item.location);
+				if(oldLocation.length === this.location.length) {
+					for(let i = 0; i < oldLocation.length; i++) {
+						if(oldLocation[i] !== this.location[i]) {
+							changed = true;
+							break;
+						}
+					}
+				} else {
+					changed = true;
+				}
+				if(changed) {
+					this.trigger('location-changed');
+				}
 			}
 		} else if(typeof item.location === 'object' && Object.keys(item.location).length === 0) {
 			this.setLocation([]);

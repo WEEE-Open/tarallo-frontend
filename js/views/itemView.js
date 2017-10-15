@@ -670,7 +670,7 @@ class ItemView extends Framework.View {
 
 		if(that === this.item) {
 			if(event === 'change') {
-				this.permafreeze();
+				// TODO: do stuff
 				return;
 			}
 		}

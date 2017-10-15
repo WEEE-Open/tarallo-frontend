@@ -216,4 +216,13 @@ class ItemLocationView extends ItemView {
 		this.toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
 		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
 	}
+
+	trigger(that, event) {
+		if(that === this.item) {
+			if(event === 'location-changed') {
+				this.createBreadcrumbs();
+			}
+		}
+		super.trigger(that, event);
+	}
 }
