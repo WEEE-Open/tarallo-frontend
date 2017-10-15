@@ -48,7 +48,7 @@ div.transactioncount {
 	font-weight: bold;
 }
 
-input, button {
+input, button, select {
 	color: black;
 	background: white;
 	border: 1px solid #ccc;
@@ -78,11 +78,11 @@ button:active {
 	background-color: #eee;
 }
 
-button:focus {
+button:focus, select:focus {
 	outline: none;
 }
 
-button::-moz-focus-inner {
+button::-moz-focus-inner, select::-moz-focus-inner {
 	border: 0;
 }
 
