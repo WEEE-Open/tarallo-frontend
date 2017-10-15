@@ -178,6 +178,17 @@ ul.breadcrumbs li:not(:first-child)::before {
 	content: ">";
 }
 
+.breadsetter {
+	color: #eee;
+	background-color: #333;
+	padding: 0.5em;
+}
+
+.breadsetter input:disabled {
+	color: #eee;
+	background-color: #333;
+}
+
 .itemholder {
 	margin: 1.5em 0.5em 0 0.5em;
 }
@@ -198,12 +209,6 @@ ul.breadcrumbs li:not(:first-child)::before {
 
 .searcharea > .searchbuttons, .searcharea > .searchcontrols {
 	margin-bottom: 1em;
-}
-
-.breadsetter {
-	color: #eee;
-	background-color: #333;
-	padding: 0.5em;
 }
 
 .itemandlocation {
