@@ -99,13 +99,12 @@ class ItemLocationView extends ItemView {
 		let len = this.item.location.length;
 		if(len > 0) {
 			for(let i = 0; i < len; i++) {
-				if(i !== 0) {
-					this.breadcrumbsElement.appendChild(document.createTextNode(" > "));
-				}
 				let piece = document.createElement("a");
 				piece.dataset.href = piece.href = "#/view/" + this.item.location[i];
 				piece.textContent = this.item.location[i];
-				this.breadcrumbsElement.appendChild(piece);
+				let li = document.createElement("li");
+				li.appendChild(piece);
+				this.breadcrumbsElement.appendChild(li);
 			}
 		}
 		if(this.item.parent !== null) {
@@ -147,9 +146,9 @@ class ItemLocationView extends ItemView {
 			location && !frozen ||
 			exists && !frozen
 		) {
-			this.breadsetterElement.style.visibility = "visible";
+			this.breadsetterElement.style.display = "";
 		} else {
-			this.breadsetterElement.style.visibility = "hidden";
+			this.breadsetterElement.style.display = "none";
 		}
 		// condition for enabled/disabled is very simple instead:
 		this.toggleParentTextboxEnabled(!frozen);

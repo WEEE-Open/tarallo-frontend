@@ -42,7 +42,7 @@
 </template>
 <template id="template-location">
 	<div class="breadbox">
-		<nav class="breadcrumbs"></nav>
+		<ul class="breadcrumbs"></ul>
 		<div class="breadsetter"><label>Set parent: <input></label></div>
 	</div>
 	<div class="contents"></div>
@@ -70,13 +70,13 @@
 			><a href="#/search">Search</a
 			><a class="quickbutton logsview">Logs</a>
 		</nav>
-		<div class="quickmoveitem" style="display:none;">
-			<label>Sposta oggetto: <input type="text"></label>
-			<label>dentro a: <input type="text"></label><button class="moveitembutton">Sposta</button>
-		</div>
 		<div class="quickviewitem" style="display:none;">
 			<label>Code: <input type="text" class="viewitemtext"></label>
 			<button class="viewitembutton">View item</button>
+		</div>
+		<div class="quickmoveitem" style="display:none;">
+			<label>Sposta oggetto: <input type="text"></label>
+			<label>dentro a: <input type="text"></label><button class="moveitembutton">Sposta</button>
 		</div>
 		<div class="quickviewlogs" style="display:none;">
 			<div class="logs"></div>
@@ -100,15 +100,17 @@
 	<span class="type"></span>
 </template>
 <template id="template-search">
-	<div class="searchbuttons">
-		<button data-key="Location">Location</button>
-		<button data-key="Search">Search</button>
-		<button data-key="Sort">Sort</button>
-		<button data-key="Depth">Depth</button>
-		<button data-key="Parent">Parent</button>
+	<div class="searcharea">
+		<div class="searchbuttons">
+			<button data-key="Location">Location</button>
+			<button data-key="Search">Search</button>
+			<button data-key="Sort">Sort</button>
+			<button data-key="Depth">Depth</button>
+			<button data-key="Parent">Parent</button>
+		</div>
+		<div class="searchcontrols"></div>
+		<button class="searchbutton">CERCA. ORA.</button>
 	</div>
-	<div class="searchcontrols"></div>
-	<button class="searchbutton">CERCA. ORA.</button>
 	<div class="results contents"></div>
 </template>
 <template id="template-control-textbox">

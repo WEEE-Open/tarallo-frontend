@@ -79,11 +79,11 @@ button:active {
 }
 
 button:focus {
-	outline:none;
+	outline: none;
 }
 
 button::-moz-focus-inner {
-	border:0;
+	border: 0;
 }
 
 nav#main > a {
@@ -143,21 +143,58 @@ nav#main {
 	padding: 0;
 }
 
+ul.breadcrumbs {
+	margin: 0;
+	padding: 0;
+	color: #aaa;
+	/*border-bottom: 1px solid #333;*/
+}
+
+ul.breadcrumbs li {
+	margin: 0;
+	padding: 0;
+	display: inline-block;
+	list-style-type: none;
+}
+
+ul.breadcrumbs li a {
+	color: #333;
+	margin: 0 0.4em;
+	padding: 0.5em;
+	display: inline-block;
+	text-decoration: none;
+}
+
+ul.breadcrumbs li a:first-child {
+	margin-left: 0;
+}
+
+ul.breadcrumbs li a:hover {
+	color: #eee;
+	background-color: #333;
+}
+
+ul.breadcrumbs li:not(:first-child)::before {
+	content: ">";
+}
+
 .itemholder {
 	margin: 1.5em 0.5em 0 0.5em;
+}
+
+.breadsetter {
+	color: #eee;
+	background-color: #333;
+	padding: 0.5em;
+}
+
+.itemandlocation {
+	margin-bottom: 2em;
 }
 
 .item {
 	border: 0.1em solid black;
 	padding: 0.5em;
-}
-
-.inside div, .itemholder div {
-	margin: 0.5em 0 0 0;
-}
-
-.inside div:first-of-type, .itemholder div:first-of-type {
-	margin: 0;
 }
 
 .item > .features, .item > .defaultfeatures, .item > .inside {
@@ -197,8 +234,4 @@ nav#main {
 
 .hidden, .wip {
 	display: none;
-}
-
-.itemandlocation {
-	border: 0.1em solid black;
 }
