@@ -316,7 +316,7 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	toggleFreezable(disabled) {
-		this._toggleFreezable(this.itemEl, disabled);
+		this.toggleItemFreezable(this.itemEl, disabled);
 	}
 
 	/**
@@ -329,7 +329,7 @@ class ItemView extends Framework.View {
 	 * @param {boolean} disabled
 	 * @private
 	 */
-	_toggleFreezable(el, disabled) {
+	toggleItemFreezable(el, disabled) {
 		let elements = el.children;
 		for(let i = 0; i < elements.length; i++) {
 			if(elements[i].classList.contains("inside")) {
@@ -346,7 +346,7 @@ class ItemView extends Framework.View {
 					elements[i].classList.remove('disabled');
 				}
 			}
-			this._toggleFreezable(elements[i], disabled);
+			this.toggleItemFreezable(elements[i], disabled);
 		}
 	}
 

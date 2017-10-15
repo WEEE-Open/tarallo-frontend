@@ -212,7 +212,7 @@ class NavigationView extends Framework.View {
 			} catch(err) {
 				this.logs.add('Error getting item: ' + err, 'E');
 				this.requestedItem = null;
-				// doesn't set _inRequest
+				// doesn't set inRequest
 				return;
 			}
 		}

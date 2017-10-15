@@ -21,12 +21,20 @@ class BrowserView extends Framework.View {
 	}
 
 	/**
-	 * Create the first inner view and others on cascade. This cannot be done in constructor since Framework.rootView hasn't been set before this object has been created.
+	 * Create the first inner view and others on cascade.
+	 * This cannot be done in constructor since Framework.rootView hasn't been set before this object has been created.
+	 *
+	 * @private
 	 */
 	createViewTree() {
 		this.innerView = new RootView(document.getElementById("body"), this.state);
 	}
 
+	/**
+	 * Handle URL change event
+	 *
+	 * @private
+	 */
 	urlChanged(/*event*/) {
 		this.hashchanged = true;
 		this.state.setAllArray(BrowserView.splitPieces(window.location.hash));
@@ -57,7 +65,7 @@ class BrowserView extends Framework.View {
 	 * @return {string}
 	 * @private
 	 */
-	_buildUrl() {
+	buildUrl() {
 		let path = this.state.getAll();
 		if(path.length === 0) {
 			return '/';
@@ -74,7 +82,7 @@ class BrowserView extends Framework.View {
 	 *
 	 * @private
 	 */
-	static _setUrl(url) {
+	static setUrl(url) {
 		history.pushState(null, '', '#' + url);
 	}
 
@@ -85,7 +93,7 @@ class BrowserView extends Framework.View {
 				if(this.hashchanged) {
 					this.hashchanged = false;
 				} else {
-					BrowserView._setUrl(this._buildUrl());
+					BrowserView.setUrl(this.buildUrl());
 				}
 			}
 		}
