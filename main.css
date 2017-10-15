@@ -182,6 +182,24 @@ ul.breadcrumbs li:not(:first-child)::before {
 	margin: 1.5em 0.5em 0 0.5em;
 }
 
+.searcharea {
+	color: black;
+	background: white;
+	border: 1px solid #ccc;
+	border-radius: 0.3em;
+	padding: 0.5em;
+	margin-bottom: 1em;
+}
+
+.searcharea > .searchcontrols {
+	margin-left: 0.4em;
+	margin-right: 0.4em;
+}
+
+.searcharea > .searchbuttons, .searcharea > .searchcontrols {
+	margin-bottom: 1em;
+}
+
 .breadsetter {
 	color: #eee;
 	background-color: #333;
@@ -197,7 +215,7 @@ ul.breadcrumbs li:not(:first-child)::before {
 	padding: 0.5em;
 }
 
-.item > .features, .item > .defaultfeatures, .item > .inside {
+.item > .features, .item > .defaultfeatures {
 	margin: 0.25em 0;
 	padding: 0.5em;
 	border: 0.1em dashed #333;
@@ -230,6 +248,10 @@ ul.breadcrumbs li:not(:first-child)::before {
 
 .itembuttons {
 	float: right;
+}
+
+.inside > div > .item {
+	margin-bottom: 1em;
 }
 
 .hidden, .wip {
