@@ -80,9 +80,12 @@ class ItemUpdate extends Item {
 
 	/**
 	 * Remove original Item, leaving only the changeset
+	 *
+	 * @return {ItemUpdate} this
 	 */
 	unsetItem() {
 		this.item = null;
+		return this;
 	}
 
 	/**

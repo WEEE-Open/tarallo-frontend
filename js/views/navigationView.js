@@ -18,18 +18,32 @@ class NavigationView extends Framework.View {
 		let template = document.getElementById('template-navigation').content.cloneNode(true);
 
 		this.el.appendChild(template);
-		this.viewItemButton = this.el.querySelector('.viewitembutton');
-		this.viewItemTextElement = this.el.querySelector('.viewitemtext');
 		this.buttonsArea = this.el.querySelector('.navbuttons');
 		this.transactionArea = this.el.querySelector('.transactioncount');
 
 		this.transactionCount(this.transaction.actionsCount);
 
 		this.container = this.el.querySelector('.itemholder');
-		this.quickMoveItemElement = this.el.querySelector('.quickmoveitem');
+
+		// Buttons that show/hide additional controls
+		this.quickViewItemButton = this.el.querySelector('.quickbutton.view');
+		this.quickMoveItemButton = this.el.querySelector('.quickbutton.move');
+		this.quickViewLogsButton = this.el.querySelector('.quickbutton.logsview');
+
+		// the aforementioned additional controls
 		this.quickViewItemElement = this.el.querySelector('.quickviewitem');
+		this.quickMoveItemElement = this.el.querySelector('.quickmoveitem');
 		this.quickViewLogsElement = this.el.querySelector('.quickviewlogs');
-		this.quickViewLogsButton  = this.el.querySelector('.quickbutton.logsview');
+
+		// buttons INSIDE those additional controls
+		this.viewItemButton = this.el.querySelector('.viewitembutton');
+		this.moveItemButton = this.el.querySelector('.moveitembutton');
+
+		// other additional controls (= textboxes)
+		this.viewItemTextElement = this.el.querySelector('.quickviewitem input');
+		this.moveItemFromElement = this.el.querySelector('.quickmoveitem input.from');
+		this.moveItemToElement = this.el.querySelector('.quickmoveitem input.to');
+
 		/** Whatever subview there's right now
 		 *  @var {ItemView|null} */
 		this.innerView = null;
@@ -43,10 +57,11 @@ class NavigationView extends Framework.View {
 		 *  @private */
 		this.lastSearch = null;
 
-		this.viewItemButton.addEventListener('click', this.ViewItemClick.bind(this));
-		this.el.querySelector('.quickbutton.move').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickMoveItemElement));
-		this.el.querySelector('.quickbutton.view').addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewItemElement));
+		this.quickMoveItemButton.addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickMoveItemElement));
+		this.quickViewItemButton.addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewItemElement));
 		this.quickViewLogsButton.addEventListener('click', NavigationView.quickActionClick.bind(this,this.quickViewLogsElement));
+		this.viewItemButton.addEventListener('click', this.viewItemClick.bind(this));
+		this.moveItemButton.addEventListener('click', this.moveItemClick.bind(this));
 
 		this.logoutView = new LogoutView(this.el.querySelector('.logoutview'), session, logs);
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
@@ -58,23 +73,61 @@ class NavigationView extends Framework.View {
 	 * @param {Event} event
 	 * @private
 	 */
-	ViewItemClick(event) {
+	viewItemClick(event) {
 		event.preventDefault();
 		let code = this.viewItemTextElement.value;
 		if(typeof code === 'string') {
 			code = code.trim();
 			if(code !== '') {
 				let changed = this.stateHolder.setAll('view', code);
-				if(!changed && this.innerView !== null && this.currentItem !== null) {
-					this.refreshFromServer();
+				if(!changed) {
+					if(this.innerView !== null && this.currentItem !== null) {
+						this.refreshFromServer();
+						return;
+					} else {
+						// TODO: recover from broken view (e.g. server answered 500, user retries with same item)
+						// = display a message or retry and rerender or whatever.
+						this.logs.add('Crash', 'E');
+					}
 				} else {
-					// TODO: recover from broken view (e.g. server answered 500, user retries with same item)
-					// = display a message or retry and rerender or whatever.
+					// viewing a new item: do nothing, already handled by stateHolder change
+					return;
 				}
-			} else {
-				this.logs.add('To view an item type its code', 'I');
 			}
 		}
+		this.logs.add('To view an item type its code', 'I');
+	}
+
+	/**
+	 * Handle clicking on the "move item" button.
+	 *
+	 * @private
+	 */
+	moveItemClick() {
+		let code = this.moveItemFromElement.value;
+		let to = this.moveItemToElement.value;
+
+		if(typeof code === 'string' && typeof to === 'string') {
+			code = code.trim();
+			to = to.trim();
+			if(code !== '' && to !== '') {
+				try {
+					if(this.transaction.update.has(code)) {
+						let itemUpdate = this.transaction.update.get(code);
+						itemUpdate.setParent(to);
+					} else {
+						let item = new Item().setCode(code).setExisting();
+						let itemUpdate = new ItemUpdate(item);
+						itemUpdate.setParent(to);
+						this.transaction.addUpdated(itemUpdate.unsetItem());
+					}
+				} catch(e) {
+					this.logs.add(e.message, 'E');
+				}
+				return;
+			}
+		}
+		this.logs.add('To move an item type its code and its new parent code', 'I');
 	}
 
 	/**

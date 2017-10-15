@@ -74,6 +74,7 @@ class Item extends Framework.Object {
 			code = Item.sanitizeCode(code);
 			this.parent = code;
 		}
+		// TODO: trigger event?
 	}
 
 	/**
