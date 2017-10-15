@@ -102,6 +102,10 @@ class NavigationView extends Framework.View {
 		if(open) {
 			element.style.display = '';
 			button.classList.add('quickopen');
+			let firstField = element.querySelector('input');
+			if(firstField !== null) {
+				firstField.focus();
+			}
 		} else {
 			element.style.display = 'none';
 			button.classList.remove('quickopen');
