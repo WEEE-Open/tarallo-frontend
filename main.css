@@ -1,5 +1,4 @@
 * {
-	box-sizing: content-box;
 	font-family: sans-serif;
 }
 
@@ -218,6 +217,10 @@ ul.breadcrumbs li:not(:first-child)::before {
 .item {
 	border: 0.1em solid black;
 	padding: 0.5em;
+}
+
+.item .code:disabled {
+	font-weight: bold;
 }
 
 .item > .features, .item > .defaultfeatures {
