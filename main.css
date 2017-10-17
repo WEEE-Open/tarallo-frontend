@@ -85,6 +85,14 @@ button::-moz-focus-inner, select::-moz-focus-inner {
 	border: 0;
 }
 
+button:disabled, button:disabled:hover, button:disabled:active {
+	color: #999;
+	border-color: #ccc;
+	background: white;
+	transition: none;
+	box-shadow: none;
+}
+
 nav#main > a {
 	display: inline-block;
 	color: inherit;
