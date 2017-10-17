@@ -183,6 +183,7 @@ ul.breadcrumbs li a:hover {
 
 ul.breadcrumbs li:not(:first-child)::before {
 	content: ">";
+	margin-right: 0.4em;
 }
 
 .breadsetter {
