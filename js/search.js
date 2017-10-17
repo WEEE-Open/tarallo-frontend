@@ -21,13 +21,13 @@ class Search extends Framework.Object {
 	 * @return {Search.Pair} new pair
 	 */
 	add(key, value) {
-		let before = this.pairs.size;
+		//let before = this.pairs.size;
 		let pair = new Search.Pair(key, value, this.keys.has(value));
 		this.addKey(key);
 		this.pairs.add(pair);
-		if(before === 0) {
-			this.trigger('add-content');
-		}
+		//if(before === 0) {
+		//	this.trigger('add-content');
+		//}
 		return pair;
 	}
 
@@ -41,9 +41,9 @@ class Search extends Framework.Object {
 		this.pairs.delete(pair);
 		// noinspection JSUnresolvedVariable
 		this.removeKey(pair.key);
-		if(this.pairs.size === 0) {
-			this.trigger('remove-content');
-		}
+		//if(this.pairs.size === 0) {
+		//	this.trigger('remove-content');
+		//}
 	}
 
 	/**

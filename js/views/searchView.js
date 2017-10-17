@@ -56,7 +56,6 @@ class SearchView extends Framework.View {
 	set search(to) {
 		this._search = to;
 		this.render();
-		this.toggleSearchButton(to.hasContent());
 	}
 
 	/**
@@ -69,16 +68,21 @@ class SearchView extends Framework.View {
 	/**
 	 * Handle clicking on the search button.
 	 * Sets the URL and waits for the StateHolder "change" event. If URL is actually unchanged, calls this.doSearch directly.
+	 * Empty search fields are also deleted, and nothing is done if no valid search fields remained.
 	 *
 	 * @private
 	 */
 	searchButtonClick() {
-		// setAllAray fires an event before returning, this has to be set before calling setAllArray so that trigger can notice it
-		this.searchCommit = true;
-		let changed = this.state.setAllArray(this.search.serialize());
-		if(!changed) {
-			this.searchCommit = false;
-			this.doSearch();
+		this.removeUnpairedControls();
+
+		if(this.search.hasContent()) {
+			// setAllAray fires an event before returning, this has to be set before calling setAllArray so that trigger can notice it
+			this.searchCommit = true;
+			let changed = this.state.setAllArray(this.search.serialize());
+			if(!changed) {
+				this.searchCommit = false;
+				this.doSearch();
+			}
 		}
 	}
 
@@ -97,7 +101,7 @@ class SearchView extends Framework.View {
 				if(this.search.containsKey(key)) {
 					duplicate = true;
 				} else {
-					let controls = this.controlsElement.querySelectorAll('.control');
+					let controls = this.getAllControls();
 					for(let control of controls) {
 						if(this.elementsUnpaired.get(control) === key) {
 							duplicate = true;
@@ -182,6 +186,27 @@ class SearchView extends Framework.View {
 	}
 
 	/**
+	 * Get all controls currently rendered, both paired and unpaired.
+	 *
+	 * @return {NodeList}
+	 */
+	getAllControls() {
+		return this.controlsElement.querySelectorAll('.control');
+	}
+
+	/**
+	 * Remove unpaired controls from page.
+	 */
+	removeUnpairedControls() {
+		let controls = this.getAllControls();
+		for(let element of controls) {
+			if(this.elementsUnpaired.has(element)) {
+				this.controlsElement.removeChild(element);
+			}
+		}
+	}
+
+	/**
 	 * Create textboxes for current search keys and display them
 	 * @private
 	 */
@@ -193,8 +218,6 @@ class SearchView extends Framework.View {
 		for(let pair of this.search.pairs) {
 			this.addPair(pair);
 		}
-
-		this.toggleSearchButton(this.search.hasContent());
 	}
 
 	/**
@@ -294,7 +317,7 @@ class SearchView extends Framework.View {
 	}
 
 	/**
-	 * Show/hide search button.
+	 * Enalbe/disable search button.
 	 *
 	 * @param {boolean} enabled
 	 * @private
@@ -347,12 +370,6 @@ class SearchView extends Framework.View {
 		} else // noinspection JSValidateTypes - PHPStorm decided that Search isn't a Framework.Object anymore, just because there's a getter
 			if(that === this.search) {
 			switch(event) {
-				case 'add-content':
-					this.toggleSearchButton(true);
-					break;
-				case 'remove-content':
-					this.toggleSearchButton(false);
-					break;
 				case 'success':
 					this.inRequest(false);
 					let results = this.search.results;
