@@ -237,7 +237,7 @@ class ItemView extends Framework.View {
 			if(this.item.empty()) {
 				this.logs.add('Empty item, nothing done', 'W');
 			} else {
-				this.transaction.add(this.item);
+				this.transaction.addNew(this.item);
 				saved = true;
 			}
 		}

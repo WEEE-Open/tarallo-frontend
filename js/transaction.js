@@ -45,7 +45,7 @@ class Transaction extends Framework.Object {
 	 *
 	 * @param {Item} item
 	 */
-	add(item) {
+	addNew(item) {
 		Transaction._push(item, item, this.create);
 		this.trigger('to-add');
 	}
@@ -95,6 +95,27 @@ class Transaction extends Framework.Object {
 		}
 		Transaction._push(code, code, this.remove);
 		this.trigger('to-delete');
+	}
+
+	/**
+	 * Remove something from transaction.
+	 *
+	 * @param {Map} from - one of the maps from Transaction
+	 * @param {string|Item} key - key in that map
+	 */
+	remove(from, key) {
+		if(from === this.update) {
+			from.delete(key);
+			this.trigger('un-update');
+		} else if(from === this.create) {
+			from.delete(key);
+			this.trigger('un-create');
+		} else if(from === this.remove) {
+			from.delete(key);
+			this.trigger('un-delete');
+		} else {
+			throw new Error('Invalid map supplied to Transaction');
+		}
 	}
 
 	/**
