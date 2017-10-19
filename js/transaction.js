@@ -103,7 +103,7 @@ class Transaction extends Framework.Object {
 	 * @param {Map} from - one of the maps from Transaction
 	 * @param {string|Item} key - key in that map
 	 */
-	remove(from, key) {
+	undo(from, key) {
 		if(from === this.update) {
 			from.delete(key);
 			this.trigger('un-update');
