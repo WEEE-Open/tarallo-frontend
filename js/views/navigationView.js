@@ -238,7 +238,7 @@ class NavigationView extends Framework.View {
 	 */
 	transactionView() {
 		this.deleteContent();
-		this.innerView = new TransactionView(this.container, this.transaction, this.logs);
+		this.innerView = new TransactionView(this.container, this.transaction, this.logs, this.language);
 	}
 
 	/**

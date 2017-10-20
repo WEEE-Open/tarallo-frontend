@@ -1,11 +1,16 @@
 class TransactionView extends Framework.View {
-	constructor(el, transaction, logs) {
+	/**
+	 *
+	 * @param {Element} el
+	 * @param {Transaction} transaction
+	 * @param {Logs} logs
+	 * @param {Translations} translations
+	 */
+	constructor(el, transaction, logs, translations) {
 		super(el);
-		/**
-		 * @var {Transaction} transaction
-		 */
 		this.transaction = transaction;
 		this.logs = logs;
+		this.translations = translations;
 
 		this.el.appendChild(document.getElementById("template-transaction").content.cloneNode(true));
 		let pending = this.el.querySelector('.pending');
@@ -70,6 +75,58 @@ class TransactionView extends Framework.View {
 	}
 
 	/**
+	 * Recursively create list items containing an item and its content
+	 *
+	 * @param {Item|ItemUpdate|string} item - current item, aka the key from Transaction maps
+	 * @param {boolean} deletable - show a delete button or not? True only if it's a root item
+	 * @param {Map} map - a map from Tranasaction, if deletable
+	 * @param {string|Item} key - key from that map, if deletable
+	 * @return {Element}
+	 */
+	createListElement(item, deletable=false, map=null, key=null) {
+		if(!deletable && (map === null || key === null)) {
+			throw new Error("Deletable list items should provide a key and a map to actually be able to delete them");
+		}
+		let li = document.createElement("li");
+		let text = document.createElement("span");
+
+		if(deletable) {
+			let deleteButton = TransactionView.getDeleteButton();
+			deleteButton.addEventListener('click', this.deleteButtonClick.bind(this, map, key));
+			li.appendChild(deleteButton);
+		}
+		let letter = '';
+		if(map !== null) {
+			if(map === this.transaction.create) {
+				letter = 'C ';
+			} else if(map === this.transaction.update) {
+				letter = 'U ';
+			} else if(map === this.transaction.remove) {
+				letter = 'D ';
+			}
+		}
+		try {
+			text.textContent = letter + this.translations.toStringLocalized(item);
+		} catch(e) {
+			text.textContent = letter + item;
+		}
+		li.appendChild(text);
+
+		if(item instanceof Item || item instanceof ItemUpdate) {
+			if(item.inside.size > 0) {
+				let sublist = document.createElement('ul');
+				for(let subitem of item.inside) {
+					let subli = this.createListElement(subitem);
+					sublist.appendChild(subli);
+				}
+				li.appendChild(sublist);
+			}
+		}
+
+		return li;
+	}
+
+	/**
 	 * Enable or disable commit button.
 	 * Hint: use transaction.actionsCount.
 	 *
@@ -81,32 +138,14 @@ class TransactionView extends Framework.View {
 	}
 
 	/**
-	 * @TODO make recursive, specify operation for each item (e.g. Modify X -> add Y, add Z), add a toString to Item and ItemUpdate (may not have codes)
 	 * @param map an Iterable type. PHPStorm suddenly stopped understanding this simple concept and began claiming that Iterable.<Item> is not an Iterable.<Item>.
 	 * @param {Node} ul
 	 * @private
 	 */
 	printTree(map, ul) {
 		for(let [key, item] of map) {
-			let li = document.createElement("li");
-			let deleteButton = TransactionView.getDeleteButton();
-			deleteButton.addEventListener('click', this.deleteButtonClick.bind(this, map, key));
-			let text = document.createElement("span");
-			if(map === this.transaction.create) {
-				text.textContent = 'new '
-			} else if(map === this.transaction.update) {
-				text.textContent = 'update '
-			} else {
-				text.textContent = 'remove '
-			}
-			if(item instanceof Item) { // TODO: does this work for ItemUpdate, too?
-				text.textContent += item.code + ' in ' + item.parent;
-			} else if(typeof item === 'string') {
-				text.textContent += item;
-			}
+			let li = this.createListElement(item, true, map, key);
 			ul.appendChild(li);
-			li.appendChild(deleteButton);
-			li.appendChild(text);
 		}
 	}
 
