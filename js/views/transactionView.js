@@ -8,9 +8,7 @@ class TransactionView extends Framework.View {
 		this.logs = logs;
 
 		this.el.appendChild(document.getElementById("template-transaction").content.cloneNode(true));
-		let create = this.el.querySelector('.create');
-		let modify = this.el.querySelector('.modify');
-		let remove = this.el.querySelector('.remove');
+		let pending = this.el.querySelector('.pending');
 
 		this.notesElement = this.el.querySelector("textarea.notes");
 		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
@@ -19,7 +17,7 @@ class TransactionView extends Framework.View {
 		this.notesElement.addEventListener('blur', this.notesInput.bind(this));
 		this.commitButton.addEventListener('click', this.commitClick.bind(this));
 
-		this.printAll(create, modify, remove);
+		this.printAll(pending);
 	}
 
 	/**
@@ -60,22 +58,14 @@ class TransactionView extends Framework.View {
 	/**
 	 * Prints all pending operations
 	 *
-	 * @param {Node} createElement - ul
-	 * @param {Node} updateElement - ul
-	 * @param {Node} removeElement - ul
+	 * @param {Node} pendingElement - ul
 	 * @private
 	 */
-	printAll(createElement, updateElement, removeElement) {
-		if(this.transaction.createCount > 0) {
-			this.printTree(this.transaction.create, createElement);
-		}
-
-		if(this.transaction.updateCount > 0) {
-			this.printTree(this.transaction.update, updateElement);
-		}
-
-		if(this.transaction.removeCount > 0) {
-			this.printTree(this.transaction.remove, removeElement);
+	printAll(pendingElement) {
+		if(this.transaction.actionsCount > 0) {
+			this.printTree(this.transaction.create, pendingElement);
+			this.printTree(this.transaction.update, pendingElement);
+			this.printTree(this.transaction.remove, pendingElement);
 		}
 	}
 
@@ -91,7 +81,7 @@ class TransactionView extends Framework.View {
 	}
 
 	/**
-	 * @TODO make recursive, specify operation for each item (e.g. Modify X -> add Y, add Z) instead of separating them by action add a toString to Item and ItemUpdate (may not have codes)
+	 * @TODO make recursive, specify operation for each item (e.g. Modify X -> add Y, add Z), add a toString to Item and ItemUpdate (may not have codes)
 	 * @param map an Iterable type. PHPStorm suddenly stopped understanding this simple concept and began claiming that Iterable.<Item> is not an Iterable.<Item>.
 	 * @param {Node} ul
 	 * @private
@@ -102,10 +92,17 @@ class TransactionView extends Framework.View {
 			let deleteButton = TransactionView.getDeleteButton();
 			deleteButton.addEventListener('click', this.deleteButtonClick.bind(this, map, key));
 			let text = document.createElement("span");
+			if(map === this.transaction.create) {
+				text.textContent = 'new '
+			} else if(map === this.transaction.update) {
+				text.textContent = 'update '
+			} else {
+				text.textContent = 'remove '
+			}
 			if(item instanceof Item) { // TODO: does this work for ItemUpdate, too?
-				text.textContent = item.code + ' in ' + item.parent;
+				text.textContent += item.code + ' in ' + item.parent;
 			} else if(typeof item === 'string') {
-				text.textContent = item;
+				text.textContent += item;
 			}
 			ul.appendChild(li);
 			li.appendChild(deleteButton);
@@ -125,9 +122,11 @@ class TransactionView extends Framework.View {
 
 	trigger(that, event) {
 		if(that === this.transaction) {
-			if(event === 'to-add' || event === 'to-update' || event === 'to-delete') {
+			// for searching:
+			// 'to-add', 'to-update', 'to-delete', 'un-add', 'un-update', 'un-delete', 'reset'
+			if(this.transaction.actionsCount > 0) {
 				this.toggleButton(true);
-			} else if(event === 'reset') {
+			} else {
 				this.toggleButton(false);
 			}
 		}
