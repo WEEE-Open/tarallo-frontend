@@ -1,18 +1,16 @@
 class Translations extends Framework.Object {
 	/**
-	 * @param {Function} trigger(this, event)
 	 * @param {string} code Language code
 	 */
 	constructor(code) {
 		super();
-		this._setLanguage(code)
+		this._setLanguage(code);
 	}
 
 	/**
 	 * Set language code and trigger a "change" event.
 	 *
 	 * @param {String} code
-	 * @private
 	 */
 	setLanguage(code) {
 		this._setLanguage(code);
@@ -27,11 +25,28 @@ class Translations extends Framework.Object {
 	 */
 	_setLanguage(code) {
 		if(code === 'it-IT') {
-			// TODO: this ends up in a "this" that isn't it's "this".
+			// TODO: this ends up in a "this" that isn't its "this".
 			this.features = Translations.it.features;
 		} else {
 			// TODO: really handle multiple languages
-			new Error('Unknown language ' + code);
+			throw new Error('Unknown language ' + code);
+		}
+		this.language = code;
+	}
+
+	/**
+	 * Convert some objects to a localized string
+	 *
+	 * @param object - an object
+	 * @throws {Error} if object cannot be translated into a string
+	 */
+	toStringLocalized(object) {
+		if(object instanceof Item) {
+			// Also ItemUpdate
+			// TODO: implement something better
+			return object.code + ' in ' + object.parent;
+		} else {
+			throw new Error("Cannot convert unknown object into string");
 		}
 	}
 
