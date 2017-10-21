@@ -173,8 +173,12 @@ class TransactionView extends Framework.View {
 		yield li;
 
 		if(item instanceof Item || item instanceof ItemUpdate) {
-			if(item.inside.size > 0) {
-				for(let subitem of item.inside) {
+			let insides = item.inside;
+			if(map === this.transaction.update) {
+				insides = item.insideDiff.values();
+			}
+			if(insides > 0) {
+				for(let subitem of insides) {
 					for(let li of this.createListElement(subitem)) {
 						yield li;
 					}

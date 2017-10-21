@@ -17,6 +17,7 @@ class ItemUpdate extends Item {
 		super();
 		this.exists = true;
 		this.parentChanged = false;
+		/** @type {Map.<string,string|null>} */
 		this.featuresDiff = new Map();
 		/** @type {Map.<Item,Item|null>} */
 		this.insideDiff = new Map();
@@ -43,6 +44,7 @@ class ItemUpdate extends Item {
 		this.parentChanged = this.parent !== this.originalItem.parent;
 
 		this.features.clear();
+		this.inside.clear();
 
 		for(let [k,v] of this.originalItem.features) {
 			this.features.set(k,v);
@@ -55,27 +57,25 @@ class ItemUpdate extends Item {
 				this.features.set(k, v);
 			}
 		}
+
+		for(let item of this.originalItem.inside) {
+			if(!(this.insideDiff.has(item) && this.insideDiff.get(item) !== null)) {
+				this.inside.add(item);
+			}
+		}
+
+		for(let [item, value] of this.insideDiff) {
+			if(value !== null) {
+				// insideDiff contains removed (handled right there ↑) or added items,
+				// any modified subitem shouldn't be there in the first place
+				this.inside.add(item);
+			}
+		}
+
 		if(this.featuresDiff.size > 0) {
 			// note that "this" is an ItemUpdate, not the original Item...
 			this.trigger('features-changed');
 		}
-
-		this.inside.clear();
-
-		for(let [subitem, setTo] of this.insideDiff) {
-			if(setTo !== null) {
-				this.inside.add(subitem);
-			}
-		}
-
-		for(let subitem of this.originalItem.inside) {
-			// this.inside contains added or modified items.
-			// If this item isn't here and isn't marked as deleted, add it
-			if(!this.inside.has(subitem) && this.insideDiff.get(subitem) !== null) {
-				this.inside.add(subitem);
-			}
-		}
-
 	}
 
 	/**
@@ -112,16 +112,24 @@ class ItemUpdate extends Item {
 	 * @see Item.addInside
 	 */
 	addInside(other) {
-		// this is used only by parseItem, which fortunately never handles ItemUpdate
-		throw new Error("Not implemented");
+		if(this.originalItem.inside.has(other)) {
+			this.insideDiff.delete(other);
+		} else {
+			this.insideDiff.set(other, other);
+		}
+		super.addInside(other);
 	}
 
 	/**
 	 * @see Item.removeInside
 	 */
 	removeInside(other) {
-		// this is used only by parseItem, which fortunately never handles ItemUpdate
-		throw new Error("Not implemented");
+		if(this.originalItem.inside.has(other)) {
+			this.insideDiff.set(other, null);
+		} else {
+			this.insideDiff.delete(other);
+		}
+		super.removeInside(other);
 	}
 
 	/**

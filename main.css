@@ -232,7 +232,7 @@ ul.breadcrumbs li:not(:first-child)::before {
 	font-weight: bold;
 }
 
-.item > .features, .item > .defaultfeatures {
+.item > .defaultfeatures {
 	margin: 0.25em 0;
 	padding: 0.5em;
 	border: 0.1em dashed #333;
@@ -267,7 +267,7 @@ ul.breadcrumbs li:not(:first-child)::before {
 	float: right;
 }
 
-.inside > div > .item {
+.inside > div > .item, .item > .features {
 	margin-bottom: 1em;
 }
 
