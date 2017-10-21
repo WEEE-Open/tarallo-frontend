@@ -84,7 +84,7 @@ class TransactionView extends Framework.View {
 	 * @return {Element}
 	 */
 	createListElement(item, deletable=false, map=null, key=null) {
-		if(!deletable && (map === null || key === null)) {
+		if(deletable && (map === null || key === null)) {
 			throw new Error("Deletable list items should provide a key and a map to actually be able to delete them");
 		}
 		let li = document.createElement("li");
@@ -120,6 +120,7 @@ class TransactionView extends Framework.View {
 					sublist.appendChild(subli);
 				}
 				li.appendChild(sublist);
+				li.classList.add("notleaf");
 			}
 		}
 
