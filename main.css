@@ -267,7 +267,12 @@ ul.breadcrumbs li:not(:first-child)::before {
 	float: right;
 }
 
-.inside > div > .item, .item > .features {
+.inside > div > .item {
+	margin-bottom: 1em;
+}
+
+.item > .features {
+	margin-top: 1em;
 	margin-bottom: 1em;
 }
 
