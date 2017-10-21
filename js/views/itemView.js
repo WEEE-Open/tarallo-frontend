@@ -34,6 +34,11 @@ class ItemView extends Framework.View {
 		 */
 		this.parentItemView = parentItemView ? parentItemView : null;
 		this.subViews = [];
+		/**
+		 * Map feature names to their element
+		 * @type {Map.<string,Element>}
+		 */
+		this.featureNameToElement = new Map();
 		this.itemEl = ItemView.newElement();
 		this.el.appendChild(this.itemEl);
 
@@ -445,38 +450,63 @@ class ItemView extends Framework.View {
 	 * Tries to append a new row in the feature box. Does nothing if that feature already exists.
 	 * Also marks default features as duplicates, if needed.
 	 *
-	 * @param {string} name feature name
-	 * @param {string} value feature value
+	 * @param {string} name - feature name (internal, untranslated version)
+	 * @param {string} value - feature value
 	 * @see this.createFeatureElement
 	 * @private
 	 */
 	appendFeatureElement(name, value) {
-		let features = this.featuresElement.children;
-		let i = features.length;
-		while(i--) {
-			if(features[i].dataset.name === name) {
-				return;
-			}
+		if(this.featureNameToElement.has(name)) {
+			return;
 		}
 
-		let parent, newElement = this.createFeatureElement(name, value);
+		let newElement = this.createFeatureElement(name, value);
 		let translation = this.language.get(name, this.language.features);
-		let inserted = false;
 
-		// TODO: implement binary search to insert in O(n·logn) time, currently it's O(n²). Or don't, who cares for small n.
 		let translatedNames = this.featuresElement.querySelectorAll(".name");
-		for(i = 0; i < translatedNames.length; i++) {
-			if(translation < translatedNames[i].textContent) {
-				parent = translatedNames[i].parentElement;
-				this.featuresElement.insertBefore(newElement, parent);
-				inserted = true;
-				break;
+		if(translatedNames.length === 0) {
+			this.featuresElement.appendChild(newElement);
+		} else {
+			let next = ItemView.searchNextGreater(translation, translatedNames);
+			if(next >= translatedNames.length) {
+				this.featuresElement.appendChild(newElement);
+			} else {
+				let otherElement = translatedNames[next].parentElement;
+				this.featuresElement.insertBefore(newElement, otherElement);
+				if(translatedNames[next].textContent === translation) {
+					// replace element (should never happen, but still...)
+					this.featuresElement.removeChild(otherElement);
+				}
 			}
 		}
-		if(!inserted) {
-			this.featuresElement.appendChild(newElement);
-		}
+
+		this.featureNameToElement.set(name, newElement);
 		this.setDefaultFeatureDuplicate(name, true);
+	}
+
+	/**
+	 * Search for a textContent inside a NodeList.
+	 * Returns index of next greater element, which may equal
+	 * "length" if needle is greater than anything in the haystack
+	 *
+	 * @param {string} needle
+	 * @param {NodeList} haystack
+	 * @return {int}
+	 */
+	static searchNextGreater(needle, haystack) {
+		// https://stackoverflow.com/a/6554035
+		let m, l = 0, h = haystack.length;
+		while(l < h) {
+			m = Math.floor((l + h)/2);
+			if(haystack[m].textContent < needle) {
+				l = m + 1;
+			} else if(haystack[m].textContent === needle) {
+				return m;
+			} else {
+				h = m;
+			}
+		}
+		return h;
 	}
 
 	/**
@@ -484,32 +514,16 @@ class ItemView extends Framework.View {
 	 * Also unmarks default features as duplicates, if needed.
 	 *
 	 * @param {string} name - feature name
-	 * @param {Node} [element] - outermost element to delete, if already known (avoids a for loop)
 	 * @private
 	 */
-	removeFeatureElement(name, element) {
-		let thisFeature;
-		if(element instanceof Node) {
-			thisFeature = element;
-		} else {
-			thisFeature = null;
-			let features = this.featuresElement.children;
-			let i = features.length;
-			while(i--) {
-				if(features[i].dataset.name === name) {
-					thisFeature = features[i];
-					break;
-				}
-			}
-		}
-
-		if(element === null) {
-			return;
+	removeFeatureElement(name) {
+		if(this.featureNameToElement.has(name)) {
+			this.featuresElement.removeChild(this.featureNameToElement.get(name));
+			this.featureNameToElement.delete(name);
 		}
 
 		this.item.setFeature(name, null);
 		this.setDefaultFeatureDuplicate(name, false);
-		this.featuresElement.removeChild(thisFeature);
 	}
 
 	/**
