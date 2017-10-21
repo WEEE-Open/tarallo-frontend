@@ -257,10 +257,6 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	deleteItemClick() {
-		//if(this.parentItemView === null) {
-		//	return;
-		//}
-
 		if(this.item.exists) {
 			try {
 				this.transaction.addDeleted(this.item);

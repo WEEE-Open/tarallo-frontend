@@ -364,12 +364,11 @@ class Item extends Framework.Object {
 			return false;
 		}
 		if(this.inside.size > 0) {
-			// should, could and would work, if adding an Item in ItemView actually added an Item inside
-			//for(let subitem of this.inside) {
-			//	if(!subitem.empty()) {
+			for(let subitem of this.inside) {
+				if(!subitem.empty()) {
 					return false;
-			//	}
-			//}
+				}
+			}
 		}
 		return !this.exists;
 
