@@ -16,7 +16,7 @@ class TransactionView extends Framework.View {
 		let pending = this.el.querySelector('.pending');
 
 		this.notesElement = this.el.querySelector("textarea.notes");
-		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved
+		this.commitButton = this.el.querySelector("button.commit"); // TODO: redirect away from transaction page if success is achieved, or at least re-render page
 		this.toggleButton(this.transaction.actionsCount > 0);
 
 		this.notesElement.addEventListener('blur', this.notesInput.bind(this));
@@ -32,8 +32,13 @@ class TransactionView extends Framework.View {
 	 */
 	commitClick(event) {
 		event.stopPropagation();
-		this.transaction.commit();
+		try {
+			this.transaction.commit();
+		} catch(e) {
+			this.logs.add(e.message, 'E');
+		}
 	}
+
 
 	/**
 	 * Handle writing something in the notes textarea

@@ -246,13 +246,16 @@ ul.breadcrumbs li:not(:first-child)::before {
 	padding-right: 0.1em;
 }
 
-.item.deleted > * {
+.item.deleted {
+	color: #333;
+}
+
+.item.deleted > *:not(.message):not(.itembuttons), .item.deleted .itembuttons :not(.undobutton) {
 	display: none;
 }
 
-.item.deleted {
-	/* TODO: add a message saying it's deleted (and don't hide it) instead of this ugly border */
-	border: 0.3em solid red;
+.item.deleted .message p {
+	margin: 0.5em;
 }
 
 .item .freezable-hide.disabled, .item .freezable-hide:disabled {

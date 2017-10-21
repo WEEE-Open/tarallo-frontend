@@ -47,6 +47,9 @@ class ItemView extends Framework.View {
 		this.deleteItemButton = this.itemEl.querySelector('.itemdeletebutton');
 		this.editItemButton = this.itemEl.querySelector('.itemeditbutton');
 		this.saveItemButton = this.itemEl.querySelector('.itemsavebutton');
+		this.undoDeleteButton = this.itemEl.querySelector('.undobutton');
+		this.itemDeletedElement = ItemView.createItemDeletedElement();
+
 		let addFieldButton = this.itemEl.querySelector('.addfield');
 		let addItemButton = this.itemEl.querySelector('.additem');
 
@@ -62,6 +65,8 @@ class ItemView extends Framework.View {
 		}
 		if(this.item.code !== null && this.transaction.remove.has(this.item.code)) {
 			this.toggleDeleted(true);
+		} else {
+			this.toggleDeleted(false);
 		}
 		// needs to be done before features, for the duplicate check to work
 		if(item.defaultFeaturesCount > 0) {
@@ -83,6 +88,7 @@ class ItemView extends Framework.View {
 		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
 		this.editItemButton.addEventListener('click', this.editItemButtonClick.bind(this));
 		this.saveItemButton.addEventListener('click', this.saveItemButtonClick.bind(this));
+		this.undoDeleteButton.addEventListener('click', this.undoButtonClick.bind(this))
 	}
 
 	/**
@@ -221,9 +227,11 @@ class ItemView extends Framework.View {
 				 */
 				if(this.item.empty()) {
 					this.logs.add('No changes to commit in item ' + this.item.code, 'W');
+					saved = true; // still allow freezing
 				} else {
 					this.transaction.addUpdated(this.item);
 					this.item.unsetItem();
+					saved = true;
 				}
 			} catch(e) {
 				this.logs.add(e.message, 'E');
@@ -252,7 +260,6 @@ class ItemView extends Framework.View {
 
 	/**
 	 * Handler for clicking the "delete item" button.
-	 * Deleting a root element is ignored, the event keeps propagating.
 	 *
 	 * @private
 	 */
@@ -276,17 +283,34 @@ class ItemView extends Framework.View {
 	}
 
 	/**
+	 * Handler for the "undo delete" button
+	 */
+	undoButtonClick() {
+		if(this.item.exists) {
+			this.transaction.undo(this.transaction.remove, this.item.code);
+		} else {
+			this.toggleDeleted(false);
+		}
+	}
+
+	/**
 	 * Show (or rather not show) an item that has been deleted. Or show it if it gets "undeleted".
 	 *
 	 * @param {boolean} deleted
 	 * @protected
 	 */
 	toggleDeleted(deleted) {
-		// TODO: show undo button?
 		if(deleted) {
+			this.freeze();
 			this.itemEl.classList.add("deleted");
+			this.undoDeleteButton.style.display = '';
+			this.itemEl.appendChild(this.itemDeletedElement);
 		} else {
 			this.itemEl.classList.remove("deleted");
+			this.undoDeleteButton.style.display = 'none';
+			try {
+				this.itemEl.removeChild(this.itemDeletedElement);
+			} catch(e) {}
 		}
 	}
 
@@ -612,6 +636,17 @@ class ItemView extends Framework.View {
 		return container;
 	}
 
+	static createItemDeletedElement() {
+		let div = document.createElement('div');
+		div.classList.add('message');
+
+		let p = document.createElement('p');
+		p.textContent = "Deleted";
+		div.appendChild(p);
+
+		return div;
+	}
+
 	/**
 	 * Delete a subitem via its ItemView, remove from transaction
 	 *
@@ -663,18 +698,22 @@ class ItemView extends Framework.View {
 			if(event === 'change') {
 				// TODO: update view
 			}
-		}
-
-		if(that === this.transaction) {
-			if(event === 'to-delete') {
-				if(this.item.exists && this.transaction.remove.has(this.item.code)) {
-					this.toggleDeleted(true);
-					return; // stop propagation, unless items can be inside themselves
-				}
+		} else if(that === this.transaction) {
+			switch(event) {
+				case 'to-delete':
+					if(this.item.exists && this.transaction.remove.has(this.item.code)) {
+						this.toggleDeleted(true);
+						return; // stop propagation, unless items can be inside themselves
+					}
+					break;
+				case'un-delete':
+					// some item was un-deleted, so it's not in transaction.remove anymore
+					if(this.item.exists && this.transaction.lastUndo === this.item.code) {
+						this.toggleDeleted(false);
+						return
+					}
 			}
-		}
-
-		if(that === this.item) {
+		} else if(that === this.item) {
 			if(event === 'change') {
 				// TODO: do stuff
 				return;

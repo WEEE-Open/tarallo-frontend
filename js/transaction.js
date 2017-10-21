@@ -16,6 +16,13 @@ class Transaction extends Framework.Object {
 		 * @type {null|string|Item}
 		 */
 		this.lastAdded = null;
+		/**
+		 * Last undo-ed key.
+		 * Null if last operation was anything else (add, commit, etc...)
+		 *
+		 * @type {null|string|Item}
+		 */
+		this.lastUndo = null;
 	}
 
 	get actionsCount() {
@@ -47,6 +54,7 @@ class Transaction extends Framework.Object {
 	addNew(item) {
 		Transaction._push(item, item, this.create);
 		this.lastAdded = item;
+		this.lastUndo = null;
 		this.trigger('to-add');
 	}
 
@@ -70,6 +78,7 @@ class Transaction extends Framework.Object {
 		}
 		Transaction._push(itemUpdate.code, itemUpdate, this.update);
 		this.lastAdded = itemUpdate.code;
+		this.lastUndo = null;
 		this.trigger('to-update');
 	}
 
@@ -96,6 +105,7 @@ class Transaction extends Framework.Object {
 		}
 		Transaction._push(code, code, this.remove);
 		this.lastAdded = code;
+		this.lastUndo = null;
 		this.trigger('to-delete');
 	}
 
@@ -112,14 +122,17 @@ class Transaction extends Framework.Object {
 
 		if(from === this.update) {
 			from.delete(key);
+			this.lastUndo = key;
 			this.lastAdded = null;
 			this.trigger('un-update');
 		} else if(from === this.create) {
 			from.delete(key);
+			this.lastUndo = key;
 			this.lastAdded = null;
 			this.trigger('un-create');
 		} else if(from === this.remove) {
 			from.delete(key);
+			this.lastUndo = key;
 			this.lastAdded = null;
 			this.trigger('un-delete');
 		} else {
@@ -144,6 +157,10 @@ class Transaction extends Framework.Object {
 	}
 
 	commit() {
+		if(this.inProgress) {
+			throw new Error("Transaction already in progress");
+		}
+
 		let req = XHR.POST(['Edit'],
 			(code, message /*, data*/) => {
 				this.lastErrorCode = code;
@@ -158,6 +175,7 @@ class Transaction extends Framework.Object {
 
 		this.inProgress = true;
 		this.lastAdded = null;
+		this.lastUndo = null;
 		req.send(JSON.stringify(this));
 	}
 
@@ -167,6 +185,7 @@ class Transaction extends Framework.Object {
 		this.remove.clear();
 		this.notes = null;
 		this.lastAdded = null;
+		this.lastUndo = null;
 		this.trigger('reset');
 	}
 
