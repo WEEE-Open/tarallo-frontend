@@ -75,15 +75,40 @@ class TransactionView extends Framework.View {
 	}
 
 	/**
+	 * @param map an Iterable type. PHPStorm suddenly stopped understanding this simple concept and began claiming that Iterable.<Item> is not an Iterable.<Item>.
+	 * @param {Node} ul
+	 * @private
+	 */
+	printTree(map, ul) {
+		for(let [key, item] of map) {
+			let innerUl = null;
+			let first = true;
+			for(let li of this.createListElement(item, true, map, key)) {
+				if(first) {
+					ul.appendChild(li);
+					first = false;
+				} else {
+					if(innerUl === null) {
+						innerUl = document.createElement("ul");
+						ul.appendChild(innerUl);
+					}
+					innerUl.appendChild(li);
+				}
+			}
+
+		}
+	}
+
+	/**
 	 * Recursively create list items containing an item and its content
 	 *
 	 * @param {Item|ItemUpdate|string} item - current item, aka the key from Transaction maps
 	 * @param {boolean} deletable - show a delete button or not? True only if it's a root item
 	 * @param {Map} map - a map from Tranasaction, if deletable
 	 * @param {string|Item} key - key from that map, if deletable
-	 * @return {Element}
+	 * @return {Element} all the li
 	 */
-	createListElement(item, deletable=false, map=null, key=null) {
+	*createListElement(item, deletable=false, map=null, key=null) {
 		if(deletable && (map === null || key === null)) {
 			throw new Error("Deletable list items should provide a key and a map to actually be able to delete them");
 		}
@@ -112,19 +137,17 @@ class TransactionView extends Framework.View {
 		}
 		li.appendChild(text);
 
+		yield li;
+
 		if(item instanceof Item || item instanceof ItemUpdate) {
 			if(item.inside.size > 0) {
-				let sublist = document.createElement('ul');
 				for(let subitem of item.inside) {
-					let subli = this.createListElement(subitem);
-					sublist.appendChild(subli);
+					for(let li of this.createListElement(subitem)) {
+						yield li;
+					}
 				}
-				li.appendChild(sublist);
-				li.classList.add("notleaf");
 			}
 		}
-
-		return li;
 	}
 
 	/**
@@ -136,18 +159,6 @@ class TransactionView extends Framework.View {
 	 */
 	toggleButton(enabled) {
 		this.commitButton.disabled = !enabled;
-	}
-
-	/**
-	 * @param map an Iterable type. PHPStorm suddenly stopped understanding this simple concept and began claiming that Iterable.<Item> is not an Iterable.<Item>.
-	 * @param {Node} ul
-	 * @private
-	 */
-	printTree(map, ul) {
-		for(let [key, item] of map) {
-			let li = this.createListElement(item, true, map, key);
-			ul.appendChild(li);
-		}
 	}
 
 	/**

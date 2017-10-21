@@ -6,7 +6,7 @@ template {
 	display: none;
 }
 
-body {
+body, ul {
 	margin: 0;
 }
 
@@ -269,6 +269,21 @@ ul.breadcrumbs li:not(:first-child)::before {
 
 .inside > div > .item {
 	margin-bottom: 1em;
+}
+
+.pending > li > span {
+	font-weight: bold;
+}
+
+.pending li {
+	margin: 0.4em 0;
+	padding: 0;
+	list-style: none;
+}
+
+.pending li ul {
+	margin-left: 3em;
+	list-style: circle;
 }
 
 .hidden, .wip {
