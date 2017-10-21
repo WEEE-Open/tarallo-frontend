@@ -8,22 +8,18 @@ class Transaction extends Framework.Object {
 		/** @type {Map.<string,string>} this.remove */
 		this.remove = new Map();
 		this.notes = null;
+		this.inProgress = false;
+		/**
+		 * Any "add" event that fires refers to this item key.
+		 * Null if last operation was anything else (undo, commit, etc...)
+		 *
+		 * @type {null|string|Item}
+		 */
+		this.lastAdded = null;
 	}
 
 	get actionsCount() {
 		return this.create.size + this.update.size + this.remove.size;
-	}
-
-	get createCount() {
-		return this.create.size;
-	}
-
-	get updateCount() {
-		return this.update.size;
-	}
-
-	get removeCount() {
-		return this.remove.size;
 	}
 
 	/**
@@ -35,6 +31,9 @@ class Transaction extends Framework.Object {
 	 * @private
 	 */
 	static _push(key, value, map) {
+		if(this.inProgress) {
+			throw new Error("Cannot modify a Transaction while it's in progress");
+		}
 		if(!map.has(key)) {
 			map.set(key, value);
 		}
@@ -47,6 +46,7 @@ class Transaction extends Framework.Object {
 	 */
 	addNew(item) {
 		Transaction._push(item, item, this.create);
+		this.lastAdded = item;
 		this.trigger('to-add');
 	}
 
@@ -69,6 +69,7 @@ class Transaction extends Framework.Object {
 			throw new Error("Cannot edit items without code");
 		}
 		Transaction._push(itemUpdate.code, itemUpdate, this.update);
+		this.lastAdded = itemUpdate.code;
 		this.trigger('to-update');
 	}
 
@@ -94,6 +95,7 @@ class Transaction extends Framework.Object {
 			code = Item.sanitizeCode(item);
 		}
 		Transaction._push(code, code, this.remove);
+		this.lastAdded = code;
 		this.trigger('to-delete');
 	}
 
@@ -104,14 +106,21 @@ class Transaction extends Framework.Object {
 	 * @param {string|Item} key - key in that map
 	 */
 	undo(from, key) {
+		if(this.inProgress) {
+			throw new Error("Cannot modify a Transaction while it's in progress");
+		}
+
 		if(from === this.update) {
 			from.delete(key);
+			this.lastAdded = null;
 			this.trigger('un-update');
 		} else if(from === this.create) {
 			from.delete(key);
+			this.lastAdded = null;
 			this.trigger('un-create');
 		} else if(from === this.remove) {
 			from.delete(key);
+			this.lastAdded = null;
 			this.trigger('un-delete');
 		} else {
 			throw new Error('Invalid map supplied to Transaction');
@@ -124,6 +133,9 @@ class Transaction extends Framework.Object {
 	 * @param {null|string} notes
 	 */
 	setNotes(notes) {
+		if(this.inProgress) {
+			throw new Error("Cannot modify a Transaction while it's in progress");
+		}
 		if(notes === null || typeof notes === 'string') {
 			this.notes = notes;
 		} else {
@@ -136,12 +148,16 @@ class Transaction extends Framework.Object {
 			(code, message /*, data*/) => {
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message === null ? 'No message (!?)' : message;
+				this.inProgress = false;
 				this.trigger('failed');
 			},
 			(/*data*/) => {
+				this.inProgress = false;
 				this.trigger('success');
 			});
 
+		this.inProgress = true;
+		this.lastAdded = null;
 		req.send(JSON.stringify(this));
 	}
 
@@ -150,6 +166,7 @@ class Transaction extends Framework.Object {
 		this.update.clear();
 		this.remove.clear();
 		this.notes = null;
+		this.lastAdded = null;
 		this.trigger('reset');
 	}
 
