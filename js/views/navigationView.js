@@ -205,7 +205,15 @@ class NavigationView extends Framework.View {
 				}
 				break;
 			case 'add':
-				this.newItemView();
+				if(this.stateHolder.get(1) === 'last') {
+					if(this.transaction.lastAdded instanceof Item) {
+						this.newItemView(this.transaction.lastAdded);
+					} else {
+						this.stateHolder.setAll('add');
+					}
+				} else {
+					this.newItemView(new Item());
+				}
 				break;
 			case 'transaction':
 				this.transactionView();
@@ -222,11 +230,13 @@ class NavigationView extends Framework.View {
 	/**
 	 * Switch to new item/add item view (create a new item, place it into this.currentItem and show it)
 	 *
+	 * @param {Item} current
+	 *
 	 * @private
 	 */
-	newItemView() {
+	newItemView(current) {
 		this.requestedItem = null;
-		this.currentItem = new Item();
+		this.currentItem = current;
 		this.deleteContent();
 		this.createItemView();
 	}
@@ -379,14 +389,8 @@ class NavigationView extends Framework.View {
 			if(event.startsWith('to-') || event.startsWith('un-') || event === 'reset') {
 				this.transactionCount(this.transaction.actionsCount);
 			}
-			if(event === 'to-add' && this.transaction.create.has(this.currentItem)) {
-				// note that this could fire if this.currentItem has already been added, is now being edited and any other item is added to transaction.
-				// a simple solution would be to un-add items from transaction when editing them, which also makes sense. Kind of.
-				// However, if I go and edit an un-added item and switch view, that item's gone.
-				// Handling this in changeView works only for NavigationView subviews, adding a deconstruct method to views could be useful
-				// but will make the application a lot more complex... adding a lastModified property in Transaction it's simpler, maybe?
-				// TODO: do something
-				this.newItemView();
+			if(event === 'to-add' && this.transaction.lastAdded === this.currentItem) {
+				this.newItemView(new Item());
 			}
 		} else if(that === this.logs && event === 'push') {
 			switch(this.logs.getLast().severity) {
