@@ -49,6 +49,13 @@ class TransactionView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Handle clicking on the "delete item" button: delete it from Transaction and remove the entire row from view.
+	 *
+	 * @param {Map} map - one of the maps from Transaction
+	 * @param {string|Item} key
+	 * @param {Event} event
+	 */
 	deleteButtonClick(map, key, event) {
 		try {
 			this.transaction.undo(map, key);
@@ -58,6 +65,23 @@ class TransactionView extends Framework.View {
 		}
 		let deleteMe = event.target.parentNode;
 		deleteMe.parentNode.removeChild(event.target.parentNode);
+	}
+
+	/**
+	 * Handle clicking on a newly added item link, to correctly navigate to the edit page
+	 *
+	 * @param {Item} item
+	 * @param {Event} event
+	 */
+	itemAddedClick(item, event) {
+		if(this.transaction.create.has(item)) {
+			// Don't do this at home
+			this.transaction.lastAdded = item;
+		} else {
+			this.logs.add('Item not found in Transaction', 'E');
+			event.stopPropagation();
+			event.preventDefault();
+		}
 	}
 
 	/**
@@ -113,13 +137,22 @@ class TransactionView extends Framework.View {
 			throw new Error("Deletable list items should provide a key and a map to actually be able to delete them");
 		}
 		let li = document.createElement("li");
-		let text = document.createElement("span");
+		let text = document.createElement("a");
 
 		if(deletable) {
 			let deleteButton = TransactionView.getDeleteButton();
 			deleteButton.addEventListener('click', this.deleteButtonClick.bind(this, map, key));
 			li.appendChild(deleteButton);
+			if(map === this.transaction.create) {
+				text.href = '#/add/last';
+				text.addEventListener('click', this.itemAddedClick.bind(this, key));
+			} else if(map === this.transaction.update) {
+				text.href = '#/view/' + key;
+			} else if(map === this.transaction.remove) {
+				text.href = '#/view/' + key;
+			}
 		}
+
 		let letter = '';
 		if(map !== null) {
 			if(map === this.transaction.create) {

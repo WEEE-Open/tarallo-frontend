@@ -329,7 +329,7 @@ class NavigationView extends Framework.View {
 			this.transactionArea.style.display = 'none';
 		} else {
 			this.transactionArea.style.display = '';
-			this.transactionArea.textContent = 'Items in transaction: ' + count;
+			this.transactionArea.textContent = 'Pending operations: ' + count;
 		}
 	}
 
