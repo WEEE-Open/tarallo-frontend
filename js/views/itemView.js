@@ -221,16 +221,16 @@ class ItemView extends Framework.View {
 				 */
 				if(this.item.empty()) {
 					this.logs.add('No changes to commit in item ' + this.item.code, 'W');
-					// this allows freezing an element even when nothing has been modified
-					saved = true;
 				} else {
 					this.transaction.addUpdated(this.item);
 					this.item.unsetItem();
-					saved = true;
 				}
 			} catch(e) {
 				this.logs.add(e.message, 'E');
 				return;
+			}
+			if(saved) {
+				this.freeze();
 			}
 		} else {
 			/**
@@ -242,10 +242,11 @@ class ItemView extends Framework.View {
 				this.transaction.addNew(this.item);
 				saved = true;
 			}
-		}
-		// if the element has been removed from DOM, don't bother freezing...
-		if(saved && !!this.el.parentNode) {
-			this.freezeRecursive();
+
+			// if the element has been removed from DOM, don't bother freezing...
+			if(saved && !!this.el.parentNode) {
+				this.freezeRecursive();
+			}
 		}
 	}
 
