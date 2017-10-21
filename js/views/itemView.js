@@ -267,7 +267,14 @@ class ItemView extends Framework.View {
 				this.logs.add(e.message, 'E');
 			}
 		} else {
-			this.parentItemView.deleteItemInside(this);
+			if(this.transaction.create.has(this.item)) {
+				this.transaction.undo(this.transaction.create, this.item);
+			}
+			if(this.parentItemView === null) {
+				this.toggleDeleted(true);
+			} else {
+				this.parentItemView.deleteItemInside(this);
+			}
 		}
 	}
 
@@ -609,7 +616,7 @@ class ItemView extends Framework.View {
 	}
 
 	/**
-	 * Delete a subitem via its ItemView.
+	 * Delete a subitem via its ItemView, remove from transaction
 	 *
 	 * @param {ItemView} removeThis - item view to delete
 	 * @protected
