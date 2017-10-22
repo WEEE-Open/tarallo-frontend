@@ -144,6 +144,10 @@ nav#main > a:hover, nav#main > a.quickopen, .quickmoveitem, .quickviewitem, .qui
 	margin-right: 1em;
 }
 
+.pagecontrols + .logs {
+	margin-top: 1em;
+}
+
 nav#main {
 	/*background-color: #333;*/
 	/*color: #eee;*/
