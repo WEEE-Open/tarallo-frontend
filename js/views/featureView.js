@@ -13,7 +13,13 @@ class FeatureView extends Framework.View {
 		this.logs = logs;
 		this.translations = translations;
 		this.name = name;
-		this.value = value;
+		/**
+		 * Internal value, always updated in real-time (well, sort of)
+		 * @see this.value
+		 * @type {string|null}
+		 * @private
+		 */
+		this.internalValue = value;
 		this.type = FeatureView.parseType(name);
 
 		this.label = this.createLabel(this.translations.get(this.name, this.translations.features));
@@ -23,6 +29,19 @@ class FeatureView extends Framework.View {
 		this.el.appendChild(this.input);
 	}
 
+	set value(to) {
+		this.internalValue = to;
+		this.writeValue(this.renderValue());
+	}
+
+	get value() {
+		return this.internalValue;
+	}
+
+	get renderedValue() {
+		return this.renderValue();
+	}
+
 	/**
 	 * Handler for inputting anything in the feature box (set/change value)
 	 * Empty input counts as no feature.
@@ -30,17 +49,17 @@ class FeatureView extends Framework.View {
 	 * @private
 	 */
 	featureInput() {
-		let value = this.getRawValue();
+		let value = this.readValue();
 		if(value === "") {
-			this.setValue(null);
-			this.renderValue();
+			this.parseValue(null);
 		} else {
 			try {
-				this.setValue(value);
+				this.parseValue(value);
 			} catch(e) {
+				// rollback (value is already internalValue, but this triggers writeValue)
 				this.logs.add(e.message, 'E');
+				this.value = this.internalValue;
 			}
-			this.renderValue();
 		}
 	}
 
@@ -71,6 +90,81 @@ class FeatureView extends Framework.View {
 	 */
 	setLabelTranslated() {
 		this.setLabel(this.translations.get(this.name, this.translations.features));
+	}
+
+	/**
+	 * Read value from HTML
+	 *
+	 * @return {string}
+	 */
+	readValue() {
+		return this.input.value;
+	}
+
+	/**
+	 * Put value into input textbox
+	 *
+	 * @param {string} value
+	 */
+	writeValue(value) {
+		this.input.value = value;
+	}
+
+	/**
+	 * Get unit prefix. 0 is none.
+	 *
+	 * @param int - 0 to 4
+	 * @return {string}
+	 */
+	static unitPrefix(int) {
+		switch(int) {
+			case 0:
+				return '';
+			case 1:
+				return 'k';
+			case 2:
+				return 'M';
+			case 3:
+				return 'G';
+			case 4:
+				return 'T';
+		}
+		throw new Error('Invalid SI prefix');
+	}
+
+	/**
+	 * Convert value to human-readable format
+	 */
+	renderValue() {
+		if(this.internalValue === null) {
+			return '';
+		}
+		let value = this.internalValue;
+		switch(this.type) {
+			case null:
+			default:
+				return value;
+			case 'byte':
+				value = parseInt(value);
+				let prefix = 0;
+				while(value >= 1024 && prefix <= 4) {
+					value /= 1024; // this SHOULD be optimized internally to use bit shift
+					prefix++;
+				}
+
+				let i = '';
+				if(prefix > 0) {
+					i = 'i';
+				}
+				return '' + value + ' ' + FeatureView.unitPrefix(prefix) + i +'B';
+				break;
+			case 'decibyte':
+				// TODO: implement
+				break;
+			case 'hertz':
+				// TODO: implement
+				break;
+		}
 	}
 
 	/**
@@ -130,7 +224,7 @@ class FeatureView extends Framework.View {
 	 * @throws Error if input is in wrong format
 	 * @private
 	 */
-	setValue(input) {
+	parseValue(input) {
 		if(input === null) {
 			this.value = null;
 		}
