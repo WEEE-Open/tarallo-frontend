@@ -85,7 +85,7 @@ class ItemView extends Framework.View {
 		}
 
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
-		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
+		//this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
 		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
@@ -546,10 +546,7 @@ class ItemView extends Framework.View {
 		deleteButton.textContent = "-";
 
 		newElement.appendChild(deleteButton);
-
-
-		nameElement.textContent =
-		valueElement.value = value;
+		FeatureView.factory(newElement, this.translations, this.logs, name, value);
 
 		return newElement;
 	}

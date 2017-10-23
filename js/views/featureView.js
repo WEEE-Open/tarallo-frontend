@@ -5,6 +5,7 @@ class FeatureView extends Framework.View {
 	 * @param {Logs} logs
 	 * @param {string} name - internal feature name
 	 * @param {string} value - internal feature value
+	 * @see FeatureView.factory
 	 * @private
 	 */
 	constructor(el, translations, logs, name, value) {
@@ -12,23 +13,25 @@ class FeatureView extends Framework.View {
 		this.id = FeatureView.nextId();
 		this.logs = logs;
 		this.translations = translations;
-		this.name = name;
-		/**
-		 * Internal value, always updated in real-time (well, sort of)
-		 * @see this.value
-		 * @type {string|null}
-		 * @protected
-		 */
-		this.internalValue = value;
 
-		this.label = this.createLabel(this.translations.get(this.name, this.translations.features));
-		this.input = this.createInput(value);
+		this.label = this.createLabel();
+		this.input = this.createInput();
+
+		this.name = name;
+		this.value = value;
+		this.setLabelTranslated();
 
 		this.el.appendChild(this.label);
 		this.el.appendChild(this.input);
 	}
 
 	set value(to) {
+		/**
+		 * Internal value, always updated in real-time (well, sort of)
+		 * @see this.value
+		 * @type {string|null}
+		 * @protected
+		 */
 		this.internalValue = to;
 		this.writeValue(this.renderValue());
 	}
@@ -39,6 +42,24 @@ class FeatureView extends Framework.View {
 
 	get renderedValue() {
 		return this.renderValue();
+	}
+
+	/**
+	 * Create the right FeatureView for the situation
+	 *
+	 * @param {Element} el - a div
+	 * @param {Translations} translations
+	 * @param {Logs} logs
+	 * @param {string} name - internal feature name
+	 * @param {string} value - internal feature value
+	 * @return {FeatureView|FeatureViewUnit}
+	 */
+	static factory(el, translations, logs, name, value) {
+		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz')) {
+			return new FeatureViewUnit(el, translations, logs, name, value);
+		} else {
+			return new FeatureView(el, translations, logs, name, value);
+		}
 	}
 
 	/**
@@ -120,15 +141,13 @@ class FeatureView extends Framework.View {
 	/**
 	 * Create the input field that has to be place next to the label.
 	 *
-	 * @param {string} value
 	 * @protected
 	 */
-	createInput(value) {
+	createInput() {
 		let input = document.createElement("input");
 		input.classList.add("value");
 		input.classList.add("freezable");
 		input.id = this.id;
-		input.value = value;
 		input.addEventListener('blur', this.featureInput.bind(this));
 		return input;
 	}
@@ -136,15 +155,13 @@ class FeatureView extends Framework.View {
 	/**
 	 * Create a label for the input and return it.
 	 *
-	 * @param {string} text - label text (translated, to be displayed)
 	 * @return {Element}
 	 * @protected
 	 */
-	createLabel(text) {
+	createLabel() {
 		let label = document.createElement("label");
 		label.classList.add("name");
 		label.htmlFor = this.id;
-		this.setLabel(text);
 		return label;
 	}
 
@@ -178,6 +195,7 @@ class FeatureViewUnit extends FeatureView {
 	constructor(el, translations, logs, name, value) {
 		super(el, translations, logs, name, value);
 		this.type = FeatureViewUnit.parseType(name);
+		this.writeValue(this.renderValue()); // re-render value with the acquired knowledge of feature type
 	}
 
 	/**
@@ -210,13 +228,21 @@ class FeatureViewUnit extends FeatureView {
 			case 0:
 				return '';
 			case 1:
-				return 'k';
+				if(this.type === 'byte') {
+					return 'K';
+				} else {
+					return 'k';
+				}
 			case 2:
 				return 'M';
 			case 3:
 				return 'G';
 			case 4:
 				return 'T';
+			case 5:
+				return 'P';
+			case 6:
+				return 'E';
 		}
 		throw new Error('Invalid SI prefix');
 	}
@@ -225,35 +251,52 @@ class FeatureViewUnit extends FeatureView {
 	 * Convert value to human-readable format
 	 */
 	renderValue() {
-		if(this.internalValue === null) {
+		if(typeof this.type === 'undefined') {
+			// when calling superclass constructor, renderValue gets called without having defined the type yet
+			return this.value;
+		} else if(this.value === null) {
 			return '';
 		}
-		let value = this.internalValue;
+		let value = parseInt(this.value);
+		let prefix = 0;
 		switch(this.type) {
 			case null:
 			default:
-				return value;
+				throw new Error('Unknown type ' + this.type + ' in FeatureViewUnit');
 			case 'byte':
-				value = parseInt(value);
-				let prefix = 0;
-				while(value >= 1024 && prefix <= 4) {
+				while(value >= 1024 && prefix <= 6) {
 					value /= 1024; // this SHOULD be optimized internally to use bit shift
 					prefix++;
 				}
-
 				let i = '';
 				if(prefix > 0) {
 					i = 'i';
 				}
-				return '' + value + ' ' + FeatureView.unitPrefix(prefix) + i +'B';
+				return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + i +'B';
 				break;
 			case 'decibyte':
-				// TODO: implement
+				return FeatureViewUnit.addUnit(value, 'B');
 				break;
 			case 'hertz':
-				// TODO: implement
+				return FeatureViewUnit.addUnit(value, 'Hz');
 				break;
 		}
+	}
+
+	/**
+	 * Reduce a number to 3 digits (+ decimals) and add a unit to it
+	 *
+	 * @param {int} value
+	 * @param {string} unit
+	 * @return {string} "3.2 MHz" and the like
+	 */
+	static addUnit(value, unit) {
+		let prefix = 0;
+		while(value >= 1000 && prefix <= 6) {
+			value /= 1000;
+			prefix++;
+		}
+		return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + unit;
 	}
 
 	parseInput(input) {
@@ -264,7 +307,7 @@ class FeatureViewUnit extends FeatureView {
 			case null:
 				return input;
 			case 'byte':
-
+				// TODO: implement
 				break;
 			case 'decibyte':
 				break;
