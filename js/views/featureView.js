@@ -5,7 +5,7 @@ class FeatureView extends Framework.View {
 	 * @param {Logs} logs
 	 * @param {string} name - internal feature name
 	 * @param {string} value - internal feature value
-	 * @todo make separate FeatureViewText and FeatureViewSelect, make a factory
+	 * @private
 	 */
 	constructor(el, translations, logs, name, value) {
 		super(el);
@@ -17,10 +17,9 @@ class FeatureView extends Framework.View {
 		 * Internal value, always updated in real-time (well, sort of)
 		 * @see this.value
 		 * @type {string|null}
-		 * @private
+		 * @protected
 		 */
 		this.internalValue = value;
-		this.type = FeatureView.parseType(name);
 
 		this.label = this.createLabel(this.translations.get(this.name, this.translations.features));
 		this.input = this.createInput(value);
@@ -51,10 +50,10 @@ class FeatureView extends Framework.View {
 	featureInput() {
 		let value = this.readValue();
 		if(value === "") {
-			this.parseValue(null);
+			this.value = null;
 		} else {
 			try {
-				this.parseValue(value);
+				this.parseInput(value);
 			} catch(e) {
 				// rollback (value is already internalValue, but this triggers writeValue)
 				this.logs.add(e.message, 'E');
@@ -102,12 +101,102 @@ class FeatureView extends Framework.View {
 	}
 
 	/**
-	 * Put value into input textbox
+	 * Put value into HTML input textbox
 	 *
 	 * @param {string} value
 	 */
 	writeValue(value) {
 		this.input.value = value;
+	}
+
+	renderValue() {
+		if(this.internalValue === null) {
+			return '';
+		} else {
+			return this.internalValue;
+		}
+	}
+
+	/**
+	 * Create the input field that has to be place next to the label.
+	 *
+	 * @param {string} value
+	 * @protected
+	 */
+	createInput(value) {
+		let input = document.createElement("input");
+		input.classList.add("value");
+		input.classList.add("freezable");
+		input.id = this.id;
+		input.value = value;
+		input.addEventListener('blur', this.featureInput.bind(this));
+		return input;
+	}
+
+	/**
+	 * Create a label for the input and return it.
+	 *
+	 * @param {string} text - label text (translated, to be displayed)
+	 * @return {Element}
+	 * @protected
+	 */
+	createLabel(text) {
+		let label = document.createElement("label");
+		label.classList.add("name");
+		label.htmlFor = this.id;
+		this.setLabel(text);
+		return label;
+	}
+
+	/**
+	 * Parse input (from HTML) and set internal value.
+	 *
+	 * @param {string} input - a non-empty string
+	 * @throws Error if input is in wrong format
+	 * @private
+	 */
+	parseInput(input) {
+		this.value = input;
+	}
+
+	trigger(that, event) {
+		if(that === this.translations && event === 'change') {
+			this.setLabelTranslated();
+		}
+	}
+}
+
+/**
+ * Static counter used to generate IDs
+ *
+ * @type {int}
+ * @private
+ */
+FeatureView.idCounter = 0;
+
+class FeatureViewUnit extends FeatureView {
+	constructor(el, translations, logs, name, value) {
+		super(el, translations, logs, name, value);
+		this.type = FeatureViewUnit.parseType(name);
+	}
+
+	/**
+	 * Get feature type from name. Null if none (free text)
+	 *
+	 * @param {string} name
+	 * @return {string|null}
+	 * @protected
+	 */
+	static parseType(name) {
+		if(name.endsWith('-byte')) {
+			return 'byte';
+		} else if(name.endsWith('-hertz')) {
+			return 'hertz';
+		} else if(name.endsWith('-decibyte')) {
+			return 'decibyte';
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -167,64 +256,7 @@ class FeatureView extends Framework.View {
 		}
 	}
 
-	/**
-	 * Create the input field that has to be place next to the label.
-	 *
-	 * @param {string} value
-	 * @protected
-	 */
-	createInput(value) {
-		let input = document.createElement("input");
-		input.classList.add("value");
-		input.classList.add("freezable");
-		input.id = this.id;
-		input.value = value;
-		input.addEventListener('blur', this.featureInput.bind(this));
-		return input;
-	}
-
-	/**
-	 * Create a label for the input and return it.
-	 *
-	 * @param {string} text - label text (translated, to be displayed)
-	 * @return {Element}
-	 * @protected
-	 */
-	createLabel(text) {
-		let label = document.createElement("label");
-		label.classList.add("name");
-		label.htmlFor = this.id;
-		this.setLabel(text);
-		return label;
-	}
-
-	/**
-	 * Get feature type from name. Null if none (free text)
-	 *
-	 * @param {string} name
-	 * @return {string|null}
-	 * @protected
-	 */
-	static parseType(name) {
-		if(name.endsWith('-byte')) {
-			return 'byte';
-		} else if(name.endsWith('-hertz')) {
-			return 'hertz';
-		} else if(name.endsWith('-decibyte')) {
-			return 'decibyte';
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Parse input and set internal value. If null, set to null.
-	 *
-	 * @param {string|null} input
-	 * @throws Error if input is in wrong format
-	 * @private
-	 */
-	parseValue(input) {
+	parseInput(input) {
 		if(input === null) {
 			this.value = null;
 		}
@@ -242,18 +274,4 @@ class FeatureView extends Framework.View {
 				break;
 		}
 	}
-
-	trigger(that, event) {
-		if(that === this.translations && event === 'change') {
-			this.setLabelTranslated();
-		}
-	}
 }
-
-/**
- * Static counter used to generate IDs
- *
- * @type {int}
- * @private
- */
-FeatureView.idCounter = 0;
