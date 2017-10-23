@@ -25,7 +25,7 @@ class ItemView extends Framework.View {
 			/** @type {Item|ItemUpdate} */
 			this.item = item;
 		}
-		this.language = language;
+		this.translations = language;
 		this.logs = logs;
 		this.transaction = transaction;
 		this.frozen = false;
@@ -112,25 +112,6 @@ class ItemView extends Framework.View {
 	}
 
 	/**
-	 * Handler for inputting anything in the feature box (set/change value)
-	 * Empty input counts as no feature. Or as a feature with empty content. Still undecided.
-	 *
-	 * @param {Event} event
-	 * @private
-	 */
-	featureInput(event) {
-		if(event.target.classList.contains('value')) {
-			event.stopPropagation();
-			let name = event.target.parentElement.dataset.name;
-			if(event.target.value === "") {
-				this.item.setFeature(name, null);
-			} else {
-				this.item.setFeature(name, event.target.value);
-			}
-		}
-	}
-
-	/**
 	 * Handle inserting a code
 	 *
 	 * @param {Event} event
@@ -190,7 +171,7 @@ class ItemView extends Framework.View {
 	addInside(item) {
 		let container = document.createElement("div");
 
-		let view = new ItemView(container, item, this.language, this.logs, this.transaction, this);
+		let view = new ItemView(container, item, this.translations, this.logs, this.transaction, this);
 		this.subViews.push(view);
 		this.insideElement.appendChild(container);
 	}
@@ -461,7 +442,7 @@ class ItemView extends Framework.View {
 		}
 
 		let newElement = this.createFeatureElement(name, value);
-		let translation = this.language.get(name, this.language.features);
+		let translation = this.translations.get(name, this.translations.features);
 
 		let translatedNames = this.featuresElement.querySelectorAll(".name");
 		if(translatedNames.length === 0) {
@@ -548,8 +529,8 @@ class ItemView extends Framework.View {
 	/**
 	 * Create a row for the feature box and return it.
 	 *
-	 * @param {string} name feature name
-	 * @param {string} value feature value
+	 * @param {string} name - feature name (internal version)
+	 * @param {string} value - feature value (internal version)
 	 * @return {Element} new element
 	 * @private
 	 */
@@ -557,14 +538,6 @@ class ItemView extends Framework.View {
 		let newElement, nameElement, valueElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
-		newElement.dataset.name = name;
-
-		nameElement = document.createElement("span");
-		nameElement.classList.add("name");
-
-		valueElement = document.createElement("input");
-		valueElement.classList.add("value");
-		valueElement.classList.add("freezable");
 
 		deleteButton = document.createElement("button");
 		deleteButton.classList.add("featuredeletebutton");
@@ -573,10 +546,9 @@ class ItemView extends Framework.View {
 		deleteButton.textContent = "-";
 
 		newElement.appendChild(deleteButton);
-		newElement.appendChild(nameElement);
-		newElement.appendChild(valueElement);
 
-		nameElement.textContent = this.language.get(name, this.language.features);
+
+		nameElement.textContent =
 		valueElement.value = value;
 
 		return newElement;
@@ -606,7 +578,7 @@ class ItemView extends Framework.View {
 				newElement.appendChild(nameElement);
 				newElement.appendChild(valueElement);
 
-				nameElement.textContent = this.language.get(name, this.language.features);
+				nameElement.textContent = this.translations.get(name, this.translations.features);
 				valueElement.value = this.item.defaultFeatures[name];
 				this.defaultFeaturesElement.appendChild(newElement);
 			}
@@ -686,11 +658,11 @@ class ItemView extends Framework.View {
 		while(this.selectFeatureElement.lastElementChild) {
 			this.selectFeatureElement.removeChild(this.selectFeatureElement.lastElementChild);
 		}
-		for(let f in this.language.features) {
-			if(this.language.features.hasOwnProperty(f)) {
+		for(let f in this.translations.features) {
+			if(this.translations.features.hasOwnProperty(f)) {
 				let option = document.createElement("option");
 				option.value = f;
-				option.textContent = this.language.features[f];
+				option.textContent = this.translations.features[f];
 
 				let inserted = false;
 				for(let i = 0; i < this.selectFeatureElement.length; i++) {
@@ -708,7 +680,7 @@ class ItemView extends Framework.View {
 	}
 
 	trigger(that, event) {
-		if(that === this.language) {
+		if(that === this.translations) {
 			if(event === 'change') {
 				// TODO: update view
 			}

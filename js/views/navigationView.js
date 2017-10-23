@@ -9,7 +9,7 @@ class NavigationView extends Framework.View {
 	 */
 	constructor(el, logs, session, stateHolder, translations, transaction) {
 		super(el);
-		this.language = translations;
+		this.translations = translations;
 		this.transaction = transaction;
 		this.stateHolder = stateHolder;
 		this.translations = translations;
@@ -248,7 +248,7 @@ class NavigationView extends Framework.View {
 	 */
 	transactionView() {
 		this.deleteContent();
-		this.innerView = new TransactionView(this.container, this.transaction, this.logs, this.language);
+		this.innerView = new TransactionView(this.container, this.transaction, this.logs, this.translations);
 	}
 
 	/**
@@ -371,7 +371,7 @@ class NavigationView extends Framework.View {
 	 * @private
 	 */
 	createItemView() {
-		this.innerView = new ItemLocationView(this.container, this.currentItem, this.language, this.transaction, this.logs);
+		this.innerView = new ItemLocationView(this.container, this.currentItem, this.translations, this.transaction, this.logs);
 	}
 
 	trigger(that, event) {

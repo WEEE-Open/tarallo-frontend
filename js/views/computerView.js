@@ -18,7 +18,7 @@ class ComputerView extends Framework.View {
 		}
 
 		this.item = item;
-		this.language = language;
+		this.translations = language;
 		this.logs = logs;
 
 		this.el.appendChild(document.getElementById("template-computer").content.cloneNode(true));

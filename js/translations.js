@@ -31,7 +31,7 @@ class Translations extends Framework.Object {
 			// TODO: really handle multiple languages
 			throw new Error('Unknown language ' + code);
 		}
-		this.language = code;
+		this.translations = code;
 	}
 
 	/**
