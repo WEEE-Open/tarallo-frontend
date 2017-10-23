@@ -11,7 +11,7 @@ class LoginView extends Framework.View {
 		this.logs = logs;
 		this.session = session;
 		this.el.appendChild(document.getElementById("template-login").content.cloneNode(true));
-		this.el.querySelector('#login-login').addEventListener('click', this.login.bind(this));
+		this.el.querySelector('button').addEventListener('click', this.login.bind(this));
 		this.logsView = new LogsView(this.el.querySelector('.logs'), logs);
 	}
 

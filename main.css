@@ -66,26 +66,23 @@ input, button, select {
 	border-color: rgba(0,0,0,0);
 }
 
-button:hover {
+button:hover, input[type="submit"]:hover {
 	/* TODO: optimize transition by using opacity of the ::after pseudo element instead of box-shadow */
 	border-color: #aaa;
 	box-shadow: 0 0 0.15rem rgba(0,0,0,0.29);
 	transition: box-shadow,border-color 0.1s ease-in;
 }
 
-button:active {
-	background-color: #eee;
-}
-
-button:focus, select:focus {
+button:active, input[type="submit"]:active, button:focus, select:focus {
 	outline: none;
+	background-color: #eee;
 }
 
 button::-moz-focus-inner, select::-moz-focus-inner {
 	border: 0;
 }
 
-button:disabled, button:disabled:hover, button:disabled:active {
+button:disabled, button:disabled:hover, button:disabled:active, input[type="submit"]:disabled, input[type="submit"]:disabled:hover, input[type="submit"]:disabled:active {
 	color: #999;
 	border-color: #ccc;
 	background: white;
