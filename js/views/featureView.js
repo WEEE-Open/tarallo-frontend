@@ -22,7 +22,6 @@ class FeatureView extends Framework.View {
 		 * @type {boolean}
 		 * @see enableRender
 		 */
-		this.render = false;
 		this.name = name;
 		this.value = value;
 		this.setLabelTranslated();
@@ -195,26 +194,23 @@ FeatureView.idCounter = 0;
 class FeatureViewUnit extends FeatureView {
 	constructor(el, translations, logs, name, value) {
 		super(el, translations, logs, name, value);
-		this.type = FeatureViewUnit.parseType(name);
-		this.enableRender(); // re-render value with the acquired knowledge of feature type
 	}
 
 	/**
 	 * Get feature type from name. Null if none (free text)
 	 *
-	 * @param {string} name
 	 * @return {string|null}
 	 * @protected
 	 */
-	static parseType(name) {
-		if(name.endsWith('-byte')) {
+	static parseType() {
+		if(this.name.endsWith('-byte')) {
 			return 'byte';
-		} else if(name.endsWith('-hertz')) {
+		} else if(this.name.endsWith('-hertz')) {
 			return 'hertz';
-		} else if(name.endsWith('-decibyte')) {
+		} else if(this.name.endsWith('-decibyte')) {
 			return 'decibyte';
 		} else {
-			return null;
+			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
 		}
 	}
 
@@ -254,6 +250,9 @@ class FeatureViewUnit extends FeatureView {
 	renderValue() {
 		if(this.value === null) {
 			return '';
+		}
+		if(typeof this.type === 'undefined') {
+			this.type = FeatureViewUnit.parseType();
 		}
 		let value = parseInt(this.value);
 		let prefix = 0;
@@ -299,14 +298,10 @@ class FeatureViewUnit extends FeatureView {
 
 	featureInput() {
 		let value = this.readValue();
-		if(value === "") {
-			this.value = null;
-		} else {
-			try {
-				this.value = FeatureViewUnit.parseUnit(value);
-			} catch(e) {
-				this.logs.add(e.message, 'E');
-			}
+		try {
+			this.value = FeatureViewUnit.parseUnit(value);
+		} catch(e) {
+			this.logs.add(e.message, 'E');
 		}
 	}
 
