@@ -17,6 +17,12 @@ class FeatureView extends Framework.View {
 		this.label = this.createLabel();
 		this.input = this.createInput();
 
+		/**
+		 * @private
+		 * @type {boolean}
+		 * @see enableRender
+		 */
+		this.render = false;
 		this.name = name;
 		this.value = value;
 		this.setLabelTranslated();
@@ -33,7 +39,11 @@ class FeatureView extends Framework.View {
 		 * @protected
 		 */
 		this.internalValue = to;
-		this.writeValue(this.renderValue());
+		if(this.render) {
+			this.writeValue(this.renderValue());
+		} else {
+			this.writeValue(this.internalValue);
+		}
 	}
 
 	get value() {
@@ -42,6 +52,14 @@ class FeatureView extends Framework.View {
 
 	get renderedValue() {
 		return this.renderValue();
+	}
+
+	/**
+	 * Enable rendering via renderValue, then render and write result into HTML.
+	 */
+	enableRender() {
+		this.render = true;
+		this.writeValue(this.renderValue());
 	}
 
 	/**
@@ -195,7 +213,7 @@ class FeatureViewUnit extends FeatureView {
 	constructor(el, translations, logs, name, value) {
 		super(el, translations, logs, name, value);
 		this.type = FeatureViewUnit.parseType(name);
-		this.writeValue(this.renderValue()); // re-render value with the acquired knowledge of feature type
+		this.enableRender(); // re-render value with the acquired knowledge of feature type
 	}
 
 	/**
@@ -251,10 +269,7 @@ class FeatureViewUnit extends FeatureView {
 	 * Convert value to human-readable format
 	 */
 	renderValue() {
-		if(typeof this.type === 'undefined') {
-			// when calling superclass constructor, renderValue gets called without having defined the type yet
-			return this.value;
-		} else if(this.value === null) {
+		if(this.value === null) {
 			return '';
 		}
 		let value = parseInt(this.value);
