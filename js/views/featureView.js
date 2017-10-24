@@ -84,20 +84,14 @@ class FeatureView extends Framework.View {
 	 * Handler for inputting anything in the feature box (set/change value)
 	 * Empty input counts as no feature.
 	 *
-	 * @private
+	 * @protected
 	 */
 	featureInput() {
 		let value = this.readValue();
 		if(value === "") {
 			this.value = null;
 		} else {
-			try {
-				this.parseInput(value);
-			} catch(e) {
-				// rollback (value is already internalValue, but this triggers writeValue)
-				this.logs.add(e.message, 'E');
-				this.value = this.internalValue;
-			}
+			this.value = value;
 		}
 	}
 
@@ -181,17 +175,6 @@ class FeatureView extends Framework.View {
 		label.classList.add("name");
 		label.htmlFor = this.id;
 		return label;
-	}
-
-	/**
-	 * Parse input (from HTML) and set internal value.
-	 *
-	 * @param {string} input - a non-empty string
-	 * @throws Error if input is in wrong format
-	 * @private
-	 */
-	parseInput(input) {
-		this.value = input;
 	}
 
 	trigger(that, event) {
@@ -314,22 +297,80 @@ class FeatureViewUnit extends FeatureView {
 		return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + unit;
 	}
 
-	parseInput(input) {
-		if(input === null) {
+	featureInput() {
+		let value = this.readValue();
+		if(value === "") {
 			this.value = null;
+		} else {
+			try {
+				this.value = FeatureViewUnit.parseUnit(value);
+			} catch(e) {
+				this.logs.add(e.message, 'E');
+			}
 		}
-		switch(this.type) {
-			case null:
-				return input;
-			case 'byte':
-				// TODO: implement
+	}
+
+	/**
+	 * Parse input (from HTML) and convert to internal value.
+	 *
+	 * @param {string} input - a non-empty string
+	 * @throws Error if input is in wrong format
+	 * @private
+	 */
+	static parseUnit(input) {
+		let string = input.trim();
+		if(string === "") {
+			return null;
+		}
+		let i;
+		for(i = 0; i < string.length; i++) {
+			if (!((string[i] >= '0' && string[i] <= '9') || string[i] === '.' || string[i] === ',')) {
 				break;
-			case 'decibyte':
+			}
+		}
+		if(i = 0) {
+			throw new Error('"' + string + '" should start with a positive number');
+		}
+		let number = parseFloat(string.substr(0, 0 + i));
+		let exp = 0;
+		for(; i < string.length; i++) {
+			let lower = string[i].toLowerCase();
+			if(lower >= 'a' && lower <= 'z') {
+				exp = FeatureViewUnit.parsePrefix(char);
 				break;
-			case 'hertz':
-				break;
+			}
+		}
+		let base;
+		if(this.type === 'byte') {
+			base = 1024;
+		} else {
+			base = 1000;
+		}
+		return number * (base ** exp);
+	}
+
+	/**
+	 * Parse the unit prefix and return exponent (or 0 if it isn't a prefix)
+	 *
+	 * @param {string} char - lowercase character
+	 * @returns {number} exponent
+	 */
+	static parsePrefix(char) {
+		switch(char) {
+			case 'k':
+				return 1;
+			case 'm':
+				return 2;
+			case 'g':
+				return 3;
+			case 't':
+				return 4;
+			case 'p':
+				return 5;
+			case 'e':
+				return 6;
 			default:
-				break;
+				return 0;
 		}
 	}
 }
