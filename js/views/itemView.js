@@ -37,8 +37,13 @@ class ItemView extends Framework.View {
 		/**
 		 * Map feature names to their element
 		 * @type {Map.<string,Element>}
+		 * @deprecated map elements to View (which contains name) instead
 		 */
 		this.featureNameToElement = new Map();
+		/**
+		 * @type {WeakMap.<Element,FeatureView>}
+		 */
+		this.featureElementToView = new WeakMap();
 		this.itemEl = ItemView.newElement();
 		this.el.appendChild(this.itemEl);
 
@@ -85,7 +90,7 @@ class ItemView extends Framework.View {
 		}
 
 		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
-		//this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // an alternative to "input", which fires after every key press
+		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // focusout bubbles
 		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
@@ -107,7 +112,7 @@ class ItemView extends Framework.View {
 			event.stopPropagation();
 			event.preventDefault();
 			let name = event.target.parentElement.dataset.name;
-			this.removeFeatureElement(name, event.target.parentElement);
+			this.removeFeatureElement(name);
 		}
 	}
 
@@ -131,6 +136,13 @@ class ItemView extends Framework.View {
 			this.codeElement.value = this.item.code;
 			this.logs.add(e.message + ", keeping previous code: " + previous, "E");
 		}
+	}
+
+	/**
+	 *
+	 */
+	featureInput() {
+		// TODO: implement, get value from view, actually modify item
 	}
 
 	/**
@@ -535,7 +547,7 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	createFeatureElement(name, value) {
-		let newElement, nameElement, valueElement, deleteButton;
+		let newElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
 
