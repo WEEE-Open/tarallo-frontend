@@ -187,10 +187,6 @@ class FeatureView extends Framework.View {
 FeatureView.idCounter = 0;
 
 class FeatureViewUnit extends FeatureView {
-	constructor(el, translations, logs, item, name, value) {
-		super(el, translations, logs, item, name, value);
-	}
-
 	/**
 	 * Get feature type from name. Null if none (free text)
 	 *
