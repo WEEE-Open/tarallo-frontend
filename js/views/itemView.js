@@ -130,13 +130,6 @@ class ItemView extends Framework.View {
 	}
 
 	/**
-	 *
-	 */
-	featureInput() {
-		// TODO: implement, get value from view, actually modify item
-	}
-
-	/**
 	 * Handler for the "add feature" button
 	 *
 	 * @param {Event} event
@@ -436,7 +429,6 @@ class ItemView extends Framework.View {
 	 *
 	 * @param {string} name - feature name (internal, untranslated version)
 	 * @param {string} value - feature value
-	 * @see this.createFeatureElement
 	 * @private
 	 */
 	appendFeatureElement(name, value) {
@@ -464,7 +456,6 @@ class ItemView extends Framework.View {
 			}
 		}
 
-		this.featureViews.set(name, newElement);
 		this.setDefaultFeatureDuplicate(name, true);
 	}
 
@@ -550,7 +541,8 @@ class ItemView extends Framework.View {
 		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, name));
 
 		newElement.appendChild(deleteButton);
-		FeatureView.factory(newElement, this.translations, this.logs, this.item, name, value);
+		let view = FeatureView.factory(newElement, this.translations, this.logs, this.item, name, value);
+		this.featureViews.set(name, view);
 
 		return newElement;
 	}
