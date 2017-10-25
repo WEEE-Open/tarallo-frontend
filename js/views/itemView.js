@@ -35,15 +35,10 @@ class ItemView extends Framework.View {
 		this.parentItemView = parentItemView ? parentItemView : null;
 		this.subViews = [];
 		/**
-		 * Map feature names to their element
-		 * @type {Map.<string,Element>}
-		 * @deprecated map elements to View (which contains name) instead
+		 * Map feature names to their FeatureView
+		 * @type {Map.<string,FeatureView>}
 		 */
-		this.featureNameToElement = new Map();
-		/**
-		 * @type {WeakMap.<Element,FeatureView>}
-		 */
-		this.featureElementToView = new WeakMap();
+		this.featureViews = new Map();
 		this.itemEl = ItemView.newElement();
 		this.el.appendChild(this.itemEl);
 
@@ -89,8 +84,6 @@ class ItemView extends Framework.View {
 			this.showInsideItems();
 		}
 
-		this.featuresElement.addEventListener('click', this.featureClick.bind(this));
-		this.featuresElement.addEventListener('focusout', this.featureInput.bind(this)); // focusout bubbles
 		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
@@ -102,18 +95,16 @@ class ItemView extends Framework.View {
 	}
 
 	/**
-	 * Handler for clicking anywhere in the feature box (delete features)
+	 * Handler for clicking the feature delete button
 	 *
+	 * @param {string} name - feature name
 	 * @param {Event} event
 	 * @private
 	 */
-	featureClick(event) {
-		if(event.target.classList.contains("featuredeletebutton")) {
-			event.stopPropagation();
-			event.preventDefault();
-			let name = event.target.parentElement.dataset.name;
-			this.removeFeatureElement(name);
-		}
+	deleteFeatureClick(name, event) {
+		event.stopPropagation();
+		event.preventDefault();
+		this.removeFeature(name);
 	}
 
 	/**
@@ -195,12 +186,12 @@ class ItemView extends Framework.View {
 	 */
 	editItemButtonClick() {
 		if(this.item.exists) {
-			//if(this.item instanceof ItemUpdate) {
-			//	this.logs.add('Inconsistent internal state (ItemUpdate already created), try reloading items from server (go to another page and come back)', 'E');
-			//	return;
-			//}
 			if(!(this.item instanceof ItemUpdate)) {
 				this.item = new ItemUpdate(this.item);
+				// FeatureView objects also have a reference to this.item
+				for(let view of this.featureViews.values()) {
+					view.item = this.item;
+				}
 			}
 		}
 		this.unfreeze();
@@ -449,7 +440,7 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	appendFeatureElement(name, value) {
-		if(this.featureNameToElement.has(name)) {
+		if(this.featureViews.has(name)) {
 			return;
 		}
 
@@ -473,7 +464,7 @@ class ItemView extends Framework.View {
 			}
 		}
 
-		this.featureNameToElement.set(name, newElement);
+		this.featureViews.set(name, newElement);
 		this.setDefaultFeatureDuplicate(name, true);
 	}
 
@@ -509,10 +500,10 @@ class ItemView extends Framework.View {
 	 * @param {string} name - feature name
 	 * @private
 	 */
-	removeFeatureElement(name) {
-		if(this.featureNameToElement.has(name)) {
-			this.featuresElement.removeChild(this.featureNameToElement.get(name));
-			this.featureNameToElement.delete(name);
+	removeFeature(name) {
+		if(this.featureViews.has(name)) {
+			this.featuresElement.removeChild(this.featureViews.get(name).el);
+			this.featureViews.delete(name);
 		}
 
 		this.item.setFeature(name, null);
@@ -556,9 +547,10 @@ class ItemView extends Framework.View {
 		deleteButton.classList.add("freezable");
 		deleteButton.classList.add("freezable-hide");
 		deleteButton.textContent = "-";
+		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, name));
 
 		newElement.appendChild(deleteButton);
-		FeatureView.factory(newElement, this.translations, this.logs, name, value);
+		FeatureView.factory(newElement, this.translations, this.logs, this.item, name, value);
 
 		return newElement;
 	}
@@ -568,7 +560,6 @@ class ItemView extends Framework.View {
 	 * @private
 	 */
 	showDefaultFeatures() {
-		// looks very much like showFeatures, but there are many subtle differences, using a single function didn't work too well...
 		let newElement, nameElement, valueElement;
 
 		for(let name in this.item.defaultFeatures) {
