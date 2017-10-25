@@ -368,3 +368,17 @@ class FeatureViewUnit extends FeatureView {
 		}
 	}
 }
+
+class FeatureViewList {
+	// TODO: implement
+}
+
+Object.defineProperty(FeatureViewList, 'lists', {
+	enumerable: true,
+	configurable: false,
+	writable: false,
+	value: {
+		'motherboard-form-factor': new Set(['atx', 'miniatx', 'microatx', 'miniitx', 'proprietary']),
+		'type': new Set(['location', 'case', 'cpu', 'ram', 'motherboard', 'psu', 'hdd', 'odd', 'fdd', 'graphics-card', 'ethernet-card', 'modem-card', 'sound-card', 'other-card', 'card-adapter', 'keyboard', 'mouse', 'monitor', 'printer', 'scanner', 'switch', 'hub', 'modem-router', 'access-point', 'adapter', 'other']),
+	}
+});
