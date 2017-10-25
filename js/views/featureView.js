@@ -37,10 +37,13 @@ class FeatureView extends Framework.View {
 		this.internalValue = to;
 		this.writeValue(this.renderValue());
 		let old = this.item.features.get(this.name);
+		if(typeof old === 'undefined') {
+			return;
+		}
 		if(old === null && to === null) {
 			return;
 		}
-		if(to.toString() === old.toString()) {
+		if((old !== null && to !== null) && to.toString() === old.toString()) {
 			return;
 		}
 		this.item.setFeature(this.name, to);
@@ -67,7 +70,7 @@ class FeatureView extends Framework.View {
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
 	static factory(el, translations, logs, item, name, value) {
-		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz')) {
+		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else {
 			return new FeatureView(el, translations, logs, item, name, value);
@@ -196,7 +199,7 @@ class FeatureViewUnit extends FeatureView {
 	parseType() {
 		if(this.name.endsWith('-byte')) {
 			return 'byte';
-		} else if(this.name.endsWith('-hertz')) {
+		} else if(this.name.endsWith('-hz')) { // TODO: change to -hertz on the server
 			return 'hertz';
 		} else if(this.name.endsWith('-decibyte')) {
 			return 'decibyte';
