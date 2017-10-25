@@ -3,25 +3,22 @@ class FeatureView extends Framework.View {
 	 * @param {Element} el - a div
 	 * @param {Translations} translations
 	 * @param {Logs} logs
+	 * @param {Item} item
 	 * @param {string} name - internal feature name
 	 * @param {string} value - internal feature value
 	 * @see FeatureView.factory
 	 * @private
 	 */
-	constructor(el, translations, logs, name, value) {
+	constructor(el, translations, logs, item, name, value) {
 		super(el);
 		this.id = FeatureView.nextId();
 		this.logs = logs;
 		this.translations = translations;
+		this.item = item;
 
 		this.label = this.createLabel();
 		this.input = this.createInput();
 
-		/**
-		 * @private
-		 * @type {boolean}
-		 * @see enableRender
-		 */
 		this.name = name;
 		this.value = value;
 		this.setLabelTranslated();
@@ -38,28 +35,25 @@ class FeatureView extends Framework.View {
 		 * @protected
 		 */
 		this.internalValue = to;
-		if(this.render) {
-			this.writeValue(this.renderValue());
-		} else {
-			this.writeValue(this.internalValue);
+		this.writeValue(this.renderValue());
+		let old = this.item.features.get(this.name);
+		if(old === null && to === null) {
+			return;
 		}
+		if(to.toString() === old.toString()) {
+			return;
+		}
+		this.item.setFeature(this.name, to);
+		console.log('Set internal: ' + to);
 	}
 
 	get value() {
 		return this.internalValue;
 	}
 
-	get renderedValue() {
-		return this.renderValue();
-	}
-
-	/**
-	 * Enable rendering via renderValue, then render and write result into HTML.
-	 */
-	enableRender() {
-		this.render = true;
-		this.writeValue(this.renderValue());
-	}
+	//get renderedValue() {
+	//	return this.renderValue();
+	//}
 
 	/**
 	 * Create the right FeatureView for the situation
@@ -67,15 +61,16 @@ class FeatureView extends Framework.View {
 	 * @param {Element} el - a div
 	 * @param {Translations} translations
 	 * @param {Logs} logs
+	 * @param {Item} item
 	 * @param {string} name - internal feature name
 	 * @param {string} value - internal feature value
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
-	static factory(el, translations, logs, name, value) {
+	static factory(el, translations, logs, item, name, value) {
 		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz')) {
-			return new FeatureViewUnit(el, translations, logs, name, value);
+			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else {
-			return new FeatureView(el, translations, logs, name, value);
+			return new FeatureView(el, translations, logs, item, name, value);
 		}
 	}
 
@@ -192,8 +187,8 @@ class FeatureView extends Framework.View {
 FeatureView.idCounter = 0;
 
 class FeatureViewUnit extends FeatureView {
-	constructor(el, translations, logs, name, value) {
-		super(el, translations, logs, name, value);
+	constructor(el, translations, logs, item, name, value) {
+		super(el, translations, logs, item, name, value);
 	}
 
 	/**
@@ -202,7 +197,7 @@ class FeatureViewUnit extends FeatureView {
 	 * @return {string|null}
 	 * @protected
 	 */
-	static parseType() {
+	parseType() {
 		if(this.name.endsWith('-byte')) {
 			return 'byte';
 		} else if(this.name.endsWith('-hertz')) {
@@ -252,7 +247,7 @@ class FeatureViewUnit extends FeatureView {
 			return '';
 		}
 		if(typeof this.type === 'undefined') {
-			this.type = FeatureViewUnit.parseType();
+			this.type = this.parseType();
 		}
 		let value = parseInt(this.value);
 		let prefix = 0;
@@ -296,10 +291,11 @@ class FeatureViewUnit extends FeatureView {
 		return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + unit;
 	}
 
+	// noinspection JSUnusedGlobalSymbols: overrides another function only called in an event handler, so PHPStorm doesn't understand there may be the remote possibility of this function being actually called
 	featureInput() {
 		let value = this.readValue();
 		try {
-			this.value = FeatureViewUnit.parseUnit(value);
+			this.value = this.parseUnit(value);
 		} catch(e) {
 			this.logs.add(e.message, 'E');
 		}
@@ -312,7 +308,8 @@ class FeatureViewUnit extends FeatureView {
 	 * @throws Error if input is in wrong format
 	 * @private
 	 */
-	static parseUnit(input) {
+	parseUnit(input) {
+		/** @type {string} */
 		let string = input.trim();
 		if(string === "") {
 			return null;
@@ -323,15 +320,18 @@ class FeatureViewUnit extends FeatureView {
 				break;
 			}
 		}
-		if(i = 0) {
+		if(i === 0) {
 			throw new Error('"' + string + '" should start with a positive number');
 		}
 		let number = parseFloat(string.substr(0, 0 + i));
+		if(isNaN(number)) {
+			throw new Error('Cannot parse ' + string.substr(0, 0 + i) + ' as a number')
+		}
 		let exp = 0;
 		for(; i < string.length; i++) {
 			let lower = string[i].toLowerCase();
 			if(lower >= 'a' && lower <= 'z') {
-				exp = FeatureViewUnit.parsePrefix(char);
+				exp = FeatureViewUnit.parsePrefix(lower);
 				break;
 			}
 		}
