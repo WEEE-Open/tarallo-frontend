@@ -70,3 +70,16 @@ Object.defineProperty(Translations.it, 'features', {
 	enumerable: true,
 	configurable: false
 });
+
+Object.defineProperty(Translations.it, 'featuresList', {
+	value: {
+		'atx': 'ATX',
+		'miniatx': 'MiniATX',
+		'microatx': 'MicroATX',
+		'miniitx': 'MiniITX',
+		'proprietary': 'Proprietario'
+	},
+	writable: false,
+	enumerable: true,
+	configurable: false
+});

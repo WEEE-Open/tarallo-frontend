@@ -72,6 +72,8 @@ class FeatureView extends Framework.View {
 	static factory(el, translations, logs, item, name, value) {
 		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
+		} else if(Array.isArray(FeatureViewList.lists[name])) {
+			return new FeatureViewList(el, translations, logs, item, name, value);
 		} else {
 			return new FeatureView(el, translations, logs, item, name, value);
 		}
@@ -369,8 +371,53 @@ class FeatureViewUnit extends FeatureView {
 	}
 }
 
-class FeatureViewList {
-	// TODO: implement
+class FeatureViewList extends FeatureView {
+	// noinspection JSUnusedGlobalSymbols it's used and overrides another method
+	createInput() {
+		if(!Array.isArray(FeatureViewList.lists[this.name])) {
+			throw new Error('No elements for ' + this.name + ' in FeatureViewList')
+		}
+		let input = document.createElement("select");
+		input.classList.add("value");
+		input.classList.add("freezable");
+		input.id = this.id;
+		let translations = [];
+		let translationMap = new Map(); // TODO: memoize
+		for(let value of FeatureViewList.lists[this.name]) {
+			let translated = this.translations.get(value, Translations.featuresList);
+			translations.push(translated);
+			translationMap.set(translated, value);
+		}
+		// TODO: does this work?
+		for(let translated of translations.sort()) {
+			let option = document.createElement("option");
+			option.value = translationMap.get(translated);
+			option.textContent = translated;
+			input.appendChild(option);
+		}
+
+		input.addEventListener('blur', this.featureInput.bind(this)); // TODO: another event?
+		return input;
+	}
+
+	featureInput() {
+		//TODO: reimplement
+		let value = this.readValue();
+		if(value === "") {
+			this.value = null;
+		} else {
+			this.value = value;
+		}
+	}
+
+	writeValue(value) {
+		//TODO: reimplement
+	}
+
+	readValue() {
+		//TODO: reimplement?
+		return this.input.value;
+	}
 }
 
 Object.defineProperty(FeatureViewList, 'lists', {
