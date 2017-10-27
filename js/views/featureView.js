@@ -27,6 +27,7 @@ class FeatureView extends Framework.View {
 		this.el.appendChild(this.input);
 	}
 
+	// TODO: ripristinare il rollback
 	set value(to) {
 		/**
 		 * Internal value, always updated in real-time (well, sort of)
@@ -47,7 +48,6 @@ class FeatureView extends Framework.View {
 			return;
 		}
 		this.item.setFeature(this.name, to);
-		console.log('Set internal: ' + to);
 	}
 
 	get value() {
