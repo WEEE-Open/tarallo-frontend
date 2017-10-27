@@ -443,7 +443,7 @@ class FeatureViewList extends FeatureView {
 	}
 
 	writeValue(value) {
-
+		this.input.querySelector('option[value="' + value + '"]').selected = true;
 	}
 
 	readValue() {
