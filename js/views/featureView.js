@@ -15,11 +15,11 @@ class FeatureView extends Framework.View {
 		this.logs = logs;
 		this.translations = translations;
 		this.item = item;
+		this.name = name;
 
 		this.label = this.createLabel();
 		this.input = this.createInput();
 
-		this.name = name;
 		this.value = value;
 		this.setLabelTranslated();
 
@@ -72,7 +72,7 @@ class FeatureView extends Framework.View {
 	static factory(el, translations, logs, item, name, value) {
 		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
-		} else if(Array.isArray(FeatureViewList.lists[name])) {
+		} else if(FeatureViewList.has(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
 		} else {
 			return new FeatureView(el, translations, logs, item, name, value);
@@ -372,11 +372,15 @@ class FeatureViewUnit extends FeatureView {
 }
 
 class FeatureViewList extends FeatureView {
+	constructor(el, translations, logs, item, name, value) {
+		if(!FeatureViewList.has(name)) {
+			throw new Error('No elements for ' + name + ' in FeatureViewList')
+		}
+		super(el, translations, logs, item, name, value);
+	}
+
 	// noinspection JSUnusedGlobalSymbols it's used and overrides another method
 	createInput() {
-		if(!Array.isArray(FeatureViewList.lists[this.name])) {
-			throw new Error('No elements for ' + this.name + ' in FeatureViewList')
-		}
 		let input = document.createElement("select");
 		input.classList.add("value");
 		input.classList.add("freezable");
@@ -384,7 +388,7 @@ class FeatureViewList extends FeatureView {
 		let translations = [];
 		let translationMap = new Map(); // TODO: memoize
 		for(let value of FeatureViewList.lists[this.name]) {
-			let translated = this.translations.get(value, Translations.featuresList);
+			let translated = this.translations.get(value, this.translations.featuresList);
 			translations.push(translated);
 			translationMap.set(translated, value);
 		}
@@ -400,6 +404,10 @@ class FeatureViewList extends FeatureView {
 		return input;
 	}
 
+	static has(name) {
+		return typeof FeatureViewList.lists[name] === 'object';
+	}
+
 	featureInput() {
 		//TODO: reimplement
 		let value = this.readValue();
@@ -411,7 +419,7 @@ class FeatureViewList extends FeatureView {
 	}
 
 	writeValue(value) {
-		//TODO: reimplement
+
 	}
 
 	readValue() {
