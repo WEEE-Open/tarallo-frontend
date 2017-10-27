@@ -424,7 +424,7 @@ class FeatureViewList extends FeatureView {
 			input.appendChild(option);
 		}
 
-		input.addEventListener('blur', this.featureInput.bind(this)); // TODO: another event?
+		input.addEventListener('change', this.featureInput.bind(this)); // TODO: another event?
 		return input;
 	}
 
@@ -432,23 +432,12 @@ class FeatureViewList extends FeatureView {
 		return typeof FeatureViewList.lists[name] === 'object';
 	}
 
-	featureInput() {
-		//TODO: reimplement
-		let value = this.readValue();
-		if(value === "") {
-			this.value = null;
-		} else {
-			this.value = value;
-		}
+	readValue() {
+		return this.input.options[this.input.selectedIndex].value;
 	}
 
 	writeValue(value) {
 		this.input.querySelector('option[value="' + value + '"]').selected = true;
-	}
-
-	readValue() {
-		//TODO: reimplement?
-		return this.input.value;
 	}
 }
 
