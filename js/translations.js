@@ -4,6 +4,7 @@ class Translations extends Framework.Object {
 	 */
 	constructor(code) {
 		super();
+		this.code = code;
 		this._setLanguage(code);
 	}
 

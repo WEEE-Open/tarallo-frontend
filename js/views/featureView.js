@@ -379,24 +379,48 @@ class FeatureViewList extends FeatureView {
 		super(el, translations, logs, item, name, value);
 	}
 
+	getOptions() {
+		let namesToMap;
+		if(!FeatureViewList.sortedLists.has(this.translations.code)) {
+			namesToMap = new Map();
+			FeatureViewList.sortedLists.set(this.translations.code, namesToMap);
+		} else {
+			namesToMap = FeatureViewList.sortedLists.get(this.translations.code);
+		}
+
+		let sortedMap;
+		if(namesToMap.has(this.name)) {
+			return namesToMap.get(this.name);
+		} else {
+			sortedMap = new Map();
+			namesToMap.set(this.name, sortedMap);
+		}
+
+		let translations = [];
+		let translationMap = new Map();
+
+		for(let value of FeatureViewList.lists[this.name]) {
+			let translated = this.translations.get(value, this.translations.featuresList);
+			translations.push(translated);
+			translationMap.set(translated, value);
+		}
+		for(let translated of translations.sort()) {
+			sortedMap.set(translationMap.get(translated), translated);
+		}
+		return sortedMap;
+	}
+
 	// noinspection JSUnusedGlobalSymbols it's used and overrides another method
 	createInput() {
 		let input = document.createElement("select");
 		input.classList.add("value");
 		input.classList.add("freezable");
 		input.id = this.id;
-		let translations = [];
-		let translationMap = new Map(); // TODO: memoize
-		for(let value of FeatureViewList.lists[this.name]) {
-			let translated = this.translations.get(value, this.translations.featuresList);
-			translations.push(translated);
-			translationMap.set(translated, value);
-		}
-		// TODO: does this work?
-		for(let translated of translations.sort()) {
+
+		for(let [value, translation] of this.getOptions()) {
 			let option = document.createElement("option");
-			option.value = translationMap.get(translated);
-			option.textContent = translated;
+			option.value = value;
+			option.textContent = translation;
 			input.appendChild(option);
 		}
 
@@ -436,4 +460,12 @@ Object.defineProperty(FeatureViewList, 'lists', {
 		'motherboard-form-factor': new Set(['atx', 'miniatx', 'microatx', 'miniitx', 'proprietary']),
 		'type': new Set(['location', 'case', 'cpu', 'ram', 'motherboard', 'psu', 'hdd', 'odd', 'fdd', 'graphics-card', 'ethernet-card', 'modem-card', 'sound-card', 'other-card', 'card-adapter', 'keyboard', 'mouse', 'monitor', 'printer', 'scanner', 'switch', 'hub', 'modem-router', 'access-point', 'adapter', 'other']),
 	}
+});
+
+
+Object.defineProperty(FeatureViewList, 'sortedLists', {
+	enumerable: true,
+	configurable: false,
+	writable: false,
+	value: new Map()
 });
