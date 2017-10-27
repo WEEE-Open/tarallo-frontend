@@ -16,12 +16,3 @@ Se si aggiungono nuovi file vanno indicati anche in Gruntfile.js,
 in quanto vanno inclusi in ordine.  
 Il sistema è quantomai bizantino, ma era più veloce fare questo che
 configurare Webpack o Browserify.
-
-## Funzionalità attuali e future
-- [X] Login/logout
-- [X] Visualizzazione oggetti
-- [X] Ricerca oggetti per codice
-- [ ] Ricerca oggetti per caratteristiche
-- [ ] Inserimento oggetti
-- [ ] Gestione oggetti di default (manca in parte lato server)
-- [ ] Gestione inventario semplificato per i cavi (manca lato server)
