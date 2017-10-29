@@ -58,7 +58,8 @@ class ItemView extends Framework.View {
 		let addFieldButton = this.itemEl.querySelector('.addfield');
 		let addItemButton = this.itemEl.querySelector('.additem');
 
-		this.showSaveButton = !(this.parentItemView !== null && !this.parentItemView.item.exists && !this.item.exists);
+		// This only works because new items can only be added when parent item is in "edit mode"
+		this.showSaveButton = this.parentItemView === null || (this.item.exists && this.parentItemView.item.exists);
 
 		this.toggleButtons(false);
 
@@ -220,7 +221,7 @@ class ItemView extends Framework.View {
 				return;
 			}
 			if(saved) {
-				this.freeze();
+				this.freezeUnsaveableRecursive();
 			}
 		} else {
 			/**
@@ -313,8 +314,23 @@ class ItemView extends Framework.View {
 	 */
 	freezeRecursive() {
 		this.freeze();
-		for(let i = 0; i < this.subViews.length; i++) {
-			this.subViews[i].freezeRecursive();
+		for(let subview of this.subViews) {
+			subview.freezeRecursive();
+		}
+	}
+
+	/**
+	 * Recursively freeze views that don't have a "save" button (e.g. new items).
+	 * Stops when encountering a view with a save button, so it doesn't explore the entire view tree.
+	 *
+	 * @see this.freeze
+	 */
+	freezeUnsaveableRecursive() {
+		this.freeze();
+		for(let subview of this.subViews) {
+			if(!subview.showSaveButton) {
+				subview.freezeUnsaveableRecursive();
+			}
 		}
 	}
 

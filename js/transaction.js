@@ -41,9 +41,7 @@ class Transaction extends Framework.Object {
 		if(this.inProgress) {
 			throw new Error("Cannot modify a Transaction while it's in progress");
 		}
-		if(!map.has(key)) {
-			map.set(key, value);
-		}
+		map.set(key, value);
 	}
 
 	/**
@@ -156,6 +154,9 @@ class Transaction extends Framework.Object {
 		}
 	}
 
+	/**
+	 * Send stuff to the server.
+	 */
 	commit() {
 		if(this.inProgress) {
 			throw new Error("Transaction already in progress");
@@ -179,6 +180,9 @@ class Transaction extends Framework.Object {
 		req.send(JSON.stringify(this));
 	}
 
+	/**
+	 * Clear all, close all, clc
+	 */
 	clear() {
 		this.create.clear();
 		this.update.clear();
@@ -201,11 +205,28 @@ class Transaction extends Framework.Object {
 			// I wonder if this is O(n) or it's optimized somehow...
 			simplified.create = Array.from(this.create.values());
 		}
-		if(this.update.size > 0) {
-			simplified.update = Array.from(this.update.values());
-		}
 		if(this.remove.size > 0) {
 			simplified.delete = Array.from(this.remove.values());
+		}
+		if(this.update.size > 0) {
+			simplified.update = [];
+			let updates = Array.from(this.update.values());
+			for(let updated of updates) {
+				for(let [code, item] of updated.insideDiff) {
+					if(item === null) {
+						typeof simplified.delete === 'undefined' ? simplified.delete = [code] : simplified.delete.push(code);
+					} else {
+						// TODO: set parent
+						typeof simplified.create === 'undefined' ? simplified.create = [item] : simplified.create.push(item);
+					}
+				}
+				if(!updated.emptyOutside()) {
+					simplified.update.push(updated);
+				}
+			}
+			if(simplified.update.size <= 0) {
+				delete simplified.update;
+			}
 		}
 		if(this.notes !== null) {
 			simplified.notes = this.notes;

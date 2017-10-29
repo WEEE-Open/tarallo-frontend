@@ -112,6 +112,9 @@ class ItemUpdate extends Item {
 	 * @see Item.addInside
 	 */
 	addInside(other) {
+		if(other instanceof ItemUpdate) {
+			throw new Error("Cannot add ItemUpdate inside ItemUpdate");
+		}
 		if(this.originalItem.inside.has(other)) {
 			this.insideDiff.delete(other);
 		} else {
@@ -124,6 +127,9 @@ class ItemUpdate extends Item {
 	 * @see Item.removeInside
 	 */
 	removeInside(other) {
+		if(other instanceof ItemUpdate) {
+			throw new Error("Cannot add/remove ItemUpdate inside ItemUpdate");
+		}
 		if(this.originalItem.inside.has(other)) {
 			this.insideDiff.set(other, null);
 		} else {
@@ -165,6 +171,19 @@ class ItemUpdate extends Item {
 		return !this.parentChanged;
 	}
 
+	/**
+	 * Same as empty(), but only considers outer item (i.e. ignores any inside items)
+	 *
+	 * @see this.empty
+	 * @return {boolean}
+	 */
+	emptyOutside() {
+		if(this.featuresDiff.size > 0) {
+			return false;
+		}
+		return !this.parentChanged;
+	}
+
 	//noinspection JSUnusedGlobalSymbols
 	/**
 	 * @see Item.toJSON
@@ -184,9 +203,10 @@ class ItemUpdate extends Item {
 				simplified.features[name] = value;
 			}
 		}
-		if(this.insideDiff.size > 0) {
-			simplified.content = Array.from(this.inside.values());
-		}
+		// Server doesn't allow this, so it's now handled inside Transaction
+		// if(this.insideDiff.size > 0) {
+		// 	simplified.content = Array.from(this.inside.values());
+		// }
 
 		return simplified;
 	}
