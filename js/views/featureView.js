@@ -37,14 +37,13 @@ class FeatureView extends Framework.View {
 		this.internalValue = to;
 		this.writeValue(this.renderValue());
 		let old = this.item.features.get(this.name);
-		if(typeof old === 'undefined') {
-			return;
-		}
-		if(old === null && to === null) {
-			return;
-		}
-		if((old !== null && to !== null) && to.toString() === old.toString()) {
-			return;
+		if(typeof old !== 'undefined') {
+			if(old === null && to === null) {
+				return;
+			}
+			if((old !== null && to !== null) && to.toString() === old.toString()) {
+				return;
+			}
 		}
 		this.item.setFeature(this.name, to);
 	}
@@ -141,10 +140,10 @@ class FeatureView extends Framework.View {
 	}
 
 	renderValue() {
-		if(this.internalValue === null) {
+		if(this.value === null) {
 			return '';
 		} else {
-			return this.internalValue;
+			return this.value;
 		}
 	}
 
@@ -417,6 +416,9 @@ class FeatureViewList extends FeatureView {
 		input.classList.add("freezable");
 		input.id = this.id;
 
+		let first = document.createElement("option");
+		first.value = "";
+		input.appendChild(first);
 		for(let [value, translation] of this.getOptions()) {
 			let option = document.createElement("option");
 			option.value = value;
@@ -424,7 +426,7 @@ class FeatureViewList extends FeatureView {
 			input.appendChild(option);
 		}
 
-		input.addEventListener('change', this.featureInput.bind(this)); // TODO: another event?
+		input.addEventListener('change', this.featureInput.bind(this));
 		return input;
 	}
 
@@ -433,11 +435,24 @@ class FeatureViewList extends FeatureView {
 	}
 
 	readValue() {
-		return this.input.options[this.input.selectedIndex].value;
+		let read = this.input.options[this.input.selectedIndex].value;
+		if(read === "") {
+			return null;
+		} else {
+			return read;
+		}
+	}
+
+	renderValue() {
+		return this.value;
 	}
 
 	writeValue(value) {
-		this.input.querySelector('option[value="' + value + '"]').selected = true;
+		if(value === null) {
+			this.input.firstElementChild.selected = true;
+		} else {
+			this.input.querySelector('option[value="' + value + '"]').selected = true;
+		}
 	}
 }
 

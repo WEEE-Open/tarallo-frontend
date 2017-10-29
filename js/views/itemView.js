@@ -140,7 +140,7 @@ class ItemView extends Framework.View {
 		event.preventDefault();
 		let select = event.target.parentElement.querySelector("select");
 		if(select.value !== '') {
-			this.appendFeatureElement(select.value, '');
+			this.appendFeatureElement(select.value, null);
 		}
 	}
 
@@ -428,7 +428,7 @@ class ItemView extends Framework.View {
 	 * Also marks default features as duplicates, if needed.
 	 *
 	 * @param {string} name - feature name (internal, untranslated version)
-	 * @param {string} value - feature value
+	 * @param {string|null} value - feature value
 	 * @private
 	 */
 	appendFeatureElement(name, value) {
