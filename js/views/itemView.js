@@ -347,7 +347,7 @@ class ItemView extends Framework.View {
 			if(elements[i].classList.contains("inside")) {
 				continue;
 			}
-			if((elements[i].tagName === 'INPUT' || elements[i].tagName === 'BUTTON') && elements[i].classList.contains("freezable")) {
+			if((elements[i].tagName === 'INPUT' || elements[i].tagName === 'SELECT' || elements[i].tagName === 'BUTTON') && elements[i].classList.contains("freezable")) {
 				elements[i].disabled = disabled;
 				continue;
 			}

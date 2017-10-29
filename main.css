@@ -62,8 +62,14 @@ input, button, select {
 	transition: none;
 }
 
-.item input:disabled, .breadbox input:disabled {
+.item input:disabled, .item select:disabled, .breadbox input:disabled {
 	border-color: rgba(0,0,0,0);
+	-moz-appearance: none;
+	-webkit-appearance:none;
+}
+
+.item select:disabled::-ms-expand {
+	display: none;
 }
 
 button:hover, input[type="submit"]:hover {
