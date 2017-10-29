@@ -428,8 +428,8 @@ class Item extends Framework.Object {
 				if(typeof item.content[i].code === 'string') {
 					newInsideCodes[item.content[i].code] = true;
 					let previousItem = currentlyInside.get(item.content[i].code);
-					if(previousItem === undefined) {
-						// new item (get returns undefined when not found
+					if(typeof previousItem === 'undefined') {
+						// new item (get returns undefined when not found)
 						previousItem = new Item();
 						try {
 							previousItem.setCode(item.content[i].code);
