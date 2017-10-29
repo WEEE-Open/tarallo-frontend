@@ -27,7 +27,6 @@ class FeatureView extends Framework.View {
 		this.el.appendChild(this.input);
 	}
 
-	// TODO: ripristinare il rollback
 	set value(to) {
 		/**
 		 * Internal value, always updated in real-time (well, sort of)
@@ -299,6 +298,7 @@ class FeatureViewUnit extends FeatureView {
 			this.value = this.parseUnit(value);
 		} catch(e) {
 			this.logs.add(e.message, 'E');
+			this.value = this.value; // render old value
 		}
 	}
 
