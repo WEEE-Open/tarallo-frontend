@@ -178,6 +178,9 @@ class Item extends Framework.Object {
 	 * @return {Item} this
 	 */
 	setExisting() {
+		if(this.code === null) {
+			throw new Error("Existing items must have a code");
+		}
 		this.exists = true;
 		return this;
 	}
