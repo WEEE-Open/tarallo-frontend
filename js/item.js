@@ -155,6 +155,12 @@ class Item extends Framework.Object {
 	 * @param {Item} other item to be place inside
 	 */
 	addInside(other) {
+		if(this.location !== null && this.exists) {
+			// if this doesn't exits, code isn't definitive yet
+			let newLocation = this.location.slice(0);
+			newLocation.push(this.code);
+			other.setLocation(newLocation);
+		}
 		this.inside.add(other);
 	}
 
@@ -168,6 +174,7 @@ class Item extends Framework.Object {
 		let found = this.inside.has(other);
 		if(found) {
 			this.inside.delete(other);
+			other.setLocation(null);
 		}
 		return found;
 	}
@@ -406,6 +413,7 @@ class Item extends Framework.Object {
 			return false;
 		}
 
+		// TODO: so location should be always available even if not supplied (but implied) by the server or not?
 		if(Array.isArray(item.location)) {
 			if(item.location.length === 0) {
 				this.setLocation([]);

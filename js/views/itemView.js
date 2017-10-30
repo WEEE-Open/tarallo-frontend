@@ -155,15 +155,8 @@ class ItemView extends Framework.View {
 		event.stopPropagation();
 		event.preventDefault();
 		let newItem = new Item();
-		if(this.item.location !== null && this.item.exists) {
-			let newLocation = this.item.location.slice(0);
-			newLocation.push(this.item.code);
-			newItem.setLocation(newLocation);
-			console.log(this.item.location);
-			console.log(newLocation);
-		}
-		this.item.addInside(newItem);
 		this.addInside(newItem);
+		this.item.addInside(newItem);
 	}
 
 	/**
