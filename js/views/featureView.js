@@ -455,6 +455,24 @@ class FeatureViewList extends FeatureView {
 		}
 	}
 }
+// An alternative:
+// class FeatureViewType extends FeatureViewList {
+// 	constructor(el, translations, logs, item, name, value) {
+// 		if(name !== 'type') {
+// 			throw new Error("Cannot create FeatureViewType for " + name);
+// 		}
+// 		super(el, translations, logs, item, name, value);
+// 	}
+//
+// 	setCallback(f) {
+// 		if(typeof f !== "function") {
+// 			throw new Error("");
+// 		} else if(f.length !== 2) {
+// 			throw new Error("callback function must be bound and have 2 parameters")
+// 		}
+// 		this.callback = f;
+// 	}
+// }
 
 Object.defineProperty(FeatureViewList, 'lists', {
 	enumerable: true,

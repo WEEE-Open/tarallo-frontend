@@ -691,6 +691,7 @@ class ItemView extends Framework.View {
 	 * Populate the dropdown. Useful for not filling read-only pages with a million option tags.
 	 *
 	 * @param {boolean} force repopulate if already populated or not
+	 * @todo use memoization somewhere?
 	 * @private
 	 */
 	static populateFeatureDropdown(force = false) {
@@ -721,6 +722,19 @@ class ItemView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Add features and items inside a new item
+	 * once it gets its type set.
+	 *
+	 * This should work even for existing items and ItemUpdate
+	 * and even if they already contain any feature or item, but
+	 * those cases don't trigger an event, so this method has to
+	 * be called manually.
+	 */
+	setType(type) {
+		// TODO: implement
+	}
+
 	trigger(that, event) {
 		if(that === this.translations) {
 			if(event === 'change') {
@@ -742,7 +756,10 @@ class ItemView extends Framework.View {
 					}
 			}
 		} else if(that === this.item) {
-			if(event === 'change') {
+			if(event === 'new-type') {
+				this.setType(this.item.features.get("type"));
+				return;
+			} else if(event === 'change') {
 				// TODO: do stuff
 				return;
 			}

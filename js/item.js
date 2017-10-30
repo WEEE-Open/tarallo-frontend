@@ -103,21 +103,30 @@ class Item extends Framework.Object {
 		if(!Item.isValidFeatureName(name)) {
 			throw new Error(name + ' is not a feature name');
 		}
+		let result;
+		let trigger = false;
+		if(name === 'type') {
+			trigger = this.empty();
+		}
 		if(value === null) {
 			if(this.features.has(name)) {
 				this.features.delete(name);
-				return true;
+				result = true;
 			} else {
-				return false;
+				result = false;
 			}
 		} else {
 			if(this.features.get(name) === value) {
-				return false;
+				result = false;
 			} else {
 				this.features.set(name, value);
-				return true;
+				result = true;
 			}
 		}
+		if(trigger) {
+			this.trigger("new-type");
+		}
+		return result;
 	}
 
 	/**
