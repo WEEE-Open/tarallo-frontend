@@ -166,6 +166,7 @@ class ItemView extends Framework.View {
 	 * Create a container, attach a view and add it to the current view, for the supplied item.
 	 *
 	 * @param {Item} item - an item
+	 * @return {ItemView} - view that has just been created
 	 * @protected
 	 */
 	addInside(item) {
@@ -174,6 +175,7 @@ class ItemView extends Framework.View {
 		let view = new ItemView(container, item, this.translations, this.logs, this.transaction, this);
 		this.subViews.add(view);
 		this.insideElement.appendChild(container);
+		return view;
 	}
 
 	/**
@@ -691,7 +693,7 @@ class ItemView extends Framework.View {
 	 * Populate the dropdown. Useful for not filling read-only pages with a million option tags.
 	 *
 	 * @param {boolean} force repopulate if already populated or not
-	 * @todo use memoization somewhere?
+	 * @todo use memoization somewhere? Get list from somewhere else that Translations directly?
 	 * @private
 	 */
 	static populateFeatureDropdown(force = false) {
@@ -730,9 +732,50 @@ class ItemView extends Framework.View {
 	 * and even if they already contain any feature or item, but
 	 * those cases don't trigger an event, so this method has to
 	 * be called manually.
+	 *
+	 * @param {string} type
 	 */
 	setType(type) {
-		// TODO: implement
+		switch(type) {
+			case 'case':
+				for(let piece of ['cpu', 'motherboard', 'hdd', 'odd', 'psu', 'graphics-card', 'ram']) {
+					let hardware = new Item();
+					let hardwareView = this.item.addInside(hardware);
+					this.addInside(hardware);
+					// adding features inside that will be handled by events
+					hardware.setFeature('type', piece); // TODO: is this shown correctly or not?
+					hardwareView.appendFeatureElement('type', piece);
+				}
+				this.appendFeatureElement('cib', null);
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('name', null);
+				break;
+			case 'cpu':
+				break;
+			case 'ram':
+				break;
+			case 'motherboard':
+				break;
+			case 'psu':
+				break;
+			case 'hdd':
+				break;
+			case 'odd':
+				break;
+			case 'graphics-card':
+				break;
+			case 'ethernet-card':
+			case 'switch':
+			case 'hub':
+			case 'modem-router':
+				break;
+			case 'keyboard':
+			case 'mouse':
+				break;
+			case 'monitor':
+			default:
+				break;
+		}
 	}
 
 	trigger(that, event) {
