@@ -216,8 +216,11 @@ class Transaction extends Framework.Object {
 					if(item === null) {
 						typeof simplified.delete === 'undefined' ? simplified.delete = [code] : simplified.delete.push(code);
 					} else {
-						// TODO: set parent
 						typeof simplified.create === 'undefined' ? simplified.create = [item] : simplified.create.push(item);
+						if(item.location === null) {
+							throw new Error("Cannot extract new item from ItemUpdate: missing location");
+						}
+						item.setParent(item.location[item.location.length - 1]);
 					}
 				}
 				if(!updated.emptyOutside()) {
