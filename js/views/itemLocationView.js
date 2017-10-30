@@ -33,7 +33,7 @@ class ItemLocationView extends ItemView {
 		this.parentTextbox.addEventListener('focusout', this.parentInput.bind(this));
 
 		this.createBreadcrumbs();
-		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location !== null && this.item.location.length > 0, this.frozen, this.item.getParent() !== null);
 		this.moveElements();
 		if(this.item instanceof ItemUpdate) {
 			this.toggleBreadcrumbsDuplicate(this.item.parentChanged);
@@ -207,13 +207,13 @@ class ItemLocationView extends ItemView {
 	freeze() {
 		super.freeze();
 		this.toggleBreadcrumbsNavigation(true); // yes this is reversed, it's intended behaviour
-		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, true, this.item.getParent() !== null);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location !== null && this.item.location.length > 0, true, this.item.getParent() !== null);
 	}
 
 	unfreeze() {
 		super.unfreeze();
 		this.toggleBreadcrumbsNavigation(false); // yes this is reversed, it's intended behaviour
-		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location.length > 0, false, this.item.getParent() !== null);
+		this.toggleParentTextboxVisibilityOnCondition(this.item.exists, this.item.location !== null && this.item.location.length > 0, false, this.item.getParent() !== null);
 	}
 
 	trigger(that, event) {

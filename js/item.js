@@ -50,7 +50,12 @@ class Item extends Framework.Object {
 		 * @type {boolean}
 		 */
 		this.default = false;
-		/** @type {Array} location */
+		/**
+		 * Current item location.
+		 *
+		 *
+		 * @type {Array}
+		 */
 		this.location = [];
 	}
 
@@ -354,12 +359,6 @@ class Item extends Framework.Object {
 		if(this.code !== null) {
 			return false;
 		}
-		if(this.parent !== null) {
-			return false;
-		}
-		if(this.location.length > 0) {
-			return false;
-		}
 		if(this.defaultCode !== null) {
 			return false;
 		}
@@ -398,10 +397,43 @@ class Item extends Framework.Object {
 			return false;
 		}
 
-		//noinspection JSUnresolvedVariable
+		//noinspection JSUnresolvedVariable - item is parsed JSON, not this item
 		if(!(this._parseItemFeatures(item.features, this.features, this.setFeature.bind(this), 'features-changed') &&
 			this._parseItemFeatures(item.features_default, this.defaultFeatures, this.setDefaultFeature.bind(this), 'default-features-changed'))) {
 			return false;
+		}
+
+		if(Array.isArray(item.location)) {
+			if(item.location.length === 0) {
+				this.setLocation([]);
+			} else {
+				let changed = false;
+				let oldLocation = this.location;
+				this.setLocation(item.location);
+				if(oldLocation !== null && oldLocation.length === this.location.length) {
+					for(let i = 0; i < oldLocation.length; i++) {
+						if(oldLocation[i] !== this.location[i]) {
+							changed = true;
+							break;
+						}
+					}
+				} else {
+					changed = true;
+				}
+				if(changed) {
+					this.trigger('location-changed');
+				}
+			}
+		} else if(typeof item.location === 'object' && Object.keys(item.location).length === 0) {
+			this.setLocation([]);
+		} else if(typeof item.location !== 'undefined') {
+			this.lastErrorCode = 'malformed-response';
+			this.lastErrorMessage = 'Expected array or nothing for location, ' + typeof item.location + ' given';
+			return false;
+		} else if(this.location === null) {
+			// make location always available
+			// if this is an inner item, item.location won't be present and this.location will have been already set a few lines down from there, just before the recursive call
+			this.setLocation([]);
 		}
 
 		if(Array.isArray(item.content)) {
@@ -441,6 +473,9 @@ class Item extends Framework.Object {
 						this.addInside(previousItem);
 						changedInside = true;
 					}
+					let location = this.location.slice(0);
+					location.push(this.code);
+					previousItem.setLocation(location);
 					previousItem.parseItem(item.content[i]);
 				} else {
 					this.lastErrorCode = 'malformed-response';
@@ -461,39 +496,6 @@ class Item extends Framework.Object {
 			if(changedInside) {
 				this.trigger('inside-changed');
 			}
-		}
-
-		if(Array.isArray(item.location)) {
-			if(item.location.length === 0) {
-				this.setLocation([]);
-			} else {
-				let changed = false;
-				let oldLocation = this.location;
-				this.setLocation(item.location);
-				if(oldLocation.length === this.location.length) {
-					for(let i = 0; i < oldLocation.length; i++) {
-						if(oldLocation[i] !== this.location[i]) {
-							changed = true;
-							break;
-						}
-					}
-				} else {
-					changed = true;
-				}
-				if(changed) {
-					this.trigger('location-changed');
-				}
-			}
-		} else if(typeof item.location === 'object' && Object.keys(item.location).length === 0) {
-			this.setLocation([]);
-		} else if(typeof item.location !== 'undefined') {
-			this.lastErrorCode = 'malformed-response';
-			this.lastErrorMessage = 'Expected array or nothing for location, ' + typeof item.location + ' given';
-			return false;
-		} else {
-			// make location always available
-			// it should never be undefined in normal conditions, actually, but still...
-			this.setLocation([]);
 		}
 
 		// last things last: this would prevent setCode if it was elsewhere

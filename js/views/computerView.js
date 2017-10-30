@@ -37,7 +37,7 @@ class ComputerView extends Framework.View {
 	}
 
 	fillTemplate() {
-		// TODO: handle nulls
+		// TODO: handle nulls (features, location, etc...)
 		this.el.querySelector(".header .brand").textContent = this.item.features.get("brand");
 		this.el.querySelector(".header .model").textContent = this.item.features.get("model");
 		let location = this.item.location[this.item.location.length - 1];
