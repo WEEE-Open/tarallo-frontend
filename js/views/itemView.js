@@ -33,7 +33,10 @@ class ItemView extends Framework.View {
 		 * @type {ItemView|null}
 		 */
 		this.parentItemView = parentItemView ? parentItemView : null;
-		this.subViews = [];
+		/**
+		 * @type {Set.<ItemView>}
+		 */
+		this.subViews = new Set();
 		/**
 		 * Map feature names to their FeatureView
 		 * @type {Map.<string,FeatureView>}
@@ -169,8 +172,22 @@ class ItemView extends Framework.View {
 		let container = document.createElement("div");
 
 		let view = new ItemView(container, item, this.translations, this.logs, this.transaction, this);
-		this.subViews.push(view);
+		this.subViews.add(view);
 		this.insideElement.appendChild(container);
+	}
+
+	/**
+	 * Remove and ItemView from inside here (does nothing to item)
+	 *
+	 * @param {ItemView} view
+	 */
+	removeInside(view) {
+		if(this.subViews.has(view)) {
+			this.subViews.delete(view);
+			this.insideElement.removeChild(view.el);
+		} else {
+			throw new Error("Subview not in ItemView");
+		}
 	}
 
 	/**
@@ -251,6 +268,7 @@ class ItemView extends Framework.View {
 		for(let subview of this.subViews) {
 			if(subview.item.empty()) {
 				this.item.removeInside(subview.item);
+				this.removeInside(subview);
 			} else {
 				subview.removeEmptyInside();
 			}
@@ -437,8 +455,8 @@ class ItemView extends Framework.View {
 	 * @see this.unfreeze
 	 */
 	unfreezeRecursive() {
-		for(let i = 0; i < this.subViews.length; i++) {
-			this.subViews[i].unfreezeRecursive();
+		for(let subview of this.subViews) {
+			subview.unfreezeRecursive();
 		}
 		this.unfreeze();
 	}
@@ -730,8 +748,8 @@ class ItemView extends Framework.View {
 			}
 		}
 
-		for(let i = 0; i < this.subViews.length; i++) {
-			this.subViews[i].trigger(that, event);
+		for(let subview of this.subViews) {
+			subview.trigger(that, event);
 		}
 	}
 }
