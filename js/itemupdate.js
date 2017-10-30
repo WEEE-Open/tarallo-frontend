@@ -19,8 +19,12 @@ class ItemUpdate extends Item {
 		this.parentChanged = false;
 		/** @type {Map.<string,string|null>} */
 		this.featuresDiff = new Map();
-		/** @type {Map.<Item,Item|null>} */
-		this.insideDiff = new Map();
+		/**
+		 * New items added inside. Don't try to add an ItemUpdate, it won't work and server would reject transaction.
+		 *
+		 * @type {Set.<Item>}
+		 */
+		this.insideDiff = new Set();
 
 		this.setItem(item);
 	}
@@ -58,18 +62,14 @@ class ItemUpdate extends Item {
 			}
 		}
 
+		// this.inside represents visibile/final state, so fill it with all items
 		for(let item of this.originalItem.inside) {
-			if(!(this.insideDiff.has(item) && this.insideDiff.get(item) !== null)) {
-				this.inside.add(item);
-			}
+			super.addInside(item);
 		}
 
-		for(let [item, value] of this.insideDiff) {
-			if(value !== null) {
-				// insideDiff contains removed (handled right there ↑) or added items,
-				// any modified subitem shouldn't be there in the first place
-				this.inside.add(item);
-			}
+		for(let item of this.insideDiff) {
+			// then add new items
+			super.addInside(item);
 		}
 
 		if(this.featuresDiff.size > 0) {
@@ -115,11 +115,7 @@ class ItemUpdate extends Item {
 		if(other instanceof ItemUpdate) {
 			throw new Error("Cannot add ItemUpdate inside ItemUpdate");
 		}
-		if(this.originalItem.inside.has(other)) {
-			this.insideDiff.delete(other);
-		} else {
-			this.insideDiff.set(other, other);
-		}
+		this.insideDiff.add(other);
 		super.addInside(other);
 	}
 
@@ -130,11 +126,7 @@ class ItemUpdate extends Item {
 		if(other instanceof ItemUpdate) {
 			throw new Error("Cannot add/remove ItemUpdate inside ItemUpdate");
 		}
-		if(this.originalItem.inside.has(other)) {
-			this.insideDiff.set(other, null);
-		} else {
-			this.insideDiff.delete(other);
-		}
+		this.insideDiff.delete(other);
 		super.removeInside(other);
 	}
 
@@ -166,7 +158,11 @@ class ItemUpdate extends Item {
 			return false;
 		}
 		if(this.insideDiff.size > 0) {
-			return false;
+			for(let subitem of this.insideDiff) {
+				if(!subitem.empty()) {
+					return false;
+				}
+			}
 		}
 		return !this.parentChanged;
 	}

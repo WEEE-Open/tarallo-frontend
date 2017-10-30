@@ -212,16 +212,13 @@ class Transaction extends Framework.Object {
 			simplified.update = [];
 			let updates = Array.from(this.update.values());
 			for(let updated of updates) {
-				for(let [code, item] of updated.insideDiff) {
-					if(item === null) {
-						typeof simplified.delete === 'undefined' ? simplified.delete = [code] : simplified.delete.push(code);
-					} else {
-						typeof simplified.create === 'undefined' ? simplified.create = [item] : simplified.create.push(item);
-						if(item.location === null) {
-							throw new Error("Cannot extract new item from ItemUpdate: missing location");
-						}
-						item.setParent(item.location[item.location.length - 1]);
+				for(let item of updated.insideDiff) {
+					typeof simplified.create === 'undefined' ? simplified.create = [item] : simplified.create.push(item);
+					if(item.location === null) {
+						throw new Error("Cannot extract new item from ItemUpdate: missing location in ItemUpdate");
 					}
+					// TODO: make location already available in new items
+					item.setParent(item.location[item.location.length - 1]);
 				}
 				if(!updated.emptyOutside()) {
 					simplified.update.push(updated);

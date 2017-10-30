@@ -180,7 +180,7 @@ class TransactionView extends Framework.View {
 		if(item instanceof Item || item instanceof ItemUpdate) {
 			let insides = item.inside;
 			if(map === this.transaction.update) {
-				insides = item.insideDiff.values();
+				insides = item.insideDiff;
 			}
 			if(insides.size > 0) {
 				for(let subitem of insides) {

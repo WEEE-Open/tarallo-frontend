@@ -199,6 +199,7 @@ class ItemView extends Framework.View {
 	 */
 	saveItemButtonClick() {
 		let saved = false;
+		this.removeEmptyInside();
 		if(this.item.exists) {
 			if(!(this.item instanceof ItemUpdate)) {
 				this.logs.add('Inconsistent internal state (item exists and isn\'t an ItemUpdate), try reloading items from server (go to another page and come back)', 'E');
@@ -237,6 +238,21 @@ class ItemView extends Framework.View {
 			// if the element has been removed from DOM, don't bother freezing...
 			if(saved && !!this.el.parentNode) {
 				this.freezeRecursive();
+			}
+		}
+	}
+
+	/**
+	 * Remove empty subitems
+	 */
+	removeEmptyInside() {
+		// empty() is recursive, this is recursive, worst-case complexity is probably something absurd.
+		// But worst case should never happen in practice so nobody cares.
+		for(let subview of this.subViews) {
+			if(subview.item.empty()) {
+				this.item.removeInside(subview.item);
+			} else {
+				subview.removeEmptyInside();
 			}
 		}
 	}

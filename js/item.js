@@ -349,7 +349,7 @@ class Item extends Framework.Object {
 	 * @param {Array} location - complete location from root
 	 */
 	setLocation(location) {
-		if(Array.isArray(location)) {
+		if(location === null || Array.isArray(location)) {
 			this.location = location;
 		} else {
 			throw new TypeError("Expected location as array, got " + typeof location);
@@ -380,7 +380,6 @@ class Item extends Framework.Object {
 			}
 		}
 		return !this.exists;
-
 	}
 
 	/**
