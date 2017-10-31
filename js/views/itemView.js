@@ -905,7 +905,7 @@ class ItemView extends Framework.View {
 					// some item was un-deleted, so it's not in transaction.remove anymore
 					if(this.item.exists && this.transaction.lastUndo === this.item.code) {
 						this.toggleDeleted(false);
-						return
+						return;
 					}
 			}
 		} else if(that === this.item) {
