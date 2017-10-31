@@ -738,7 +738,7 @@ class ItemView extends Framework.View {
 	setType(type) {
 		switch(type) {
 			case 'case':
-				for(let piece of ['cpu', 'motherboard', 'hdd', 'odd', 'psu', 'graphics-card', 'ram']) {
+				for(let piece of ['motherboard', 'hdd', 'odd', 'psu', 'graphics-card']) {
 					let hardware = new Item();
 					let hardwareView = this.item.addInside(hardware);
 					this.addInside(hardware);
@@ -776,6 +776,13 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('works', null);
 				break;
 			case 'motherboard':
+				for(let piece of ['cpu', 'ram']) {
+					let hardware = new Item();
+					let hardwareView = this.item.addInside(hardware);
+					this.addInside(hardware);
+					hardware.setFeature('type', piece);
+					hardwareView.appendFeatureElement('type', piece);
+				}
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('motherboard-form-factor', null);
