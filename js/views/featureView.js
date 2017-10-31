@@ -68,7 +68,7 @@ class FeatureView extends Framework.View {
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
 	static factory(el, translations, logs, item, name, value) {
-		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz')) {
+		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz') || name.endsWith('-n')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else if(FeatureViewList.has(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
@@ -203,6 +203,8 @@ class FeatureViewUnit extends FeatureView {
 			return 'hertz';
 		} else if(this.name.endsWith('-decibyte')) {
 			return 'decibyte';
+		} else if(this.name.endsWith('-n')) {
+			return 'n';
 		} else {
 			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
 		}
@@ -254,6 +256,9 @@ class FeatureViewUnit extends FeatureView {
 			case null:
 			default:
 				throw new Error('Unknown type ' + this.type + ' in FeatureViewUnit');
+			case 'n':
+				return value.toString();
+				break;
 			case 'byte':
 				while(value >= 1024 && prefix <= 6) {
 					value /= 1024; // this SHOULD be optimized internally to use bit shift
@@ -313,6 +318,13 @@ class FeatureViewUnit extends FeatureView {
 		let string = input.trim();
 		if(string === "") {
 			return null;
+		} else if(this.type === 'n') {
+			let number = parseInt(input);
+			if(isNaN(number) || number < 0) {
+				throw new Error(input + " should be a positive integer or 0")
+			} else {
+				return number;
+			}
 		}
 		let i;
 		for(i = 0; i < string.length; i++) {
