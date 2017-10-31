@@ -749,30 +749,133 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('cib', null);
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('name', null);
+				this.appendFeatureElement('windows-serial-version', null);
+				this.appendFeatureElement('windows-serial-number', null);
+				this.appendFeatureElement('idle-power', null);
+				this.appendFeatureElement('arrival-batch', null);
+				this.appendFeatureElement('owner', null);
+				this.appendFeatureElement('software', null);
+				this.appendFeatureElement('power-idle', null);
+				this.appendFeatureElement('notes', null);
 				break;
 			case 'cpu':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('cpu-socket', null);
+				this.appendFeatureElement('frequency-hz', null);
+				this.appendFeatureElement('core-number', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'ram':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('ram-socket', null);
+				this.appendFeatureElement('frequency-hz', null);
+				this.appendFeatureElement('capacity-byte', null);
+				this.appendFeatureElement('sn', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'motherboard':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('motherboard-form-factor', null);
+				this.appendFeatureElement('ram-socket', null);
+				this.appendFeatureElement('cpu-socket', null);
+				this.appendFeatureElement('psu-socket', null);
+				this.appendFeatureElement('pcie-sockets-n', null);
+				this.appendFeatureElement('agp-sockets-n', null);
+				this.appendFeatureElement('pci-sockets-n', null);
+				this.appendFeatureElement('sata-ports-n', null);
+				this.appendFeatureElement('usb-ports-n', null);
+				this.appendFeatureElement('ps2-ports-n', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'psu':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('psu-sockets', null);
+				this.appendFeatureElement('power-connector', null);
+				this.appendFeatureElement('psu-volts', null);
+				this.appendFeatureElement('psu-amperes', null);
+				this.appendFeatureElement('power-rated', null);
 				break;
 			case 'hdd':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('sata-ports-n', null);
+				this.appendFeatureElement('ide-ports-n', null);
+				this.appendFeatureElement('capacity-decibyte', null);
+				this.appendFeatureElement('hdd-form-factor', null);
+				this.appendFeatureElement('sn', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'odd':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('sata-ports-n', null);
+				this.appendFeatureElement('ide-ports-n', null);
+				this.appendFeatureElement('odd-type', null);
+				this.appendFeatureElement('odd-form-factor', null);
+				this.appendFeatureElement('sn', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'graphics-card':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('vga-ports-n', null);
+				this.appendFeatureElement('dvi-ports-n', null);
+				this.appendFeatureElement('pcie-sockets-n', null);
+				this.appendFeatureElement('agp-sockets-n', null);
+				this.appendFeatureElement('pcie-power', null);
+				this.appendFeatureElement('sn', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'ethernet-card':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('pcie-sockets-n', null);
+				this.appendFeatureElement('pci-sockets-n', null);
+				//this.appendFeatureElement('ethernet-ports-10base2-n', null);
+				//this.appendFeatureElement('ethernet-ports-10m-n', null);
+				this.appendFeatureElement('ethernet-ports-100m-n', null);
+				//this.appendFeatureElement('ethernet-ports-1000m-n', null);
+				this.appendFeatureElement('mac', null);
+				this.appendFeatureElement('works', null);
+				break;
 			case 'switch':
 			case 'hub':
 			case 'modem-router':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('mac', null);
+				this.appendFeatureElement('ethernet-ports-100m-n', null);
+				this.appendFeatureElement('power-connector', null);
+				this.appendFeatureElement('psu-volts', null);
+				this.appendFeatureElement('psu-amperes', null);
+				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('notes', null);
 				break;
 			case 'keyboard':
 			case 'mouse':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('usb-ports-n', null);
+				this.appendFeatureElement('ps2-ports-n', null);
+				this.appendFeatureElement('works', null);
 				break;
 			case 'monitor':
+				this.appendFeatureElement('brand', null);
+				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('diagonal-inch', null);
+				this.appendFeatureElement('vga-ports-n', null);
+				this.appendFeatureElement('dvi-ports-n', null);
+				this.appendFeatureElement('power-connector', null);
+				this.appendFeatureElement('psu-volts', null);
+				this.appendFeatureElement('psu-amperes', null);
+				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('notes', null);
+				break;
 			default:
 				break;
 		}
