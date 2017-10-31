@@ -755,7 +755,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('arrival-batch', null);
 				this.appendFeatureElement('owner', null);
 				this.appendFeatureElement('software', null);
-				this.appendFeatureElement('power-idle', null);
+				this.appendFeatureElement('power-idle-watt', null);
 				this.appendFeatureElement('notes', null);
 				break;
 			case 'cpu':
@@ -796,9 +796,9 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('works', null);
 				this.appendFeatureElement('psu-sockets', null);
 				this.appendFeatureElement('power-connector', null);
-				this.appendFeatureElement('psu-volts', null);
-				this.appendFeatureElement('psu-amperes', null);
-				this.appendFeatureElement('power-rated', null);
+				this.appendFeatureElement('psu-volt', null);
+				this.appendFeatureElement('psu-ampere', null);
+				this.appendFeatureElement('power-rated-watt', null);
 				break;
 			case 'hdd':
 				this.appendFeatureElement('brand', null);
@@ -851,8 +851,8 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('mac', null);
 				this.appendFeatureElement('ethernet-ports-100m-n', null);
 				this.appendFeatureElement('power-connector', null);
-				this.appendFeatureElement('psu-volts', null);
-				this.appendFeatureElement('psu-amperes', null);
+				this.appendFeatureElement('psu-volt', null);
+				this.appendFeatureElement('psu-ampere', null);
 				this.appendFeatureElement('works', null);
 				this.appendFeatureElement('notes', null);
 				break;
@@ -871,8 +871,8 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('vga-ports-n', null);
 				this.appendFeatureElement('dvi-ports-n', null);
 				this.appendFeatureElement('power-connector', null);
-				this.appendFeatureElement('psu-volts', null);
-				this.appendFeatureElement('psu-amperes', null);
+				this.appendFeatureElement('psu-volt', null);
+				this.appendFeatureElement('psu-ampere', null);
 				this.appendFeatureElement('works', null);
 				this.appendFeatureElement('notes', null);
 				break;

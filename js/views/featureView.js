@@ -68,7 +68,7 @@ class FeatureView extends Framework.View {
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
 	static factory(el, translations, logs, item, name, value) {
-		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz') || name.endsWith('-n')) {
+		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else if(FeatureViewList.has(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
@@ -205,6 +205,14 @@ class FeatureViewUnit extends FeatureView {
 			return 'decibyte';
 		} else if(this.name.endsWith('-n')) {
 			return 'n';
+		} else if(name.endsWith('-ampere')) {
+			return 'ampere';
+		} else if(name.endsWith('-volt')) {
+			return 'volt';
+		} else if(name.endsWith('-watt')) {
+			return 'watt';
+		} else if(name.endsWith('-inch')) {
+			return 'inch';
 		} else {
 			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
 		}
@@ -273,6 +281,18 @@ class FeatureViewUnit extends FeatureView {
 			case 'decibyte':
 				return FeatureViewUnit.addUnit(value, 'B');
 				break;
+			case 'watt':
+				return FeatureViewUnit.addUnit(value, 'W');
+				break;
+			case 'volt':
+				return FeatureViewUnit.addUnit(value, 'V');
+				break;
+			case 'ampere':
+				return FeatureViewUnit.addUnit(value, 'A');
+				break;
+			case 'inch':
+				return FeatureViewUnit.addUnit(value, 'in.');
+				break;
 			case 'hertz':
 				return FeatureViewUnit.addUnit(value, 'Hz');
 				break;
@@ -320,8 +340,8 @@ class FeatureViewUnit extends FeatureView {
 			return null;
 		} else if(this.type === 'n') {
 			let number = parseInt(input);
-			if(isNaN(number) || number < 0) {
-				throw new Error(input + " should be a positive integer or 0")
+			if(isNaN(number) || number <= 0) {
+				throw new Error(input + " should be a positive integer")
 			} else {
 				return number;
 			}
