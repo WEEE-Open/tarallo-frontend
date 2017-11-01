@@ -245,12 +245,17 @@ ul.breadcrumbs li:not(:first-child)::before {
 	border: 0.1em dashed #333;
 }
 
-.item .featuredeletebutton {
-	margin: 0.2em;
+.item > .features .featuredeletebutton {
 	font-family: monospace;
-	width: 1em;
+	width: 1.5em;
 	padding-left: 0.1em;
 	padding-right: 0.1em;
+}
+
+.item.frozen > .features .featuredeletebutton {
+	display: none;
+	/* Doesn't work, for no apparent reason: */
+	/*visibility: hidden;*/
 }
 
 .item.deleted {

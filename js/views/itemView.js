@@ -589,7 +589,7 @@ class ItemView extends Framework.View {
 		deleteButton.classList.add("featuredeletebutton");
 		deleteButton.classList.add("freezable");
 		deleteButton.classList.add("freezable-hide");
-		deleteButton.textContent = "-";
+		deleteButton.textContent = "X";
 		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, name));
 
 		newElement.appendChild(deleteButton);
