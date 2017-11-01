@@ -740,11 +740,11 @@ class ItemView extends Framework.View {
 			case 'case':
 				for(let piece of ['motherboard', 'hdd', 'odd', 'psu', 'graphics-card']) {
 					let hardware = new Item();
-					let hardwareView = this.item.addInside(hardware);
-					this.addInside(hardware);
+					this.item.addInside(hardware);
+					let hardwareView = this.addInside(hardware);
 					// adding features inside that will be handled by events
-					hardware.setFeature('type', piece); // TODO: is this shown correctly or not?
 					hardwareView.appendFeatureElement('type', piece);
+					hardware.setFeature('type', piece); // TODO: is this shown correctly or not?
 				}
 				this.appendFeatureElement('cib', null);
 				this.appendFeatureElement('brand', null);
@@ -778,10 +778,10 @@ class ItemView extends Framework.View {
 			case 'motherboard':
 				for(let piece of ['cpu', 'ram']) {
 					let hardware = new Item();
-					let hardwareView = this.item.addInside(hardware);
-					this.addInside(hardware);
-					hardware.setFeature('type', piece);
+					this.item.addInside(hardware);
+					let hardwareView = this.addInside(hardware);
 					hardwareView.appendFeatureElement('type', piece);
+					hardware.setFeature('type', piece);
 				}
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
