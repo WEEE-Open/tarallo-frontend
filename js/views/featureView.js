@@ -200,19 +200,19 @@ class FeatureViewUnit extends FeatureView {
 		if(this.name.endsWith('-byte')) {
 			return 'byte';
 		} else if(this.name.endsWith('-hz')) { // TODO: change to -hertz on the server
-			return 'hertz';
+			return 'Hz';
 		} else if(this.name.endsWith('-decibyte')) {
-			return 'decibyte';
+			return 'B';
 		} else if(this.name.endsWith('-n')) {
 			return 'n';
-		} else if(name.endsWith('-ampere')) {
-			return 'ampere';
-		} else if(name.endsWith('-volt')) {
-			return 'volt';
-		} else if(name.endsWith('-watt')) {
-			return 'watt';
-		} else if(name.endsWith('-inch')) {
-			return 'inch';
+		} else if(this.name.endsWith('-ampere')) {
+			return 'A';
+		} else if(this.name.endsWith('-volt')) {
+			return 'V';
+		} else if(this.name.endsWith('-watt')) {
+			return 'W';
+		} else if(this.name.endsWith('-inch')) {
+			return 'in.';
 		} else {
 			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
 		}
@@ -261,15 +261,12 @@ class FeatureViewUnit extends FeatureView {
 		let value = parseInt(this.value);
 		let prefix = 0;
 		switch(this.type) {
-			case null:
-			default:
-				throw new Error('Unknown type ' + this.type + ' in FeatureViewUnit');
 			case 'n':
 				return value.toString();
 				break;
 			case 'byte':
 				while(value >= 1024 && prefix <= 6) {
-					value /= 1024; // this SHOULD be optimized internally to use bit shift
+					value /= 1024; // this SHOULD already be optimized internally to use bit shift
 					prefix++;
 				}
 				let i = '';
@@ -278,23 +275,8 @@ class FeatureViewUnit extends FeatureView {
 				}
 				return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + i +'B';
 				break;
-			case 'decibyte':
-				return FeatureViewUnit.addUnit(value, 'B');
-				break;
-			case 'watt':
-				return FeatureViewUnit.addUnit(value, 'W');
-				break;
-			case 'volt':
-				return FeatureViewUnit.addUnit(value, 'V');
-				break;
-			case 'ampere':
-				return FeatureViewUnit.addUnit(value, 'A');
-				break;
-			case 'inch':
-				return FeatureViewUnit.addUnit(value, 'in.');
-				break;
-			case 'hertz':
-				return FeatureViewUnit.addUnit(value, 'Hz');
+			default:
+				return FeatureViewUnit.addUnit(value, this.type);
 				break;
 		}
 	}

@@ -751,7 +751,6 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('name', null);
 				this.appendFeatureElement('windows-serial-version', null);
 				this.appendFeatureElement('windows-serial-number', null);
-				this.appendFeatureElement('idle-power', null);
 				this.appendFeatureElement('arrival-batch', null);
 				this.appendFeatureElement('owner', null);
 				this.appendFeatureElement('software', null);
@@ -763,7 +762,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('cpu-socket', null);
 				this.appendFeatureElement('frequency-hz', null);
-				this.appendFeatureElement('core-number', null);
+				this.appendFeatureElement('core-n', null);
 				this.appendFeatureElement('works', null);
 				break;
 			case 'ram':
@@ -801,7 +800,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('works', null);
-				this.appendFeatureElement('psu-sockets', null);
+				this.appendFeatureElement('psu-socket', null);
 				this.appendFeatureElement('power-connector', null);
 				this.appendFeatureElement('psu-volt', null);
 				this.appendFeatureElement('psu-ampere', null);
