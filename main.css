@@ -58,6 +58,12 @@ input, button, select {
 	transition: box-shadow,border-color 0.3s ease-out;
 }
 
+select {
+	/* I have no idea why this is needed or where the extra padding comes from. There's probably a bug somewhere else in the css file. */
+	padding-left: 0.15em;
+	padding-right: 0.15em;
+}
+
 .item input {
 	transition: none;
 }
@@ -152,8 +158,6 @@ nav#main > a:hover, nav#main > a.quickopen, .quickmoveitem, .quickviewitem, .qui
 }
 
 nav#main {
-	/*background-color: #333;*/
-	/*color: #eee;*/
 	padding: 0;
 }
 
@@ -161,7 +165,6 @@ ul.breadcrumbs {
 	margin: 0;
 	padding: 0;
 	color: #aaa;
-	/*border-bottom: 1px solid #333;*/
 }
 
 ul.breadcrumbs li {
@@ -245,21 +248,26 @@ ul.breadcrumbs li:not(:first-child)::before {
 	border: 0.1em dashed #333;
 }
 
-.item > .features .featuredeletebutton {
-	font-family: monospace;
-	width: 1.5em;
-	padding-left: 0.1em;
-	padding-right: 0.1em;
-}
-
-.item.frozen > .features .featuredeletebutton {
-	display: none;
-	/* Doesn't work, for no apparent reason: */
-	/*visibility: hidden;*/
-}
-
 .item.deleted {
 	color: #333;
+}
+
+.item > .features {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	display: table;
+}
+
+.item > .features > .feature {
+	display: table-row;
+}
+
+.item > .features > .feature > * {
+	display: table-cell;
+}
+
+.item > .features > .feature select, .item > .features > .feature input {
+	width: 100%;
 }
 
 .item.deleted > *:not(.message):not(.itembuttons), .item.deleted .itembuttons :not(.undobutton) {
@@ -286,9 +294,11 @@ ul.breadcrumbs li:not(:first-child)::before {
 	margin-bottom: 1em;
 }
 
-.item > .features {
-	margin-top: 1em;
-	margin-bottom: 1em;
+.item > .features .featuredeletebutton {
+	font-family: monospace;
+	width: 1.5em;
+	padding-left: 0.1em;
+	padding-right: 0.1em;
 }
 
 .pending > li > span {
