@@ -256,17 +256,26 @@ ul.breadcrumbs li:not(:first-child)::before {
 	margin-top: 1em;
 	margin-bottom: 1em;
 	display: table;
+	box-sizing: border-box;
+	width: 100%;
 }
 
 .item > .features > .feature {
 	display: table-row;
+	box-sizing: border-box;
 }
 
 .item > .features > .feature > * {
+	white-space: nowrap;
 	display: table-cell;
+	box-sizing: border-box;
 }
 
-.item > .features > .feature select, .item > .features > .feature input {
+.item > .features > .feature > *:not(:first-child) {
+	width: 0;
+}
+
+.item > .features > .feature > *:last-child {
 	width: 100%;
 }
 
@@ -296,9 +305,6 @@ ul.breadcrumbs li:not(:first-child)::before {
 
 .item > .features .featuredeletebutton {
 	font-family: monospace;
-	width: 1.5em;
-	padding-left: 0.1em;
-	padding-right: 0.1em;
 }
 
 .pending > li > span {
