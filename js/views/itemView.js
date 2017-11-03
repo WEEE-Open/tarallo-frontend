@@ -548,7 +548,6 @@ class ItemView extends Framework.View {
 			this.featuresElement.removeChild(this.featureViews.get(name).el);
 			this.featureViews.delete(name);
 		}
-
 		this.item.setFeature(name, null);
 		this.setDefaultFeatureDuplicate(name, false);
 	}
@@ -744,7 +743,7 @@ class ItemView extends Framework.View {
 					let hardwareView = this.addInside(hardware);
 					// adding features inside that will be handled by events
 					hardwareView.appendFeatureElement('type', piece);
-					hardware.setFeature('type', piece); // TODO: is this shown correctly or not?
+					// already done by FeatureView constructor: hardware.setFeature('type', piece);
 				}
 				this.appendFeatureElement('cib', null);
 				this.appendFeatureElement('brand', null);
@@ -780,7 +779,7 @@ class ItemView extends Framework.View {
 					this.item.addInside(hardware);
 					let hardwareView = this.addInside(hardware);
 					hardwareView.appendFeatureElement('type', piece);
-					hardware.setFeature('type', piece);
+					//hardware.setFeature('type', piece);
 				}
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
