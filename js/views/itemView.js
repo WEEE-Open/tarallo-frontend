@@ -723,6 +723,18 @@ class ItemView extends Framework.View {
 		}
 	}
 
+	static checkNesting(parentType, thisType) {
+		if(parentType === 'location') {
+			return true;
+		} else if(parentType === 'case') {
+			return thisType !== 'location';
+		} else if(parentType === 'motherboard') {
+			return thisType === 'cpu' || thisType === 'ram';
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Add features and items inside a new item
 	 * once it gets its type set.
@@ -907,8 +919,18 @@ class ItemView extends Framework.View {
 					}
 			}
 		} else if(that === this.item) {
-			if(event === 'new-type') {
-				this.setType(this.item.features.get("type"));
+			if(event === 'new-type') { // TODO: && edit mode && not initially loading (which is not frozen)
+				let thisType = this.item.features.get("type");
+				if(this.parentItemView instanceof ItemView) {
+					if(!ItemView.checkNesting(this.parentItemView.item.features.get("type"), thisType)) {
+						if(this.featureViews.has('type')) {
+							this.featureViews.get('type').value = null;
+						}
+						this.logs.add('Cannot place ' + thisType + ' inside ' + this.parentItemView.item.features.get("type"), 'E');
+						return;
+					}
+				}
+				this.setType(thisType);
 				return;
 			} else if(event === 'change') {
 				// TODO: do stuff
