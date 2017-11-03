@@ -919,7 +919,7 @@ class ItemView extends Framework.View {
 					}
 			}
 		} else if(that === this.item) {
-			if(event === 'new-type' || event === 'change-type') { // TODO: && edit mode && not initially loading (which is not frozen)
+			if(!this.frozen && event === 'new-type' || event === 'change-type') {
 				let thisType = this.item.features.get("type");
 				let parentType;
 				if(this.parentItemView instanceof ItemView) {

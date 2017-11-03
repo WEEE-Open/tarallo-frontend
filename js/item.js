@@ -127,7 +127,10 @@ class Item extends Framework.Object {
 		}
 		if(trigger) {
 			if(isNew) {
-				this.trigger("new-type");
+				// Avoids firing any event when parsing items from server (exists is one of the last things set)
+				if(!this.exists) {
+					this.trigger("new-type");
+				}
 			} else {
 				this.trigger("change-type");
 			}
