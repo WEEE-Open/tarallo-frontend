@@ -919,7 +919,7 @@ class ItemView extends Framework.View {
 					}
 			}
 		} else if(that === this.item) {
-			if(event === 'new-type') { // TODO: && edit mode && not initially loading (which is not frozen), maybe make a "change-type" event too?
+			if(event === 'new-type' || event === 'change-type') { // TODO: && edit mode && not initially loading (which is not frozen)
 				let thisType = this.item.features.get("type");
 				let parentType;
 				if(this.parentItemView instanceof ItemView) {
@@ -936,7 +936,9 @@ class ItemView extends Framework.View {
 						return;
 					}
 				}
-				this.setType(thisType);
+				if(event === 'new-type') {
+					this.setType(thisType);
+				}
 				return;
 			} else if(event === 'change') {
 				// TODO: do stuff
