@@ -919,14 +919,15 @@ class ItemView extends Framework.View {
 					}
 			}
 		} else if(that === this.item) {
-			if(event === 'new-type') { // TODO: && edit mode && not initially loading (which is not frozen)
+			if(event === 'new-type') { // TODO: && edit mode && not initially loading (which is not frozen), maybe make a "change-type" event too?
 				let thisType = this.item.features.get("type");
-				if(this.parentItemView instanceof ItemView) {
-					if(!ItemView.checkNesting(this.parentItemView.item.features.get("type"), thisType)) {
+				let parentType = this.parentItemView.item.features.get("type");
+				if(this.parentItemView instanceof ItemView && typeof parentType !== 'undefined') {
+					if(!ItemView.checkNesting(parentType, thisType)) {
 						if(this.featureViews.has('type')) {
 							this.featureViews.get('type').value = null;
 						}
-						this.logs.add('Cannot place ' + thisType + ' inside ' + this.parentItemView.item.features.get("type"), 'E');
+						this.logs.add('Cannot place ' + thisType + ' inside ' + parentType, 'E');
 						return;
 					}
 				}
