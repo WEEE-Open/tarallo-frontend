@@ -24,7 +24,7 @@ class ComputerView extends Framework.View {
 		this.el.appendChild(document.getElementById("template-computer").content.cloneNode(true));
 		this.contentsElement = this.el.querySelector(".contents");
 		this.fullTemplate = document.getElementById("template-computer-component-full").content;
-		this.emptyTemplate = document.getElementById("template-computer-component-full").content;
+		this.emptyTemplate = document.getElementById("template-computer-component-empty").content;
 
 		this.fillTemplate();
 		this.buildContents();
@@ -33,20 +33,31 @@ class ComputerView extends Framework.View {
 	}
 
 	editClick() {
-		// TODO: implement
+		// TODO: implement?
 	}
 
 	fillTemplate() {
+		let brand = this.item.features.get("brand");
+		let model = this.item.features.get("model");
+		let location = this.item.parent;
+		if(location === null && this.item.location.length > 0) {
+			location = this.item.location[this.item.location.length - 1];
+		}
+
 		// TODO: handle nulls (features, location, etc...)
-		this.el.querySelector(".header .brand").textContent = this.item.features.get("brand");
-		this.el.querySelector(".header .model").textContent = this.item.features.get("model");
-		let location = this.item.location[this.item.location.length - 1];
-		let aLocation = this.el.querySelector(".header .location").textContent = location;
-		aLocation.href = '#/View/' + location;
+		if(brand !== null) {
+			this.el.querySelector(".header .brand").textContent = brand;
+		}
+		if(model !== null) {
+			this.el.querySelector(".header .model").textContent = model;
+		}
+		if(location !== null) {
+			let aLocation = this.el.querySelector(".header .location").textContent = location;
+			aLocation.href = '#/View/' + location;
+		}
 	}
 
 	buildContents() {
-		let cpu = [], mobo = [], ram = [], hdd = [], odd = [], gpu =[];
 		this.contentsFinder(this.item);
 	}
 
@@ -55,9 +66,32 @@ class ComputerView extends Framework.View {
 	 * @param {Item} item
 	 */
 	contentsFinder(item) {
-		for(let i = 0; i < item.inside.length; i++) {
-			// TODO: finish implementation
-			this.contentsFinder(item.inside[i]);
+		/**
+		 * @type {Map.<string,Set<Item|ItemUpdate>>}
+		 */
+		let inside = new Map();
+		for(let subitem of this.contentsFlattener(item)) {
+			let type = subitem.features.get('type');
+			// works with null, too
+			if(!inside.has(type)) {
+				inside.set(type, new Set());
+			}
+			inside.get(type).add(subitem);
+		}
+		return inside;
+	}
+
+	/**
+	 *
+	 * @param {Item} item
+	 */
+	*contentsFlattener(item) {
+		for(let subitem of item.inside) {
+			yield subitem;
+			// TODO: does this work? (probably not)
+			for(let subitem of this.contentsFlattener(subitem)) {
+				yield subitem;
+			}
 		}
 	}
 
