@@ -548,7 +548,6 @@ class ItemView extends Framework.View {
 			this.featuresElement.removeChild(this.featureViews.get(name).el);
 			this.featureViews.delete(name);
 		}
-
 		this.item.setFeature(name, null);
 		this.setDefaultFeatureDuplicate(name, false);
 	}
@@ -724,6 +723,18 @@ class ItemView extends Framework.View {
 		}
 	}
 
+	static checkNesting(parentType, thisType) {
+		if(parentType === 'location') {
+			return true;
+		} else if(parentType === 'case') {
+			return thisType !== 'location';
+		} else if(parentType === 'motherboard') {
+			return thisType === 'cpu' || thisType === 'ram';
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Add features and items inside a new item
 	 * once it gets its type set.
@@ -744,7 +755,7 @@ class ItemView extends Framework.View {
 					let hardwareView = this.addInside(hardware);
 					// adding features inside that will be handled by events
 					hardwareView.appendFeatureElement('type', piece);
-					hardware.setFeature('type', piece); // TODO: is this shown correctly or not?
+					// already done by FeatureView constructor: hardware.setFeature('type', piece);
 				}
 				this.appendFeatureElement('cib', null);
 				this.appendFeatureElement('brand', null);
@@ -780,7 +791,7 @@ class ItemView extends Framework.View {
 					this.item.addInside(hardware);
 					let hardwareView = this.addInside(hardware);
 					hardwareView.appendFeatureElement('type', piece);
-					hardware.setFeature('type', piece);
+					//hardware.setFeature('type', piece);
 				}
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
@@ -908,8 +919,26 @@ class ItemView extends Framework.View {
 					}
 			}
 		} else if(that === this.item) {
-			if(event === 'new-type') {
-				this.setType(this.item.features.get("type"));
+			if(!this.frozen && event === 'new-type' || event === 'change-type') {
+				let thisType = this.item.features.get("type");
+				let parentType;
+				if(this.parentItemView instanceof ItemView) {
+					parentType = this.parentItemView.item.features.get("type");
+				} else {
+					parentType = null;
+				}
+				if(typeof parentType === 'string') {
+					if(!ItemView.checkNesting(parentType, thisType)) {
+						if(this.featureViews.has('type')) {
+							this.featureViews.get('type').value = null;
+						}
+						this.logs.add('Cannot place ' + thisType + ' inside ' + parentType, 'E');
+						return;
+					}
+				}
+				if(event === 'new-type') {
+					this.setType(thisType);
+				}
 				return;
 			} else if(event === 'change') {
 				// TODO: do stuff
