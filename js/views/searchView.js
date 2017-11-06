@@ -25,23 +25,32 @@ class SearchView extends Framework.View {
 		this.translations = translations;
 		this.transaction = transaction;
 
+		// TODO: do the same thing as features (= delete button, empty field means null means "no field")
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
 		this.elementsPairs = new WeakMap();
 		/** Nodes that don't exist in Search (yet), mapped to their key
 		 *  @type {WeakMap.<Node|HTMLElement, string>} */
 		this.elementsUnpaired = new WeakMap();
+		/** @type {Set.<Framework.View>} */
+		this.subviews = new Set();
+
+		this.useComputerView = false;
 
 		this.el.appendChild(document.getElementById("template-search").content.cloneNode(true));
 		this.controlsElement = this.el.querySelector('.searchcontrols');
 		this.buttonsElement = this.el.querySelector('.searchbuttons');
 		this.searchButton = this.el.querySelector('.searchbutton');
 		this.resultsElement = this.el.querySelector('.results');
+		this.compactViewCheckbox = this.el.querySelector('.usecompactview');
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 		this.buttonsElement.addEventListener('click', this.addButtonClick.bind(this));
 		this.controlsElement.addEventListener('focusout', this.handleSearchControlsFocus.bind(this));
+		this.compactViewCheckbox.addEventListener('click', this.compactViewClick.bind(this));
 
+		// Read checkbox status
+		this.compactViewClick();
 		if(preset instanceof Search && !this.state.hasContent()) {
 			this.search = preset;
 		} else {
@@ -118,6 +127,10 @@ class SearchView extends Framework.View {
 			this.controlsElement.appendChild(control);
 			this.elementsUnpaired.set(control, key);
 		}
+	}
+
+	compactViewClick() {
+		this.useComputerView = this.compactViewCheckbox.checked;
 	}
 
 	/**
@@ -300,8 +313,15 @@ class SearchView extends Framework.View {
 		for(let item of results) {
 			let container = document.createElement("div");
 			this.resultsElement.appendChild(container);
-			let view = new ItemLocationView(container, item, this.translations, this.transaction, this.logs);
-			view.freezeRecursive();
+
+			let view;
+			if(this.useComputerView) {
+				view = new ComputerView(container, item, this.translations, this.logs);
+			} else {
+				view = new ItemLocationView(container, item, this.translations, this.transaction, this.logs);
+				view.freezeRecursive();
+			}
+			this.subviews.add(view);
 		}
 	}
 
@@ -387,6 +407,10 @@ class SearchView extends Framework.View {
 					this.logs.add('Search failed (' + this.search.lastErrorCode + '): ' + this.search.lastErrorMessage, 'E');
 					break;
 			}
+		}
+
+		for(let subview of this.subviews) {
+			subview.trigger(that, event);
 		}
 	}
 }
