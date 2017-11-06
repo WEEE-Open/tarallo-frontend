@@ -23,28 +23,28 @@ class ComputerView extends Framework.View {
 
 		this.el.appendChild(document.getElementById("template-computer").content.cloneNode(true));
 		this.contentsElement = this.el.querySelector(".contents");
+		this.notesElement = this.el.querySelector(".notes");
 		this.fullTemplate = document.getElementById("template-computer-component-full").content;
 		this.emptyTemplate = document.getElementById("template-computer-component-empty").content;
 
 		this.fillTemplate();
 		this.buildContents();
-
-		this.el.querySelector(".header button").addEventListener("click", this.editClick.bind(this));
-	}
-
-	editClick() {
-		// TODO: implement?
 	}
 
 	fillTemplate() {
 		let brand = this.item.features.get("brand");
 		let model = this.item.features.get("model");
+		let notes = this.item.features.get("notes");
 		let location = this.item.parent;
 		if(location === null && this.item.location.length > 0) {
 			location = this.item.location[this.item.location.length - 1];
 		}
 
-		// TODO: handle nulls (features, location, etc...)
+		if(notes === null) {
+			this.notesElement.style.display = 'none';
+		} else {
+			this.notesElement.textContent = notes;
+		}
 		if(brand !== null) {
 			this.el.querySelector(".header .brand").textContent = brand;
 		}
@@ -57,13 +57,22 @@ class ComputerView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Build content of the view from an Item and display it
+	 *
+	 * @private
+	 */
 	buildContents() {
 		this.contentsFinder(this.item);
+		// TODO: finish implementation
 	}
 
 	/**
+	 * Flatten items, return a map.
 	 *
 	 * @param {Item} item
+	 * @return {Map.<string,Set<Item|ItemUpdate>>} item type to a Set of items
+	 * @private
 	 */
 	contentsFinder(item) {
 		/**
@@ -82,8 +91,10 @@ class ComputerView extends Framework.View {
 	}
 
 	/**
+	 * Flatten the Item tree by yielding stuff
 	 *
 	 * @param {Item} item
+	 * @private
 	 */
 	*contentsFlattener(item) {
 		for(let subitem of item.inside) {
@@ -96,6 +107,7 @@ class ComputerView extends Framework.View {
 	}
 
 	/**
+	 *
 	 *
 	 * @param {Item} component
 	 */
