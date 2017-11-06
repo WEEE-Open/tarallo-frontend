@@ -315,7 +315,7 @@ class SearchView extends Framework.View {
 			this.resultsElement.appendChild(container);
 
 			let view;
-			if(this.useComputerView) {
+			if(this.useComputerView && item.features.get("type") === "case") {
 				view = new ComputerView(container, item, this.translations, this.logs);
 			} else {
 				view = new ItemLocationView(container, item, this.translations, this.transaction, this.logs);

@@ -13,7 +13,7 @@ class ComputerView extends Framework.View {
 	 */
 	constructor(element, item, language, logs) {
 		super(element);
-		if (this.item.features.get("type") !== "computer") {
+		if(item.features.get("type") !== "case") {
 			throw new TypeError('Cannot create ComputerView for item type "' + this.item.features.get("type") + '", only "computer" is allowed');
 		}
 
@@ -40,20 +40,21 @@ class ComputerView extends Framework.View {
 			location = this.item.location[this.item.location.length - 1];
 		}
 
-		if(notes === null) {
+		if(typeof notes === 'undefined') {
 			this.notesElement.style.display = 'none';
 		} else {
 			this.notesElement.textContent = notes;
 		}
-		if(brand !== null) {
+		if(typeof brand === 'undefined') {
 			this.el.querySelector(".header .brand").textContent = brand;
 		}
-		if(model !== null) {
+		if(typeof model === 'undefined') {
 			this.el.querySelector(".header .model").textContent = model;
 		}
 		if(location !== null) {
-			let aLocation = this.el.querySelector(".header .location").textContent = location;
-			aLocation.href = '#/View/' + location;
+			let locationLink = this.el.querySelector(".header .location");
+			locationLink.textContent = location;
+			locationLink.href = '#/View/' + location;
 		}
 	}
 
@@ -105,7 +106,7 @@ class ComputerView extends Framework.View {
 	*contentsFlattener(item) {
 		for(let subitem of item.inside) {
 			yield subitem;
-			// TODO: does this work? (probably not)
+			// TODO: does this work? (nope)
 			for(let subitem of this.contentsFlattener(subitem)) {
 				yield subitem;
 			}
