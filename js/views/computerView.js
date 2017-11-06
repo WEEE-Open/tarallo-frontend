@@ -63,8 +63,14 @@ class ComputerView extends Framework.View {
 	 * @private
 	 */
 	buildContents() {
-		this.contentsFinder(this.item);
-		// TODO: finish implementation
+		let inside = this.contentsFinder(this.item);
+		for(let hardware of ['cpu', 'ram', 'motherboard', 'psu', 'hdd', 'odd', 'graphics-card']) {
+			if(inside.has(hardware)) {
+				this.contentsElement.appendChild(this.buildComponent(inside.get(hardware)));
+			} else {
+				this.contentsElement.appendChild(this.buildMissingComponent(hardware));
+			}
+		}
 	}
 
 	/**
@@ -107,15 +113,15 @@ class ComputerView extends Framework.View {
 	}
 
 	/**
+	 * Build a card/cell/slot/whatever for available components.
 	 *
-	 *
-	 * @param {Item} component
+	 * @param {Set.<Item>} components - RAM, CPU, and so on
+	 * @return {Node}
 	 */
-	buildComponent(component) {
+	buildComponent(components) {
 		// TODO: translations + handle nulls
 		// querySelector(".type").textContent = component.features.get("type");
 	}
-
 
 	/**
 	 * Build a card/cell/slot/whatever for a missing component/item.
