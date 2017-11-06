@@ -65,11 +65,16 @@ class ComputerView extends Framework.View {
 	 */
 	buildContents() {
 		let inside = this.contentsFinder(this.item);
-		for(let hardware of ['cpu', 'ram', 'motherboard', 'psu', 'hdd', 'odd', 'graphics-card']) {
+		for(let hardware of ComputerView.mainHardware) {
 			if(inside.has(hardware)) {
 				this.contentsElement.appendChild(this.buildComponent(inside.get(hardware)));
 			} else {
 				this.contentsElement.appendChild(this.buildMissingComponent(hardware));
+			}
+		}
+		for(let [name, hardware] of inside) {
+			if(ComputerView.mainHardware.has(name)) {
+				this.contentsElement.appendChild(this.buildComponent(hardware));
 			}
 		}
 	}
@@ -174,3 +179,10 @@ class ComputerView extends Framework.View {
 		return newThing;
 	}
 }
+
+Object.defineProperty(ComputerView, 'mainHardware', {
+	value: new Set(['cpu', 'ram', 'motherboard', 'psu', 'hdd', 'odd', 'graphics-card']),
+	writable: false,
+	enumerable: false,
+	configurable: false
+});
