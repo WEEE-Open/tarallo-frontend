@@ -120,8 +120,43 @@ class ComputerView extends Framework.View {
 	 * @return {Node}
 	 */
 	buildComponent(components) {
-		// TODO: translations + handle nulls
-		// querySelector(".type").textContent = component.features.get("type");
+		let componentDiv = document.createElement("div");
+		let worksYes = 0;
+		let worksMaybe = 0;
+		let worksNo = 0;
+		let worksUnknown = 0;
+		for(let component of components) {
+			if(component.features.has('works')) {
+				switch(component.features.get('works')) {
+					case 'yes':
+						worksYes++;
+						break;
+					case 'no':
+						worksNo++;
+						break;
+					case 'maybe':
+						worksMaybe++;
+						break;
+					default:
+						worksUnknown++;
+				}
+			} else {
+				worksUnknown++;
+			}
+		}
+		componentDiv.appendChild(this.fullTemplate.cloneNode(true));
+		componentDiv.classList.add('maybe');
+		if(worksYes > 0) {
+			componentDiv.classList.add('yes');
+		}
+		if(worksNo > 0) {
+			componentDiv.classList.add('no');
+		}
+		if(worksMaybe > 0) {
+			componentDiv.classList.add('maybe');
+		}
+		// TODO: finish implementation
+		return componentDiv;
 	}
 
 	/**
