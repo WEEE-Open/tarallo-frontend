@@ -31,6 +31,11 @@ class ComputerView extends Framework.View {
 		this.buildContents();
 	}
 
+	/**
+	 * Fill entire ComputerView cell
+	 *
+	 * @private
+	 */
 	fillTemplate() {
 		let brand = this.item.features.get("brand");
 		let model = this.item.features.get("model");
@@ -67,14 +72,18 @@ class ComputerView extends Framework.View {
 		let inside = this.contentsFinder(this.item);
 		for(let name of ComputerView.mainHardware) {
 			if(inside.has(name)) {
-				this.contentsElement.appendChild(this.buildComponent(name, inside.get(name)));
+				for(let hardware of this.buildComponentCells(name, inside.get(name))) {
+					this.contentsElement.appendChild(hardware);
+				}
 			} else {
 				this.contentsElement.appendChild(this.buildMissingComponent(name));
 			}
 		}
-		for(let [name, hardware] of inside) {
+		for(let [name, components] of inside) {
 			if(ComputerView.mainHardware.has(name)) {
-				this.contentsElement.appendChild(this.buildComponent(name, hardware));
+				for(let hardware of this.buildComponentCells(name, components)) {
+					this.contentsElement.appendChild(hardware);
+				}
 			}
 		}
 	}
@@ -118,15 +127,66 @@ class ComputerView extends Framework.View {
 	}
 
 	/**
-	 * Build a card/cell/slot/whatever for available components.
+	 * Build a card/cell/slot/whatever for multiple components.
 	 *
 	 * @param {string} type - string representing item type
-	 * @param {Set.<Item>} components - RAMs, CPUs, and so on
-	 * @return {Node}
+	 * @param {Set.<Item>|Item[]} components - RAMs, CPUs, and so on
+	 * @return {Node[]}
+	 * @protected
 	 */
-	buildComponent(type, components) {
-		let componentDiv = document.createElement("div");
+	buildComponentCells(type, components) {
+		let cells = [];
 
+		let multicomponent = true;
+		let compact, extended;
+		try {
+			compact = ComputerView.compactToString(type, components);
+			extended = '(' + ComputerView.allToString(type, components) + ')';
+		} catch(e) {
+			multicomponent = false;
+			for(let component of components) {
+				cells.push(this.buildComponentCell(type, component));
+			}
+		}
+
+		if(multicomponent) {
+			let componentDiv = document.createElement("div");
+			componentDiv.appendChild(this.fullTemplate.cloneNode(true));
+			ComputerView.workingClass(components, componentDiv);
+			componentDiv.querySelector('.compact').textContent = compact;
+			componentDiv.querySelector('.extended').textContent = extended;
+			cells.push(componentDiv);
+		}
+
+		return cells;
+	}
+
+	/**
+	 * Build a card/cell/slot/whatever for a single component
+	 *
+	 * @param {string} type - string representing item type
+	 * @param {Item} component - weird unexpected items that can't be handled by buildComponentCells
+	 * @return {Node}
+	 * @private
+	 */
+	buildComponentCell(type, component) {
+		let componentDiv = document.createElement("div");
+		componentDiv.appendChild(this.fullTemplate.cloneNode(true));
+		ComputerView.workingClass([component], componentDiv);
+		//componentDiv.querySelector('.extended').textContent = ComputerView.singleToString(type, component) ;
+
+		return componentDiv;
+	}
+
+	/**
+	 * Examine component(s) and decide if they should be marked working or not, and add classes to the supplied div.
+	 * Also increases steel production by 500%.
+	 *
+	 * @param {Iterable.<Item>} components - some items. Or a single one in array.
+	 * @param {Node} componentDiv
+	 * @private
+	 */
+	static workingClass(components, componentDiv) {
 		let worksYes = 0;
 		let worksMaybe = 0;
 		let worksNo = 0;
@@ -150,8 +210,7 @@ class ComputerView extends Framework.View {
 				worksUnknown++;
 			}
 		}
-		componentDiv.appendChild(this.fullTemplate.cloneNode(true));
-		componentDiv.classList.add('maybe');
+		componentDiv.classList.add('works');
 		if(worksYes > 0) {
 			componentDiv.classList.add('yes');
 		}
@@ -161,11 +220,6 @@ class ComputerView extends Framework.View {
 		if(worksMaybe > 0) {
 			componentDiv.classList.add('maybe');
 		}
-
-		componentDiv.querySelector('.compact').textContent = ComputerView.compactToString(type, components);
-		componentDiv.querySelector('.extended').textContent = '(' + ComputerView.allToString(type, components) + ')';
-
-		return componentDiv;
 	}
 
 	/**
@@ -174,10 +228,11 @@ class ComputerView extends Framework.View {
 	 * @param {string} type - item type
 	 * @param {Set.<Item>} components - RAM, CPU, and so on
 	 * @return {string}
+	 * @private
 	 */
 	static compactToString(type, components) {
 		switch(type) {
-
+			// TODO: implement
 			default:
 				throw new Error(type + ' cannot be represented as a compact string');
 		}
@@ -189,10 +244,11 @@ class ComputerView extends Framework.View {
 	 * @param {string} type - item type
 	 * @param {Set.<Item>} components - RAM, CPU, and so on
 	 * @return {string}
+	 * @private
 	 */
 	static allToString(type, components) {
 		switch(type) {
-
+			// TODO: implement
 			default:
 				throw new Error(type + ' cannot be represented as an extended string');
 		}
@@ -203,6 +259,7 @@ class ComputerView extends Framework.View {
 	 *
 	 * @param {string} type - RAM, CPU, and so on
 	 * @return {Node}
+	 * @private
 	 */
 	buildMissingComponent(type) {
 		// TODO: translations + handle nulls
