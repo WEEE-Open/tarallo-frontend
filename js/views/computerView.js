@@ -111,9 +111,8 @@ class ComputerView extends Framework.View {
 	*contentsFlattener(item) {
 		for(let subitem of item.inside) {
 			yield subitem;
-			// TODO: does this work? (nope)
-			for(let subitem of this.contentsFlattener(subitem)) {
-				yield subitem;
+			for(let subitem2 of this.contentsFlattener(subitem)) {
+				yield subitem2;
 			}
 		}
 	}
@@ -160,7 +159,12 @@ class ComputerView extends Framework.View {
 		if(worksMaybe > 0) {
 			componentDiv.classList.add('maybe');
 		}
-		// TODO: finish implementation
+
+		// TODO: better implementation
+		let brand = Array.from(components.values())[0].features.get('brand');
+		let model = Array.from(components.values())[0].features.get('model');
+		componentDiv.querySelector('.items').textContent = brand + ' ' + model;
+
 		return componentDiv;
 	}
 
@@ -172,7 +176,8 @@ class ComputerView extends Framework.View {
 	 */
 	buildMissingComponent(type) {
 		// TODO: translations + handle nulls
-		let newThing = this.emptyTemplate.cloneNode(true);
+		let newThing = document.createElement("div");
+		newThing.appendChild(this.emptyTemplate.cloneNode(true));
 		newThing.querySelector(".type").textContent = type;
 		newThing.classList.add("component");
 		newThing.classList.add("missing");
