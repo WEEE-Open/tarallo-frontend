@@ -65,16 +65,16 @@ class ComputerView extends Framework.View {
 	 */
 	buildContents() {
 		let inside = this.contentsFinder(this.item);
-		for(let hardware of ComputerView.mainHardware) {
-			if(inside.has(hardware)) {
-				this.contentsElement.appendChild(this.buildComponent(inside.get(hardware)));
+		for(let name of ComputerView.mainHardware) {
+			if(inside.has(name)) {
+				this.contentsElement.appendChild(this.buildComponent(name, inside.get(name)));
 			} else {
-				this.contentsElement.appendChild(this.buildMissingComponent(hardware));
+				this.contentsElement.appendChild(this.buildMissingComponent(name));
 			}
 		}
 		for(let [name, hardware] of inside) {
 			if(ComputerView.mainHardware.has(name)) {
-				this.contentsElement.appendChild(this.buildComponent(hardware));
+				this.contentsElement.appendChild(this.buildComponent(name, hardware));
 			}
 		}
 	}
@@ -83,12 +83,12 @@ class ComputerView extends Framework.View {
 	 * Flatten items, return a map.
 	 *
 	 * @param {Item} item
-	 * @return {Map.<string,Set<Item|ItemUpdate>>} item type to a Set of items
+	 * @return {Map.<string,Set<Item>>} item type to a Set of items
 	 * @private
 	 */
 	contentsFinder(item) {
 		/**
-		 * @type {Map.<string,Set<Item|ItemUpdate>>}
+		 * @type {Map.<string,Set<Item>>}
 		 */
 		let inside = new Map();
 		for(let subitem of this.contentsFlattener(item)) {
@@ -120,11 +120,13 @@ class ComputerView extends Framework.View {
 	/**
 	 * Build a card/cell/slot/whatever for available components.
 	 *
-	 * @param {Set.<Item>} components - RAM, CPU, and so on
+	 * @param {string} type - string representing item type
+	 * @param {Set.<Item>} components - RAMs, CPUs, and so on
 	 * @return {Node}
 	 */
-	buildComponent(components) {
+	buildComponent(type, components) {
 		let componentDiv = document.createElement("div");
+
 		let worksYes = 0;
 		let worksMaybe = 0;
 		let worksNo = 0;
@@ -160,12 +162,40 @@ class ComputerView extends Framework.View {
 			componentDiv.classList.add('maybe');
 		}
 
-		// TODO: better implementation
-		let brand = Array.from(components.values())[0].features.get('brand');
-		let model = Array.from(components.values())[0].features.get('model');
-		componentDiv.querySelector('.items').textContent = brand + ' ' + model;
+		componentDiv.querySelector('.compact').textContent = ComputerView.compactToString(type, components);
+		componentDiv.querySelector('.extended').textContent = '(' + ComputerView.allToString(type, components) + ')';
 
 		return componentDiv;
+	}
+
+	/**
+	 * Compactly represent multiple items as a string (e.g. sum RAM sizes)
+	 *
+	 * @param {string} type - item type
+	 * @param {Set.<Item>} components - RAM, CPU, and so on
+	 * @return {string}
+	 */
+	static compactToString(type, components) {
+		switch(type) {
+
+			default:
+				throw new Error(type + ' cannot be represented as a compact string');
+		}
+	}
+
+	/**
+	 * Represent all items as a string (e.g. print brand and model of each one)
+	 *
+	 * @param {string} type - item type
+	 * @param {Set.<Item>} components - RAM, CPU, and so on
+	 * @return {string}
+	 */
+	static allToString(type, components) {
+		switch(type) {
+
+			default:
+				throw new Error(type + ' cannot be represented as an extended string');
+		}
 	}
 
 	/**
