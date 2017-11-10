@@ -250,6 +250,8 @@ class FeatureViewUnit extends FeatureView {
 
 	/**
 	 * Convert value to human-readable format
+	 *
+	 * @private
 	 */
 	renderValue() {
 		if(this.value === null) {
@@ -258,9 +260,19 @@ class FeatureViewUnit extends FeatureView {
 		if(typeof this.type === 'undefined') {
 			this.type = this.parseType();
 		}
-		let value = parseInt(this.value);
+		FeatureViewUnit.valueToPrintable(this.type, parseInt(this.value));
+	}
+
+	/**
+	 * Convert that number into something printable
+	 *
+	 * @param {string} type - byte, Hz, V, W, etc...
+	 * @param {int} value
+	 * @returns {string}
+	 */
+	static valueToPrintable(type, value) {
 		let prefix = 0;
-		switch(this.type) {
+		switch(type) {
 			case 'n':
 				return value.toString();
 				break;
@@ -276,7 +288,7 @@ class FeatureViewUnit extends FeatureView {
 				return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + i +'B';
 				break;
 			default:
-				return FeatureViewUnit.addUnit(value, this.type);
+				return FeatureViewUnit.addUnit(value, type);
 				break;
 		}
 	}

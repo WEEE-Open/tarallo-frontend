@@ -231,11 +231,37 @@ class ComputerView extends Framework.View {
 	 * @private
 	 */
 	static compactToString(type, components) {
+		let string = '';
 		switch(type) {
-			// TODO: implement
+			case 'ram':
+				let ddr = undefined, freq = undefined, size = undefined, totalSize = 0, counter = 0;
+				for(let ram of components) {
+					if(typeof ddr === 'undefined') {
+						ddr = ram.features.get('ram-socket');
+					}
+					if(typeof freq === 'undefined') {
+						freq = ram.features.get('frequency-hz');
+					}
+					size = ram.features.get("capacity-byte");
+					if(typeof size !== 'undefined') {
+						totalSize += parseInt(size);
+					}
+
+					counter++;
+				}
+
+				// TODO: translations
+				ddr = typeof ddr === 'undefined' ? '' : ' ' + ddr;
+				freq = typeof freq === 'undefined' ? '' : ' ' + freq;
+
+				string += counter + '× ' + FeatureViewUnit.valueToPrintable('byte', totalSize) + ddr + freq;
+				break;
+			// TODO: implement other types
 			default:
 				throw new Error(type + ' cannot be represented as a compact string');
 		}
+
+		return string;
 	}
 
 	/**
@@ -243,15 +269,50 @@ class ComputerView extends Framework.View {
 	 *
 	 * @param {string} type - item type
 	 * @param {Set.<Item>} components - RAM, CPU, and so on
-	 * @return {string}
+	 * @return {string|null}
 	 * @private
 	 */
 	static allToString(type, components) {
+		let string = '';
 		switch(type) {
+			case 'ram':
+				let brands = new Set();
+				for(let ram of components) {
+					if(ram.features.has('brand')) {
+						let brand = ram.features.get('brand');
+						if(!brands.has(brand)) {
+							brands.add(brand);
+						}
+					}
+				}
+				if(brands.size = 0) {
+					return null;
+				} else {
+					string = ComputerView.strList(brands);
+				}
+				break;
 			// TODO: implement
 			default:
 				throw new Error(type + ' cannot be represented as an extended string');
 		}
+
+		return string;
+	}
+
+	/**
+	 * Take an iterable list and turn it into a comma-separated string
+	 * Empty list returns an empty string
+	 *
+	 * @param {Iterable.<string>} list
+	 * @return {string}
+	 */
+	static strList(list) {
+		let string = '';
+		for(let piece of list) {
+			string += piece + ', ';
+		}
+
+		return string.substr(0, string.length - 2);
 	}
 
 	/**
