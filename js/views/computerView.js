@@ -72,7 +72,7 @@ class ComputerView extends Framework.View {
 		let inside = this.contentsFinder(this.item);
 		for(let name of ComputerView.mainHardware) {
 			if(inside.has(name)) {
-				for(let hardware of this.buildComponentCells(name, inside.get(name))) {
+				for(let hardware of this.buildComponents(name, inside.get(name))) {
 					this.contentsElement.appendChild(hardware);
 				}
 			} else {
@@ -81,7 +81,7 @@ class ComputerView extends Framework.View {
 		}
 		for(let [name, components] of inside) {
 			if(ComputerView.mainHardware.has(name)) {
-				for(let hardware of this.buildComponentCells(name, components)) {
+				for(let hardware of this.buildComponents(name, components)) {
 					this.contentsElement.appendChild(hardware);
 				}
 			}
@@ -127,53 +127,60 @@ class ComputerView extends Framework.View {
 	}
 
 	/**
-	 * Build a card/cell/slot/whatever for multiple components.
+	 * Build a card/cell/slot/whatever for multiple components or fall back to a cell for each component.
 	 *
 	 * @param {string} type - string representing item type
 	 * @param {Set.<Item>|Item[]} components - RAMs, CPUs, and so on
 	 * @return {Node[]}
 	 * @protected
 	 */
-	buildComponentCells(type, components) {
+	buildComponents(type, components) {
 		let cells = [];
 
 		let multicomponent = true;
 		let compact, extended;
 		try {
+			extended = ComputerView.allToString(type, components);
 			compact = ComputerView.compactToString(type, components);
-			extended = '(' + ComputerView.allToString(type, components) + ')';
 		} catch(e) {
 			multicomponent = false;
-			for(let component of components) {
-				cells.push(this.buildComponentCell(type, component));
-			}
 		}
 
 		if(multicomponent) {
-			let componentDiv = document.createElement("div");
-			componentDiv.appendChild(this.fullTemplate.cloneNode(true));
-			ComputerView.workingClass(components, componentDiv);
-			componentDiv.querySelector('.compact').textContent = compact;
-			componentDiv.querySelector('.extended').textContent = extended;
-			cells.push(componentDiv);
+			cells.push(this.buildComponentCell(type, components, compact, extended));
+		} else {
+			for(let component of components) {
+				// TODO: compact = ComputerView.singleToString(type, component);
+				compact = 'foo';
+				cells.push(this.buildComponentCell(type, [component], compact));
+			}
 		}
 
 		return cells;
 	}
 
 	/**
-	 * Build a card/cell/slot/whatever for a single component
+	 * Build a card/cell/slot/whatever with supplied component data
 	 *
 	 * @param {string} type - string representing item type
-	 * @param {Item} component - weird unexpected items that can't be handled by buildComponentCells
+	 * @param {Iterable.<Item>} components - Components themselves, to
+	 * @param {string|null=null} compact - single description of multiple components, or single component
+	 * @param {string|null=null} extended - additional data for for multiple components bundled in a single cell
 	 * @return {Node}
 	 * @private
 	 */
-	buildComponentCell(type, component) {
+	buildComponentCell(type, components, compact = null, extended = null) {
 		let componentDiv = document.createElement("div");
 		componentDiv.appendChild(this.fullTemplate.cloneNode(true));
-		ComputerView.workingClass([component], componentDiv);
-		//componentDiv.querySelector('.extended').textContent = ComputerView.singleToString(type, component) ;
+		ComputerView.workingClass(components, componentDiv);
+		if(extended === null) {
+			extended = '';
+		} else {
+			extended = '(' + extended +')';
+		}
+		componentDiv.querySelector('.type').textContent = type + " : ";
+		componentDiv.querySelector('.compact').textContent = compact;
+		componentDiv.querySelector('.extended').textContent = extended;
 
 		return componentDiv;
 	}
@@ -251,7 +258,7 @@ class ComputerView extends Framework.View {
 				}
 
 				// TODO: translations
-				ddr = typeof ddr === 'undefined' ? 'RAM' : ' ' + ddr;
+				ddr = typeof ddr === 'undefined' ? 'RAM ' : ' ' + ddr;
 				freq = typeof freq === 'undefined' ? '' : ' ' + freq;
 
 				string += counter + '× ' + ddr + freq + FeatureViewUnit.valueToPrintable('byte', totalSize);
@@ -285,7 +292,7 @@ class ComputerView extends Framework.View {
 						}
 					}
 				}
-				if(brands.size = 0) {
+				if(brands.size === 0) {
 					return null;
 				} else {
 					string = ComputerView.strList(brands);
