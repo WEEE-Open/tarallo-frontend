@@ -83,7 +83,7 @@ class ComputerView extends Framework.View {
 			}
 		}
 		for(let [name, components] of inside) {
-			if(ComputerView.mainHardware.has(name)) {
+			if(!ComputerView.mainHardware.has(name)) {
 				for(let hardware of this.buildComponents(name, components)) {
 					this.contentsElement.appendChild(hardware);
 				}
