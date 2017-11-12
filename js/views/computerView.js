@@ -251,10 +251,10 @@ class ComputerView extends Framework.View {
 				}
 
 				// TODO: translations
-				ddr = typeof ddr === 'undefined' ? '' : ' ' + ddr;
+				ddr = typeof ddr === 'undefined' ? 'RAM' : ' ' + ddr;
 				freq = typeof freq === 'undefined' ? '' : ' ' + freq;
 
-				string += counter + '× ' + FeatureViewUnit.valueToPrintable('byte', totalSize) + ddr + freq;
+				string += counter + '× ' + ddr + freq + FeatureViewUnit.valueToPrintable('byte', totalSize);
 				break;
 			// TODO: implement other types
 			default:
