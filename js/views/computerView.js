@@ -61,6 +61,9 @@ class ComputerView extends Framework.View {
 			locationLink.textContent = location;
 			locationLink.href = '#/View/' + location;
 		}
+		let aCode = this.el.querySelector(".header .code");
+		aCode.textContent = this.item.code;
+		aCode.href = '#/View/' + this.item.code;
 	}
 
 	/**
