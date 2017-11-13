@@ -245,7 +245,7 @@ class ComputerView extends Framework.View {
 		let features;
 		switch(type) {
 			case 'ram':
-				features = ComputerView.findFeatures(components, ['ram-socket', 'frequency-hz'], ['brand'], ['capacity-byte']);
+				features = ComputerView.findFeatures(components, ['ram-socket', 'frequency-hz'], [], ['capacity-byte']);
 
 				// TODO: translations
 				let ddr = features.has('ram-socket') ? features.get('ram-socket') + ' ' :  'RAM ';
@@ -268,7 +268,7 @@ class ComputerView extends Framework.View {
 	 *
 	 * @param {string} type - item type
 	 * @param {Set.<Item>} components - RAM, CPU, and so on
-	 * @return {string|null}
+	 * @return {string}
 	 * @private
 	 */
 	static allToString(type, components) {
@@ -276,14 +276,29 @@ class ComputerView extends Framework.View {
 		let features;
 		switch(type) {
 			case 'ram':
-				features = ComputerView.findFeatures(components, [], ['brand']);
-				if(features.has('brand')) {
-					string = ComputerView.strList(features.get('brand'));
-				} else {
-					return null;
+				features = ComputerView.findFeatures(components, [], ['brand', 'sn']);
+				let couples = new Set();
+				let brand = features.get('brand').values();
+				for(let sn of features.get('sn')) {
+					let brand = brand.next();
+					let couple = '';
+					if(brand !== null) {
+						couple += brand + ' ';
+					}
+					if(sn !== null) {
+						couple += sn;
+					}
+					couple = couple.trim();
+					if(couple === '') {
+						couples.add('?');
+					} else {
+						couples.add(couple);
+					}
 				}
+
+				string = ComputerView.strList(features.get('sn'));
 				break;
-			// TODO: implement
+			// TODO: implement others
 			default:
 				throw new Error(type + ' cannot be represented as an extended string');
 		}
@@ -344,7 +359,7 @@ class ComputerView extends Framework.View {
 	 *
 	 * @param {Iterable.<Item>} components
 	 * @param {string[]=array} first - find first item with a feature of this type
-	 * @param {string[]=array} all - find all items with that feature, place distinct types in a Set
+	 * @param {string[]=array} all - Set of those features or null, for each item in same order
 	 * @param {string[]=array} sum - cast to int and sum
 	 *
 	 * @return {Map.<string,string|Set<string>|int>}
@@ -367,12 +382,13 @@ class ComputerView extends Framework.View {
 				}
 			}
 			for(let type of all) {
+				if(!results.has(type)) {
+					results.set(type, new Set());
+				}
 				if(piece.features.has(type)) {
-					if(!results.has(type)) {
-						results.set(type, new Set());
-					}
-					let name = piece.features.get(type);
-					results.get(type).add(name);
+					results.get(type).add(piece.features.get(type));
+				} else {
+					results.get(type).add(null);
 				}
 			}
 			for(let type of first) {
