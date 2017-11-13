@@ -139,6 +139,11 @@ class FeatureView extends Framework.View {
 		this.input.value = value;
 	}
 
+	/**
+	 * Convert value to human-readable format
+	 *
+	 * @returns {string}
+	 */
 	renderValue() {
 		if(this.value === null) {
 			return '';
@@ -249,8 +254,9 @@ class FeatureViewUnit extends FeatureView {
 	}
 
 	/**
-	 * Convert value to human-readable format
+	 * Convert internal value to human-readable format
 	 *
+	 * @return {string}
 	 * @private
 	 */
 	renderValue() {
@@ -260,7 +266,7 @@ class FeatureViewUnit extends FeatureView {
 		if(typeof this.type === 'undefined') {
 			this.type = this.parseType();
 		}
-		FeatureViewUnit.valueToPrintable(this.type, parseInt(this.value));
+		return FeatureViewUnit.valueToPrintable(this.type, parseInt(this.value));
 	}
 
 	/**
