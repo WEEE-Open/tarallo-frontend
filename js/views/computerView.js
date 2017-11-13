@@ -146,6 +146,7 @@ class ComputerView extends Framework.View {
 			extended = ComputerView.allToString(type, components);
 			compact = ComputerView.compactToString(type, components);
 		} catch(e) {
+			this.logs.add(e, 'E');
 			multicomponent = false;
 		}
 
@@ -242,29 +243,21 @@ class ComputerView extends Framework.View {
 	 */
 	static compactToString(type, components) {
 		let string = '';
+		let features;
 		switch(type) {
 			case 'ram':
-				let ddr = undefined, freq = undefined, size = undefined, totalSize = 0, counter = 0;
-				for(let ram of components) {
-					if(typeof ddr === 'undefined') {
-						ddr = ram.features.get('ram-socket');
-					}
-					if(typeof freq === 'undefined') {
-						freq = ram.features.get('frequency-hz');
-					}
-					size = ram.features.get("capacity-byte");
-					if(typeof size !== 'undefined') {
-						totalSize += parseInt(size);
-					}
-
-					counter++;
-				}
+				features = ComputerView.findFeatures(components, ['ram-socket', 'frequency-hz'], ['brand'], ['capacity-byte']);
 
 				// TODO: translations
-				ddr = typeof ddr === 'undefined' ? 'RAM ' : ' ' + ddr;
-				freq = typeof freq === 'undefined' ? '' : ' ' + freq;
+				let ddr = features.has('ram-socket') ? features.get('ram-socket') + ' ' :  'RAM ';
+				let freq = features.has('frequency-hz') ? features.get('frequency-hz') + ' ' : '';
+				let counter = components.size;
+				let size = features.has('capacity-byte') ? features.get('capacity-byte') : 0;
 
-				string += counter + '× ' + ddr + freq + FeatureViewUnit.valueToPrintable('byte', totalSize);
+				string += '' + counter + '× ' + ddr + freq + FeatureViewUnit.valueToPrintable('byte', size);
+				break;
+			case 'cpu':
+
 				break;
 			// TODO: implement other types
 			default:
@@ -284,21 +277,14 @@ class ComputerView extends Framework.View {
 	 */
 	static allToString(type, components) {
 		let string = '';
+		let features;
 		switch(type) {
 			case 'ram':
-				let brands = new Set();
-				for(let ram of components) {
-					if(ram.features.has('brand')) {
-						let brand = ram.features.get('brand');
-						if(!brands.has(brand)) {
-							brands.add(brand);
-						}
-					}
-				}
-				if(brands.size === 0) {
-					return null;
+				features = ComputerView.findFeatures(components, [], ['brand']);
+				if(features.has('brand')) {
+					string = ComputerView.strList(features.get('brand'));
 				} else {
-					string = ComputerView.strList(brands);
+					return null;
 				}
 				break;
 			// TODO: implement
@@ -307,6 +293,51 @@ class ComputerView extends Framework.View {
 		}
 
 		return string;
+	}
+
+	/**
+	 * Find features in multiple items
+	 *
+	 * @param {Iterable.<Item>} components
+	 * @param {string[]=array} first - find first item with a feature of this type
+	 * @param {string[]=array} all - find all items with that feature, place distinct types in a Set
+	 * @param {string[]=array} sum - cast to int and sum
+	 *
+	 * @return {Map.<string,string|Set<string>|int>}
+	 */
+	static findFeatures(components, first=[], all=[], sum=[]) {
+		/**
+		 * @type {Map.<string,string|Set<string>|int>}
+		 */
+		let results = new Map();
+
+		for(let piece of components) {
+			for(let type of sum) {
+				if(piece.features.has(type)) {
+					let int = parseInt(piece.features.get(type));
+					if(results.has(type)) {
+						results.set(type, results.get(type) + int);
+					} else {
+						results.set(type, int)
+					}
+				}
+			}
+			for(let type of all) {
+				if(piece.features.has(type)) {
+					if(!results.has(type)) {
+						results.set(type, new Set());
+					}
+					let name = piece.features.get(type);
+					results.get(type).add(name);
+				}
+			}
+			for(let type of first) {
+				if(!results.has(type) && piece.features.has(type)) {
+					results.set(type, piece.features.get(type));
+				}
+			}
+		}
+		return results;
 	}
 
 	/**
