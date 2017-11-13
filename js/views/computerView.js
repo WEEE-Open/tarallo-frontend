@@ -154,8 +154,7 @@ class ComputerView extends Framework.View {
 			cells.push(this.buildComponentCell(type, components, compact, extended));
 		} else {
 			for(let component of components) {
-				// TODO: compact = ComputerView.singleToString(type, component);
-				compact = 'foo';
+				compact = ComputerView.singleToString(type, component);
 				cells.push(this.buildComponentCell(type, [component], compact));
 			}
 		}
@@ -256,9 +255,6 @@ class ComputerView extends Framework.View {
 
 				string += '' + counter + '× ' + ddr + freq + FeatureViewUnit.valueToPrintable('byte', size);
 				break;
-			case 'cpu':
-
-				break;
 			// TODO: implement other types
 			default:
 				throw new Error(type + ' cannot be represented as a compact string');
@@ -292,6 +288,37 @@ class ComputerView extends Framework.View {
 				throw new Error(type + ' cannot be represented as an extended string');
 		}
 
+		return string;
+	}
+
+	/**
+	 * Represent a single item as a string
+	 *
+	 * @param type
+	 * @param {string} type - item type
+	 * @param {Item} component - CPU, graphics card and so on
+	 */
+	static singleToString(type, component) {
+		let brand = component.features.has('brand') ? component.features.get('brand') + ' ' : '';
+		let model = component.features.has('model') ? component.features.get('model') + ' ' : '';
+		let string = '';
+		switch(type) {
+			case 'cpu':
+				let freq = component.features.has('frequency-hz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', component.features.get('frequency-hz')) : '';
+				let socket = component.features.has('cpu-socket') ? '(' + component.features.get('cpu-socket') + ')' : '';
+				let core = component.features.has('core-n') ? component.features.get('core-n') : '';
+				if(core !== '') {
+					if(core === '1') {
+						core = 'single core ';
+					} else {
+						core = core + ' cores ';
+					}
+				}
+				string = brand + model + core + freq + socket;
+			break;
+			default:
+				return 'foo';
+		}
 		return string;
 	}
 
