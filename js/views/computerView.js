@@ -59,11 +59,11 @@ class ComputerView extends Framework.View {
 		if(location !== null) {
 			let locationLink = this.el.querySelector(".header .location");
 			locationLink.textContent = location;
-			locationLink.href = '#/View/' + location;
+			locationLink.href = '#/view/' + location;
 		}
 		let aCode = this.el.querySelector(".header .code");
 		aCode.textContent = this.item.code;
-		aCode.href = '#/View/' + this.item.code;
+		aCode.href = '#/view/' + this.item.code;
 	}
 
 	/**
@@ -146,7 +146,7 @@ class ComputerView extends Framework.View {
 			extended = ComputerView.allToString(type, components);
 			compact = ComputerView.compactToString(type, components);
 		} catch(e) {
-			this.logs.add(e, 'E');
+			//this.logs.add(e, 'W');
 			multicomponent = false;
 		}
 
