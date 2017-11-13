@@ -277,10 +277,12 @@ class ComputerView extends Framework.View {
 		switch(type) {
 			case 'ram':
 				features = ComputerView.findFeatures(components, [], ['brand', 'sn']);
-				let couples = new Set();
-				let brand = features.get('brand').values();
-				for(let sn of features.get('sn')) {
-					let brand = brand.next();
+				let couples = [];
+				let brands = features.get('brand');
+				let sns = features.get('sn');
+				for(let i = 0; i < brands.length; i++) {
+					let brand = brands[i];
+					let sn = sns[i];
 					let couple = '';
 					if(brand !== null) {
 						couple += brand + ' ';
@@ -290,13 +292,13 @@ class ComputerView extends Framework.View {
 					}
 					couple = couple.trim();
 					if(couple === '') {
-						couples.add('?');
+						couples.push('?');
 					} else {
-						couples.add(couple);
+						couples.push(couple);
 					}
 				}
 
-				string = ComputerView.strList(features.get('sn'));
+				string = ComputerView.strList(couples);
 				break;
 			// TODO: implement others
 			default:
@@ -362,11 +364,11 @@ class ComputerView extends Framework.View {
 	 * @param {string[]=array} all - Set of those features or null, for each item in same order
 	 * @param {string[]=array} sum - cast to int and sum
 	 *
-	 * @return {Map.<string,string|Set<string>|int>}
+	 * @return {Map.<string,string|string[]|int>}
 	 */
 	static findFeatures(components, first=[], all=[], sum=[]) {
 		/**
-		 * @type {Map.<string,string|Set<string>|int>}
+		 * @type {Map.<string,string|string[]|int>}
 		 */
 		let results = new Map();
 
@@ -383,12 +385,12 @@ class ComputerView extends Framework.View {
 			}
 			for(let type of all) {
 				if(!results.has(type)) {
-					results.set(type, new Set());
+					results.set(type, []);
 				}
 				if(piece.features.has(type)) {
-					results.get(type).add(piece.features.get(type));
+					results.get(type).push(piece.features.get(type));
 				} else {
-					results.get(type).add(null);
+					results.get(type).push(null);
 				}
 			}
 			for(let type of first) {
