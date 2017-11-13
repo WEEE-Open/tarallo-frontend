@@ -299,14 +299,15 @@ class ComputerView extends Framework.View {
 	 * @param {Item} component - CPU, graphics card and so on
 	 */
 	static singleToString(type, component) {
-		let brand = component.features.has('brand') ? component.features.get('brand') + ' ' : '';
-		let model = component.features.has('model') ? component.features.get('model') + ' ' : '';
+		let it = component.features;
+		let brand = it.has('brand') ? it.get('brand') + ' ' : '';
+		let model = it.has('model') ? it.get('model') + ' ' : '';
 		let string = '';
 		switch(type) {
 			case 'cpu':
-				let freq = component.features.has('frequency-hz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', component.features.get('frequency-hz')) : '';
-				let socket = component.features.has('cpu-socket') ? '(' + component.features.get('cpu-socket') + ')' : '';
-				let core = component.features.has('core-n') ? component.features.get('core-n') : '';
+				let freq = it.has('frequency-hz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', it.get('frequency-hz')) : '';
+				let socket = it.has('cpu-socket') ? '(' + it.get('cpu-socket') + ')' : '';
+				let core = it.has('core-n') ? it.get('core-n') : '';
 				if(core !== '') {
 					if(core === '1') {
 						core = 'single core ';
@@ -316,8 +317,24 @@ class ComputerView extends Framework.View {
 				}
 				string = brand + model + core + freq + socket;
 			break;
+			case 'motherboard':
+				let formFactor = it.has('motherboard-form-factor') ? ' ' + it.get('motherboard-form-factor') : '';
+				let agp = it.has('agp-sockets-n') ? '' + it.has('agp-sockets-n') + '× AGP ' : '';
+				let pci = it.has('pci-sockets-n') ? '' + it.has('pci-sockets-n') + '× PCI ' : '';
+				let pcie = it.has('pcie-sockets-n') ? '' + it.has('pcie-sockets-n') + '× PCIe ' : '';
+				let sata = it.has('sata-ports-n') ? '' + it.has('sata-ports-n') + '× SATA ' : '';
+				let ide = it.has('ide-ports-n') ? '' + it.has('ide-ports-n') + '× IDE ' : '';
+				let psu = it.has('psu-socket') ? '' + it.has('psu-socket') + ' ' : '';
+				let ports = '';
+				if(agp !== '' || pci !== '' || pcie !== '' || sata !== '' || ide !== '') {
+					ports = '(' + agp + pci + pcie + sata + ide;
+					ports = ports.trim() + ')';
+				}
+
+				string = brand + model + formFactor + psu + ports;
+				break;
 			default:
-				return 'foo';
+				return brand + model;
 		}
 		return string;
 	}
