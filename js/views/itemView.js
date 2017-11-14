@@ -820,10 +820,11 @@ class ItemView extends Framework.View {
 			case 'hdd':
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
+				this.appendFeatureElement('rotation-rate-rpm', null);
 				this.appendFeatureElement('sata-ports-n', null);
 				this.appendFeatureElement('ide-ports-n', null);
 				this.appendFeatureElement('capacity-decibyte', null);
-				this.appendFeatureElement('hdd-form-factor', null);
+				this.appendFeatureElement('hdd-odd-form-factor', null);
 				this.appendFeatureElement('sn', null);
 				this.appendFeatureElement('working', null);
 				break;
@@ -833,7 +834,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('sata-ports-n', null);
 				this.appendFeatureElement('ide-ports-n', null);
 				this.appendFeatureElement('odd-type', null);
-				this.appendFeatureElement('odd-form-factor', null);
+				this.appendFeatureElement('hdd-odd-form-factor', null);
 				this.appendFeatureElement('sn', null);
 				this.appendFeatureElement('working', null);
 				break;
@@ -848,7 +849,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('sn', null);
 				this.appendFeatureElement('working', null);
 				break;
-			case 'ethernet-card':
+			case 'network-card':
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('pcie-sockets-n', null);

@@ -68,7 +68,7 @@ class FeatureView extends Framework.View {
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
 	static factory(el, translations, logs, item, name, value) {
-		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')) {
+		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')  || name.endsWith('-rpm')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else if(FeatureViewList.has(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
@@ -204,7 +204,7 @@ class FeatureViewUnit extends FeatureView {
 	parseType() {
 		if(this.name.endsWith('-byte')) {
 			return 'byte';
-		} else if(this.name.endsWith('-hz')) { // TODO: change to -hertz on the server
+		} else if(this.name.endsWith('-hertz')) {
 			return 'Hz';
 		} else if(this.name.endsWith('-decibyte')) {
 			return 'B';
@@ -218,6 +218,8 @@ class FeatureViewUnit extends FeatureView {
 			return 'W';
 		} else if(this.name.endsWith('-inch')) {
 			return 'in.';
+		} else if(this.name.endsWith('-rpm')) {
+			return 'rpm';
 		} else {
 			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
 		}
@@ -282,6 +284,8 @@ class FeatureViewUnit extends FeatureView {
 			case 'n':
 				return value.toString();
 				break;
+			case 'rpm':
+				return value.toString() + ' rpm';
 			case 'byte':
 				while(value >= 1024 && prefix <= 6) {
 					value /= 1024; // this SHOULD already be optimized internally to use bit shift
@@ -487,24 +491,6 @@ class FeatureViewList extends FeatureView {
 		}
 	}
 }
-// An alternative:
-// class FeatureViewType extends FeatureViewList {
-// 	constructor(el, translations, logs, item, name, value) {
-// 		if(name !== 'type') {
-// 			throw new Error("Cannot create FeatureViewType for " + name);
-// 		}
-// 		super(el, translations, logs, item, name, value);
-// 	}
-//
-// 	setCallback(f) {
-// 		if(typeof f !== "function") {
-// 			throw new Error("");
-// 		} else if(f.length !== 2) {
-// 			throw new Error("callback function must be bound and have 2 parameters")
-// 		}
-// 		this.callback = f;
-// 	}
-// }
 
 Object.defineProperty(FeatureViewList, 'lists', {
 	enumerable: true,
