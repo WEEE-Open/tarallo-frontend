@@ -759,7 +759,7 @@ class ItemView extends Framework.View {
 				}
 				this.appendFeatureElement('cib', null);
 				this.appendFeatureElement('brand', null);
-				this.appendFeatureElement('name', null);
+				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('windows-serial-version', null);
 				this.appendFeatureElement('windows-serial-number', null);
 				this.appendFeatureElement('arrival-batch', null);
@@ -772,18 +772,18 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('cpu-socket', null);
-				this.appendFeatureElement('frequency-hz', null);
+				this.appendFeatureElement('frequency-hertz', null);
 				this.appendFeatureElement('core-n', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'ram':
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('ram-socket', null);
-				this.appendFeatureElement('frequency-hz', null);
+				this.appendFeatureElement('frequency-hertz', null);
 				this.appendFeatureElement('capacity-byte', null);
 				this.appendFeatureElement('sn', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'motherboard':
 				for(let piece of ['cpu', 'ram']) {
@@ -805,12 +805,12 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('sata-ports-n', null);
 				this.appendFeatureElement('usb-ports-n', null);
 				this.appendFeatureElement('ps2-ports-n', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'psu':
 				this.appendFeatureElement('brand', null);
 				this.appendFeatureElement('model', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				this.appendFeatureElement('psu-socket', null);
 				this.appendFeatureElement('power-connector', null);
 				this.appendFeatureElement('psu-volt', null);
@@ -825,7 +825,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('capacity-decibyte', null);
 				this.appendFeatureElement('hdd-form-factor', null);
 				this.appendFeatureElement('sn', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'odd':
 				this.appendFeatureElement('brand', null);
@@ -835,7 +835,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('odd-type', null);
 				this.appendFeatureElement('odd-form-factor', null);
 				this.appendFeatureElement('sn', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'graphics-card':
 				this.appendFeatureElement('brand', null);
@@ -846,7 +846,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('agp-sockets-n', null);
 				this.appendFeatureElement('pcie-power', null);
 				this.appendFeatureElement('sn', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'ethernet-card':
 				this.appendFeatureElement('brand', null);
@@ -858,7 +858,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('ethernet-ports-100m-n', null);
 				//this.appendFeatureElement('ethernet-ports-1000m-n', null);
 				this.appendFeatureElement('mac', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'switch':
 			case 'hub':
@@ -870,7 +870,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('power-connector', null);
 				this.appendFeatureElement('psu-volt', null);
 				this.appendFeatureElement('psu-ampere', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				this.appendFeatureElement('notes', null);
 				break;
 			case 'keyboard':
@@ -879,7 +879,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('model', null);
 				this.appendFeatureElement('usb-ports-n', null);
 				this.appendFeatureElement('ps2-ports-n', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				break;
 			case 'monitor':
 				this.appendFeatureElement('brand', null);
@@ -890,7 +890,7 @@ class ItemView extends Framework.View {
 				this.appendFeatureElement('power-connector', null);
 				this.appendFeatureElement('psu-volt', null);
 				this.appendFeatureElement('psu-ampere', null);
-				this.appendFeatureElement('works', null);
+				this.appendFeatureElement('working', null);
 				this.appendFeatureElement('notes', null);
 				break;
 			default:

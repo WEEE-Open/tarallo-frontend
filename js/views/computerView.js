@@ -245,11 +245,11 @@ class ComputerView extends Framework.View {
 		let features;
 		switch(type) {
 			case 'ram':
-				features = ComputerView.findFeatures(components, ['ram-socket', 'frequency-hz'], [], ['capacity-byte']);
+				features = ComputerView.findFeatures(components, ['ram-socket', 'frequency-hertz'], [], ['capacity-byte']);
 
 				// TODO: translations
 				let ddr = features.has('ram-socket') ? features.get('ram-socket') + ' ' :  'RAM ';
-				let freq = features.has('frequency-hz') ? features.get('frequency-hz') + ' ' : '';
+				let freq = features.has('frequency-hertz') ? features.get('frequency-hertz') + ' ' : '';
 				let counter = components.size;
 				let size = features.has('capacity-byte') ? features.get('capacity-byte') : 0;
 
@@ -321,7 +321,7 @@ class ComputerView extends Framework.View {
 		let model = it.has('model') ? it.get('model') + ' ' : '';
 		let string = '';
 		if(type === 'cpu') {
-			let freq = it.has('frequency-hz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', it.get('frequency-hz')) : '';
+			let freq = it.has('frequency-hertz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', it.get('frequency-hertz')) : '';
 			let socket = it.has('cpu-socket') ? '(' + it.get('cpu-socket') + ')' : '';
 			let core = it.has('core-n') ? it.get('core-n') : '';
 			if (core !== '') {
