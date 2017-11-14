@@ -320,38 +320,45 @@ class ComputerView extends Framework.View {
 		let brand = it.has('brand') ? it.get('brand') + ' ' : '';
 		let model = it.has('model') ? it.get('model') + ' ' : '';
 		let string = '';
-		switch(type) {
-			case 'cpu':
-				let freq = it.has('frequency-hz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', it.get('frequency-hz')) : '';
-				let socket = it.has('cpu-socket') ? '(' + it.get('cpu-socket') + ')' : '';
-				let core = it.has('core-n') ? it.get('core-n') : '';
-				if(core !== '') {
-					if(core === '1') {
-						core = 'single core ';
-					} else {
-						core = core + ' cores ';
-					}
+		if(type === 'cpu') {
+			let freq = it.has('frequency-hz') ? '@ ' + FeatureViewUnit.valueToPrintable('Hz', it.get('frequency-hz')) : '';
+			let socket = it.has('cpu-socket') ? '(' + it.get('cpu-socket') + ')' : '';
+			let core = it.has('core-n') ? it.get('core-n') : '';
+			if (core !== '') {
+				if (core === '1') {
+					core = 'single core ';
+				} else {
+					core = core + ' cores ';
 				}
-				string = brand + model + core + freq + socket;
-			break;
-			case 'motherboard':
-				let formFactor = it.has('motherboard-form-factor') ? ' ' + it.get('motherboard-form-factor') : '';
-				let agp = it.has('agp-sockets-n') ? '' + it.has('agp-sockets-n') + '× AGP ' : '';
-				let pci = it.has('pci-sockets-n') ? '' + it.has('pci-sockets-n') + '× PCI ' : '';
-				let pcie = it.has('pcie-sockets-n') ? '' + it.has('pcie-sockets-n') + '× PCIe ' : '';
-				let sata = it.has('sata-ports-n') ? '' + it.has('sata-ports-n') + '× SATA ' : '';
-				let ide = it.has('ide-ports-n') ? '' + it.has('ide-ports-n') + '× IDE ' : '';
-				let psu = it.has('psu-socket') ? '' + it.has('psu-socket') + ' ' : '';
-				let ports = '';
-				if(agp !== '' || pci !== '' || pcie !== '' || sata !== '' || ide !== '') {
-					ports = '(' + agp + pci + pcie + sata + ide;
-					ports = ports.trim() + ')';
-				}
+			}
+			string = brand + model + core + freq + socket;
+		} else if(type === 'motherboard') {
+			let formFactor = it.has('motherboard-form-factor') ? ' ' + it.get('motherboard-form-factor') : '';
+			let agp = it.has('agp-sockets-n') ? '' + it.has('agp-sockets-n') + '× AGP ' : '';
+			let pci = it.has('pci-sockets-n') ? '' + it.has('pci-sockets-n') + '× PCI ' : '';
+			let pcie = it.has('pcie-sockets-n') ? '' + it.has('pcie-sockets-n') + '× PCIe ' : '';
+			let sata = it.has('sata-ports-n') ? '' + it.has('sata-ports-n') + '× SATA ' : '';
+			let ide = it.has('ide-ports-n') ? '' + it.has('ide-ports-n') + '× IDE ' : '';
+			let psu = it.has('psu-socket') ? '' + it.has('psu-socket') + ' ' : '';
+			let ports = '';
+			if (agp !== '' || pci !== '' || pcie !== '' || sata !== '' || ide !== '') {
+				ports = '(' + agp + pci + pcie + sata + ide;
+				ports = ports.trim() + ')';
+			}
 
-				string = brand + model + formFactor + psu + ports;
-				break;
-			default:
-				return brand + model;
+			string = brand + model + formFactor + psu + ports;
+		} else if(type === 'psu') {
+			let socket = it.has('psu-socket') ? ' ' + it.get('psu-socket') : '';
+			let connector = it.has('power-connector') ? ' ' + it.get('power-connector') : '';
+			let v = it.has('psu-volt') ? ' ' + it.get('psu-volt') : '';
+			let i = it.has('psu-ampere') ? ' ' + it.get('psu-ampere') : '';
+			let p = it.has('power-rated-watt') ? ' ' + it.get('power-rated-watt') : '';
+
+			string = (brand + model + socket + connector).trim();
+			string = string === '' ? '' : string + ', ';
+			string += ComputerView.strList([v, i, p]);
+		} else {
+			string = brand + model;
 		}
 		return string;
 	}
@@ -412,7 +419,9 @@ class ComputerView extends Framework.View {
 	static strList(list) {
 		let string = '';
 		for(let piece of list) {
-			string += piece + ', ';
+			if(piece !== '') {
+				string += piece + ', ';
+			}
 		}
 
 		return string.substr(0, string.length - 2);
