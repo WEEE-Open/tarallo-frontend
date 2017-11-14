@@ -334,12 +334,12 @@ class ComputerView extends Framework.View {
 			string = brand + model + core + freq + socket;
 		} else if(type === 'motherboard') {
 			let formFactor = it.has('motherboard-form-factor') ? ' ' + it.get('motherboard-form-factor') : '';
-			let agp = it.has('agp-sockets-n') ? '' + it.has('agp-sockets-n') + '× AGP ' : '';
-			let pci = it.has('pci-sockets-n') ? '' + it.has('pci-sockets-n') + '× PCI ' : '';
-			let pcie = it.has('pcie-sockets-n') ? '' + it.has('pcie-sockets-n') + '× PCIe ' : '';
-			let sata = it.has('sata-ports-n') ? '' + it.has('sata-ports-n') + '× SATA ' : '';
-			let ide = it.has('ide-ports-n') ? '' + it.has('ide-ports-n') + '× IDE ' : '';
-			let psu = it.has('psu-socket') ? '' + it.has('psu-socket') + ' ' : '';
+			let agp = it.has('agp-sockets-n') ? '' + it.get('agp-sockets-n') + '× AGP ' : '';
+			let pci = it.has('pci-sockets-n') ? '' + it.get('pci-sockets-n') + '× PCI ' : '';
+			let pcie = it.has('pcie-sockets-n') ? '' + it.get('pcie-sockets-n') + '× PCIe ' : '';
+			let sata = it.has('sata-ports-n') ? '' + it.get('sata-ports-n') + '× SATA ' : '';
+			let ide = it.has('ide-ports-n') ? '' + it.get('ide-ports-n') + '× IDE ' : '';
+			let psu = it.has('psu-socket') ? '' + it.get('psu-socket') + ' ' : '';
 			let ports = '';
 			if (agp !== '' || pci !== '' || pcie !== '' || sata !== '' || ide !== '') {
 				ports = '(' + agp + pci + pcie + sata + ide;
@@ -350,13 +350,26 @@ class ComputerView extends Framework.View {
 		} else if(type === 'psu') {
 			let socket = it.has('psu-socket') ? ' ' + it.get('psu-socket') : '';
 			let connector = it.has('power-connector') ? ' ' + it.get('power-connector') : '';
-			let v = it.has('psu-volt') ? ' ' + it.get('psu-volt') : '';
-			let i = it.has('psu-ampere') ? ' ' + it.get('psu-ampere') : '';
-			let p = it.has('power-rated-watt') ? ' ' + it.get('power-rated-watt') : '';
+			let v = it.has('psu-volt') ? ' ' + FeatureViewUnit.valueToPrintable('volt', parseInt(it.get('psu-volt'))) : '';
+			let i = it.has('psu-ampere') ? ' ' + FeatureViewUnit.valueToPrintable('ampere', parseInt(it.get('psu-ampere'))) : '';
+			let p = it.has('power-rated-watt') ? ' ' + FeatureViewUnit.valueToPrintable('watt', parseInt(it.get('power-rated-watt'))) : '';
 
 			string = (brand + model + socket + connector).trim();
 			string = string === '' ? '' : string + ', ';
 			string += ComputerView.strList([v, i, p]);
+		} else if(type === 'hdd') {
+			let sata = it.has('sata-ports-n') && parseInt(it.get('sata-ports-n')) > 0;
+			let ide = it.has('ide-ports-n') && parseInt(it.get('ide-ports-n')) > 0;
+			let size = it.has('capacity-decibyte') ? ' ' + FeatureViewUnit.valueToPrintable('decibyte', parseInt(it.get('capacity-decibyte'))) : '';
+			let ff = it.has('hdd-form-factor') ? ' ' + it.get('hdd-form-factor') : '';
+			string = brand + model + ff + size;
+			if(sata && ide) {
+				string += ' (SATA + IDE!?)';
+			} else if(sata) {
+				string += ' (SATA)';
+			} else {
+				string += ' (IDE)';
+			}
 		} else {
 			string = brand + model;
 		}
