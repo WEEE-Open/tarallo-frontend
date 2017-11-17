@@ -25,13 +25,9 @@ class SearchView extends Framework.View {
 		this.translations = translations;
 		this.transaction = transaction;
 
-		// TODO: do the same thing as features (= delete button, empty field means null means "no field")
 		/** Maps an element of the search controls to its SearchPair.
 		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
 		this.elementsPairs = new WeakMap();
-		/** Nodes that don't exist in Search (yet), mapped to their key
-		 *  @type {WeakMap.<Node|HTMLElement, string>} */
-		this.elementsUnpaired = new WeakMap();
 		/** @type {Set.<Framework.View>} */
 		this.subviews = new Set();
 
@@ -105,27 +101,12 @@ class SearchView extends Framework.View {
 		if(event.target.nodeName === "BUTTON") {
 			event.stopPropagation();
 			let key = event.target.dataset.key;
-			if(!Search.Pair.canDuplicate(key)) {
-				let duplicate = false;
-				if(this.search.containsKey(key)) {
-					duplicate = true;
-				} else {
-					let controls = this.getAllControls();
-					for(let control of controls) {
-						if(this.elementsUnpaired.get(control) === key) {
-							duplicate = true;
-							break;
-						}
-					}
-				}
-				if(duplicate) {
-					this.logs.add('Cannot add duplicate key ' + key, 'W');
-					return;
-				}
+			if(!Search.Pair.canDuplicate(key) && this.search.containsKey(key)) {
+				this.logs.add('Cannot add duplicate key ' + key, 'W');
+				return;
 			}
 			let control = SearchView.createTextBox(key, null);
 			this.controlsElement.appendChild(control);
-			this.elementsUnpaired.set(control, key);
 		}
 	}
 
@@ -170,7 +151,7 @@ class SearchView extends Framework.View {
 				let newPair = null;
 				try {
 					newPair = this.search.add(this.elementsUnpaired.get(control), value);
-					this.addPair(newPair, control);
+					this.showPair(newPair, control);
 				} catch(e) {
 					this.logs.add(e.message, 'E');
 					// TODO: rollback also depends on textbox type, make a function and use it here
@@ -199,21 +180,11 @@ class SearchView extends Framework.View {
 	}
 
 	/**
-	 * Get all controls currently rendered, both paired and unpaired.
-	 *
-	 * @return {NodeList}
-	 */
-	getAllControls() {
-		return this.controlsElement.querySelectorAll('.control');
-	}
-
-	/**
 	 * Remove unpaired controls from page.
 	 */
 	removeUnpairedControls() {
-		let controls = this.getAllControls();
-		for(let element of controls) {
-			if(this.elementsUnpaired.has(element)) {
+		for(let [element, pair] of this.elementsPairs) {
+			if(!this.search.pairs.has(pair)) {
 				this.controlsElement.removeChild(element);
 			}
 		}
@@ -229,7 +200,7 @@ class SearchView extends Framework.View {
 		}
 
 		for(let pair of this.search.pairs) {
-			this.addPair(pair);
+			this.showPair(pair);
 		}
 	}
 
@@ -237,22 +208,15 @@ class SearchView extends Framework.View {
 	 * Add a Pair to current page, display it, place it into the map.
 	 * Removing is unnecessary since it's a weakmap, just delete the element from the page.
 	 *
-	 * @param {Search.Pair} pair - a real & true Pair, as recognized by international laws and by Search (i.e. it must be in this.search.pairs)
-	 * @param {Node|HTMLElement|null} control=null - current element. Will be created if null.
+	 * @param {Search.Pair} pair
+	 * @param {Node|HTMLElement|null=null} control - current element. Will be created if null.
 	 * @private
 	 */
-	addPair(pair, control = null) {
-		if(!this.search.pairs.has(pair)) {
-			// noinspection JSUnresolvedVariable
-			throw new Error("Cannot add pair (" + pair.key + " : " + pair.value + ") to SearchView since it doesn't exist in Search");
-		}
-
+	showPair(pair, control = null) {
 		if(control === null) {
 			// noinspection JSUnresolvedVariable
 			control = SearchView.createTextBox(pair.key, pair.value);
 			this.controlsElement.appendChild(control);
-		} else {
-			this.elementsUnpaired.delete(control);
 		}
 		this.elementsPairs.set(control, pair);
 	}

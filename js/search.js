@@ -22,7 +22,18 @@ class Search extends Framework.Object {
 	 */
 	add(key, value) {
 		let pair = new Search.Pair(key, value, this.keysCounter.has(value));
-		this.incrementKeyCounter(key);
+		return this.addPair(pair);
+	}
+
+	/**
+	 * Insert pair and increment counter. Used to re-add "orphaned" pairs.
+	 *
+	 * @param {Search.Pair} pair
+	 * @return {Search.Pair}
+	 * @private
+	 */
+	addPair(pair) {
+		this.incrementKeyCounter(pair.key);
 		this.pairs.add(pair);
 		return pair;
 	}
@@ -40,6 +51,9 @@ class Search extends Framework.Object {
 		} else {
 			// noinspection JSUnresolvedFunction
 			pair.set(pair.key, value);
+			if(!this.pairs.has(pair)) {
+				this.addPair(pair);
+			}
 		}
 	}
 
@@ -212,6 +226,13 @@ Object.defineProperty(Search, 'Pair', {
 			this.set(key, value);
 		}
 
+		/**
+		 * Set value. Don't use from outside Search.
+		 *
+		 * @param value
+		 * @see Search.set
+		 * @private
+		 */
 		set(value) {
 			switch(this.key) {
 				case 'Location':
