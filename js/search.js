@@ -8,42 +8,39 @@ class Search extends Framework.Object {
 
 		/** @type {Map.<string,int>}
 		 *  @private */
-		this.keys = new Map();
+		this.keysCounter = new Map();
 		/** @type {Set.<Search.Pair>} */
 		this.pairs = new Set();
 	}
 
 	/**
-	 * Add stuff.
+	 * add key and value.
 	 *
 	 * @param {string} key
 	 * @param {string|int} value
 	 * @return {Search.Pair} new pair
 	 */
 	add(key, value) {
-		//let before = this.pairs.size;
-		let pair = new Search.Pair(key, value, this.keys.has(value));
-		this.addKey(key);
+		let pair = new Search.Pair(key, value, this.keysCounter.has(value));
+		this.incrementKeyCounter(key);
 		this.pairs.add(pair);
-		//if(before === 0) {
-		//	this.trigger('add-content');
-		//}
 		return pair;
 	}
 
 	/**
-	 * Remove a pair. Get it from this.pairs.
+	 * Set value to a pair. Use null to remove.
 	 *
-	 * @see this.pairs
 	 * @param {Search.Pair} pair
+	 * @param {string|int|null} value
 	 */
-	remove(pair) {
-		this.pairs.delete(pair);
-		// noinspection JSUnresolvedVariable
-		this.removeKey(pair.key);
-		//if(this.pairs.size === 0) {
-		//	this.trigger('remove-content');
-		//}
+	set(pair, value) {
+		if(value === null) {
+			this.pairs.delete(pair);
+			this.decrementKeyCounter(pair.key);
+		} else {
+			// noinspection JSUnresolvedFunction
+			pair.set(pair.key, value);
+		}
 	}
 
 	/**
@@ -61,12 +58,12 @@ class Search extends Framework.Object {
 	 * @param {string} key
 	 * @private
 	 */
-	addKey(key) {
+	incrementKeyCounter(key) {
 		// I wonder if this data structure already exists in a standardized form and if it has a name...
-		if(this.keys.has(key)) {
-			this.keys.set(key, this.keys.get(key) + 1);
+		if(this.keysCounter.has(key)) {
+			this.keysCounter.set(key, this.keysCounter.get(key) + 1);
 		} else {
-			this.keys.set(key, 1);
+			this.keysCounter.set(key, 1);
 		}
 	}
 
@@ -76,13 +73,13 @@ class Search extends Framework.Object {
 	 * @param {string} key
 	 * @private
 	 */
-	removeKey(key) {
-		if(this.keys.has(key)) {
-			let count = this.keys.get(key);
+	decrementKeyCounter(key) {
+		if(this.keysCounter.has(key)) {
+			let count = this.keysCounter.get(key);
 			if(count > 1) {
-				this.keys.set(key, count - 1);
+				this.keysCounter.set(key, count - 1);
 			} else {
-				this.keys.delete(key);
+				this.keysCounter.delete(key);
 			}
 		} else {
 			throw new Error("Removing unexisting key " + key);
@@ -96,7 +93,7 @@ class Search extends Framework.Object {
 	 * @return {boolean}
 	 */
 	containsKey(key) {
-		return this.keys.has(key);
+		return this.keysCounter.has(key);
 	}
 
 	/**
@@ -175,7 +172,8 @@ class Search extends Framework.Object {
 	}
 
 	/**
-	 * Ever wanted to throw a Search inside StateHolder? No? Well, you can: get an array here and use it on setAll or whatever.
+	 * Ever wanted to throw a Search inside StateHolder?
+	 * No? Well, now you can: get an array here and use it on setAll or whatever.
 	 *
 	 * @return {string[]}
 	 */
@@ -183,7 +181,7 @@ class Search extends Framework.Object {
 		let array = [];
 		for(let pair of this.pairs) {
 			array.push(pair.key);
-			array.push(pair.value);
+			array.push(pair.value); // TOOD: use toString
 		}
 
 		return array;
@@ -192,8 +190,8 @@ class Search extends Framework.Object {
 
 /**
  * @class
- * @property {string} Pair.key
- * @property {string} Pair.value
+ * @property {string} Search.Pair.key
+ * @property {string} Search.Pair.value
  */
 Object.defineProperty(Search, 'Pair', {
 	value: class {
@@ -204,17 +202,18 @@ Object.defineProperty(Search, 'Pair', {
 		 * @param {string|int} value
 		 * @param {boolean} duplicate - was this key already encountered?
 		 * @private
-		 * @see Search.add - use this instead
+		 * @see Search.set - use this instead
 		 */
 		constructor(key, value, duplicate) {
 			if(!this.constructor.canDuplicate(key) && duplicate) {
 				throw new Error("Duplicate key: Sort");
 			}
+			this.key = key;
 			this.set(key, value);
 		}
 
-		set(key, value) {
-			switch(key) {
+		set(value) {
+			switch(this.key) {
 				case 'Location':
 					if(typeof value !== "string" || value === "") {
 						throw new Error(" Location must be a non-empty string, " + value + " given");
@@ -230,13 +229,12 @@ Object.defineProperty(Search, 'Pair', {
 				case 'Parent':
 					value = parseInt(value);
 					if(Number.isNaN(value) || value < 0) {
-						throw new Error(key + " must be a positive integer, " + value + " given");
+						throw new Error(this.key + " must be a positive integer, " + value + " given");
 					}
 					break;
 				default:
-					throw new Error("Unexpected search key: " + key);
+					throw new Error("Unexpected search key: " + this.key);
 			}
-			this.key = key;
 			this.value = value;
 		}
 
