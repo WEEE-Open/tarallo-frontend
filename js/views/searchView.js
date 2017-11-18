@@ -25,9 +25,8 @@ class SearchView extends Framework.View {
 		this.translations = translations;
 		this.transaction = transaction;
 
-		/** Maps an element of the search controls to its SearchPair.
-		 *  @type {Map.<Node|HTMLElement,Search.Pair>} */
-		this.elementsPairs = new WeakMap();
+		/** @type {Set.<PairView>} */
+		this.pairViews = new Set();
 		/** @type {Set.<Framework.View>} */
 		this.subviews = new Set();
 
@@ -100,13 +99,29 @@ class SearchView extends Framework.View {
 		if(event.target.nodeName === "BUTTON") {
 			event.stopPropagation();
 			let key = event.target.dataset.key;
-			if(!Search.Pair.canDuplicate(key) && this.search.containsKey(key)) {
+			if(!SearchPair.canDuplicate(key) && this.findControlFor(key) !== null) {
 				this.logs.add('Cannot add duplicate key ' + key, 'W');
-				return;
+			} else {
+				this.showPair(this.search.newPair(key, null));
 			}
-			let control = SearchView.createTextBox(key, null);
-			this.controlsElement.appendChild(control);
 		}
+	}
+
+	/**
+	 * Find SearchPairView for a given search key, by scanning through current search pairs.
+	 * This is needed because empty SearchPairs may be not present in Search.
+	 *
+	 * @param {string} key
+	 * @return {SearchPairView} view or null if not found
+	 * @private
+	 */
+	findControlFor(key) {
+		for(let pairView of this.pairViews) {
+			if(pairView.pair.key === key) {
+				return pairView.pair;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -122,10 +137,11 @@ class SearchView extends Framework.View {
 	 * @private
 	 */
 	removeUnpairedControls() {
-		for(let element of this.controlsElement.querySelectorAll('.control')) {
-			let pair = this.elementsPairs.get(element);
+		for(let pairView of this.pairViews) {
+			let pair = pairView.pair;
 			if(!this.search.pairs.has(pair)) {
-				this.controlsElement.removeChild(element);
+				this.controlsElement.removeChild(pair.el);
+				this.pairViews.delete(pairView);
 			}
 		}
 	}
@@ -147,19 +163,14 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Add a Pair to current page, display it, place it into the map.
-	 * Removing is unnecessary since it's a weakmap, just delete the element from the page.
 	 *
-	 * @param {Search.Pair} pair
-	 * @param {Node|HTMLElement|null=null} control - current element. Will be created if null.
+	 * @param {SearchPair} pair
 	 * @private
 	 */
-	showPair(pair, control = null) {
-		if(control === null) {
-			// noinspection JSUnresolvedVariable
-			control = SearchView.createTextBox(pair.key, pair.value);
-			this.controlsElement.appendChild(control);
-		}
-		this.elementsPairs.set(control, pair);
+	showPair(pair) {
+		// TODO: this depends on key, use a factory method maybe?
+		let view = new LocationPairView(this.search, pair, this.logs);
+		this.pairViews.add(view);
 	}
 
 	/**
@@ -250,7 +261,7 @@ class SearchView extends Framework.View {
 			let key = pieces[pieces.length - 2], value = pieces[pieces.length - 1];
 			let pair;
 			try {
-				pair = search.add(key, value);
+				pair = search.newPair(key, value);
 			} catch(e) {
 				this.logs.add(e.message, 'E');
 				pair = null;

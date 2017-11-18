@@ -14,28 +14,32 @@ class Search extends Framework.Object {
 	}
 
 	/**
-	 * add key and value.
+	 * Generate a SearchPair and return it.
+	 * If value is not null, pair will also be added to list of current pairs.
+	 *
+	 * This is a SearchPair factory, basically.
 	 *
 	 * @param {string} key
-	 * @param {string|int} value
+	 * @param {string|int|null} value
 	 * @return {SearchPair} new pair
 	 */
-	add(key, value) {
+	newPair(key, value) {
 		let pair = new SearchPair(key, value, this.keysCounter.has(value));
-		return this.addPair(pair);
+		if(value === null) {
+			this.addPair(pair);
+		}
+		return pair;
 	}
 
 	/**
 	 * Insert pair and increment counter. Used to re-add "orphaned" pairs.
 	 *
 	 * @param {SearchPair} pair
-	 * @return {SearchPair}
 	 * @private
 	 */
 	addPair(pair) {
 		this.incrementKeyCounter(pair.key);
 		this.pairs.add(pair);
-		return pair;
 	}
 
 	/**
@@ -50,7 +54,7 @@ class Search extends Framework.Object {
 			this.decrementKeyCounter(pair.key);
 		} else {
 			// noinspection JSUnresolvedFunction
-			pair.set(pair.key, value);
+			pair.value = value; // TODO: something better?
 			if(!this.pairs.has(pair)) {
 				this.addPair(pair);
 			}
