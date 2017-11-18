@@ -109,6 +109,9 @@ class SearchView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Handle clicking on the "use compact view" checkbox
+	 */
 	compactViewClick() {
 		this.useComputerView = this.compactViewCheckbox.checked;
 	}
@@ -157,26 +160,6 @@ class SearchView extends Framework.View {
 			this.controlsElement.appendChild(control);
 		}
 		this.elementsPairs.set(control, pair);
-	}
-
-	/**
-	 * Create a simple textbox with a label.
-	 *
-	 * @param {string} key
-	 * @param {string|null} value
-	 * @return {Element}
-	 * @private
-	 */
-	static createTextBox(key, value) {
-		let control = document.createElement("div");
-		control.classList.add("control");
-		control.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
-		control.querySelector('label').firstChild.textContent = key + ': '; // TODO: something better.
-		if(value !== null) {
-			control.querySelector('label input').value = value;
-		}
-
-		return control;
 	}
 
 	/**
@@ -315,4 +298,68 @@ class SearchView extends Framework.View {
 			subview.trigger(that, event);
 		}
 	}
+}
+
+class PairView extends Framework.View {
+	/**
+	 * @param {Search} search
+	 * @param {SearchPair} pair
+	 * @param {Logs} logs
+	 */
+	constructor(search, pair, logs) {
+		let el = document.createElement('div');
+		el.classList.add("control");
+		super(el);
+		this.search = search;
+		this.pair = pair;
+		this.logs = logs;
+	}
+}
+
+class LocationPairView extends PairView {
+	constructor(search, pair, logs) {
+		super(search, pair, logs);
+
+		this.el.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
+
+		this.inputElement = this.el.querySelector('label input');
+		this.inputElement.value = this.pair.value;
+		this.el.querySelector('label').firstChild.textContent = this.pair.key + ': '; // TODO: something better.
+
+		this.inputElement.addEventListener('blur', this.parseInput.bind(this));
+	}
+
+
+	parseInput() {
+		let value = this.inputElement.value;
+		if(typeof value !== "string") {
+			this.logs.add("Location must be a string", 'E');
+			this.inputElement.value = this.pair.value === null ? '' : this.pair.value;
+		} else if(value === "") {
+			this.search.set(this.pair, null);
+		} else {
+			this.search.set(this.pair, value);
+		}
+	}
+}
+
+class SearchPairView extends PairView {
+
+}
+
+class SortPairView extends PairView {
+
+}
+
+class DepthPairView extends PairView {
+	// case 'Depth':
+	// value = parseInt(value);
+	// if(Number.isNaN(value) || value < 0) {
+	// 	throw new Error(this.key + " must be a positive integer, " + value + " given");
+	// }
+	// break;
+}
+
+class ParentPairView extends PairView {
+	// TODO: this should work same as search, but for parent (or ancestor, rather) item. Server should be modified accordingly
 }

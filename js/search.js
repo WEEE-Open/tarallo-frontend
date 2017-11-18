@@ -9,7 +9,7 @@ class Search extends Framework.Object {
 		/** @type {Map.<string,int>}
 		 *  @private */
 		this.keysCounter = new Map();
-		/** @type {Set.<Search.Pair>} */
+		/** @type {Set.<SearchPair>} */
 		this.pairs = new Set();
 	}
 
@@ -18,18 +18,18 @@ class Search extends Framework.Object {
 	 *
 	 * @param {string} key
 	 * @param {string|int} value
-	 * @return {Search.Pair} new pair
+	 * @return {SearchPair} new pair
 	 */
 	add(key, value) {
-		let pair = new Search.Pair(key, value, this.keysCounter.has(value));
+		let pair = new SearchPair(key, value, this.keysCounter.has(value));
 		return this.addPair(pair);
 	}
 
 	/**
 	 * Insert pair and increment counter. Used to re-add "orphaned" pairs.
 	 *
-	 * @param {Search.Pair} pair
-	 * @return {Search.Pair}
+	 * @param {SearchPair} pair
+	 * @return {SearchPair}
 	 * @private
 	 */
 	addPair(pair) {
@@ -41,7 +41,7 @@ class Search extends Framework.Object {
 	/**
 	 * Set value to a pair. Use null to remove.
 	 *
-	 * @param {Search.Pair} pair
+	 * @param {SearchPair} pair
 	 * @param {string|int|null} value
 	 */
 	set(pair, value) {
@@ -202,81 +202,53 @@ class Search extends Framework.Object {
 	}
 }
 
-/**
- * @class
- * @property {string} Search.Pair.key
- * @property {string} Search.Pair.value
- */
-Object.defineProperty(Search, 'Pair', {
-	value: class {
-		/**
-		 * Create a pair. Don't call directly!
-		 *
-		 * @param {string} key
-		 * @param {string|int} value
-		 * @param {boolean} duplicate - was this key already encountered?
-		 * @private
-		 * @see Search.set - use this instead
-		 */
-		constructor(key, value, duplicate) {
-			if(!this.constructor.canDuplicate(key) && duplicate) {
-				throw new Error("Duplicate key: Sort");
-			}
-			this.key = key;
-			this.set(key, value);
+class SearchPair {
+	/**
+	 * Create a pair. Don't call directly!
+	 *
+	 * @param {string} key
+	 * @param {string|int} value
+	 * @param {boolean} duplicate - was this key already encountered?
+	 * @private
+	 * @see Search.set - use this instead
+	 */
+	constructor(key, value, duplicate) {
+		if(!this.constructor.canDuplicate(key) && duplicate) {
+			throw new Error("Duplicate key: Sort");
 		}
+		/**
+		 * @type {string}
+		 * @readonly
+		 */
+		this.key = key;
+		this.set(key, value);
+	}
 
-		/**
-		 * Set value. Don't use from outside Search.
-		 *
-		 * @param value
-		 * @see Search.set
-		 * @private
-		 */
-		set(value) {
-			switch(this.key) {
-				case 'Location':
-					if(typeof value !== "string" || value === "") {
-						throw new Error(" Location must be a non-empty string, " + value + " given");
-					}
-					break;
-				case 'Search':
-					// TODO: new SearchTriplet, stuff=things, asd>90001, etc...
-					break;
-				case 'Sort':
-					// TODO: +stuff,-things, etc...
-					break;
-				case 'Depth':
-				case 'Parent':
-					value = parseInt(value);
-					if(Number.isNaN(value) || value < 0) {
-						throw new Error(this.key + " must be a positive integer, " + value + " given");
-					}
-					break;
-				default:
-					throw new Error("Unexpected search key: " + this.key);
-			}
-			this.value = value;
-		}
+	/**
+	 * Set value. Don't use from outside Search.
+	 *
+	 * @param value
+	 * @see Search.set
+	 * @private
+	 */
+	set(value) {
+		this.value = value;
+	}
 
-		/**
-		 * Is a key allowed to exist multiple times in the same search?
-		 *
-		 * @param {string} key
-		 * @return {boolean}
-		 */
-		static canDuplicate(key) {
-			switch(key) {
-				case 'Depth':
-				case 'Parent':
-				case 'Sort':
-					return false;
-				default:
-					return true;
-			}
+	/**
+	 * Is a key allowed to exist multiple times in the same search?
+	 *
+	 * @param {string} key
+	 * @return {boolean}
+	 */
+	static canDuplicate(key) {
+		switch(key) {
+			case 'Depth':
+			case 'Parent':
+			case 'Sort':
+				return false;
+			default:
+				return true;
 		}
-	},
-	writable: false,
-	enumerable: true,
-	configurable: false
-});
+	}
+}
