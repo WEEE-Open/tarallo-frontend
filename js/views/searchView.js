@@ -42,7 +42,6 @@ class SearchView extends Framework.View {
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
 		this.buttonsElement.addEventListener('click', this.addButtonClick.bind(this));
-		this.controlsElement.addEventListener('focusout', this.handleSearchControlsFocus.bind(this));
 		this.compactViewCheckbox.addEventListener('click', this.compactViewClick.bind(this));
 
 		// Read checkbox status
@@ -115,75 +114,13 @@ class SearchView extends Framework.View {
 	}
 
 	/**
-	 * Handle unfocusing stuff (textboxes, and hopefully dropdowns) in controls area.
+	 * Remove unpaired controls from page.
 	 *
-	 * @param {Event} event
 	 * @private
 	 */
-	handleSearchControlsFocus(event) {
-		/** @type {HTMLElement|EventTarget} */
-		let control = event.target;
-		while(!control.classList.contains('control') && control.parentNode) {
-			control = control.parentNode;
-		}
-		if(!control.parentNode) {
-			return;
-		}
-		event.stopPropagation();
-		// TODO: use elementsPairs/elementsUnpaired to get key, determine which kind of textbox it is, query selectors accordingly
-		let box = control.querySelector('input');
-		let value = box.value;
-		if(value === '') {
-			// delete search keys
-			if(this.elementsUnpaired.has(control)) {
-				this.elementsUnpaired.delete(control);
-			} else if(this.elementsPairs.has(control)) {
-				this.search.remove(this.elementsPairs.get(control));
-			} else {
-				this.logs.add("Last removed search key was never created, apparently (this is a bug)", 'W');
-			}
-			this.controlsElement.removeChild(control);
-		} else {
-			// add/modify search keys
-			let prev = '';
-			if(this.elementsUnpaired.has(control)) {
-				// promote that pair!
-				let newPair = null;
-				try {
-					newPair = this.search.add(this.elementsUnpaired.get(control), value);
-					this.showPair(newPair, control);
-				} catch(e) {
-					this.logs.add(e.message, 'E');
-					// TODO: rollback also depends on textbox type, make a function and use it here
-					box.value = prev;
-					// avoid broken half-states
-					if(newPair !== null) {
-						this.search.remove(newPair);
-					}
-				}
-			} else if(this.elementsPairs.has(control)) {
-				// edit pair
-				let pair = this.elementsPairs.get(control);
-				prev = prev.value;
-				try {
-					pair.set(pair.key, value);
-				} catch(e) {
-					this.logs.add(e.message, 'E');
-					// TODO: rollback thing
-					box.value = prev;
-				}
-			} else {
-				this.logs.add("That key didn't actually exist (this is a bug)", 'E');
-				this.controlsElement.removeChild(control);
-			}
-		}
-	}
-
-	/**
-	 * Remove unpaired controls from page.
-	 */
 	removeUnpairedControls() {
-		for(let [element, pair] of this.elementsPairs) {
+		for(let element of this.controlsElement.querySelectorAll('.control')) {
+			let pair = this.elementsPairs.get(element);
 			if(!this.search.pairs.has(pair)) {
 				this.controlsElement.removeChild(element);
 			}
@@ -192,6 +129,7 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Create textboxes for current search keys and display them
+	 *
 	 * @private
 	 */
 	render() {
