@@ -99,8 +99,10 @@ class SearchView extends Framework.View {
 		if(event.target.nodeName === "BUTTON") {
 			event.stopPropagation();
 			let key = event.target.dataset.key;
-			if(!SearchPair.canDuplicate(key) && this.findControlFor(key) !== null) {
+			let pairView;
+			if(!SearchPair.canDuplicate(key) && (pairView = this.findPairViewFor(key)) !== null) {
 				this.logs.add('Cannot add duplicate key ' + key, 'W');
+				pairView.focus();
 			} else {
 				this.showPair(this.search.newPair(key, null));
 			}
@@ -112,13 +114,13 @@ class SearchView extends Framework.View {
 	 * This is needed because empty SearchPairs may be not present in Search.
 	 *
 	 * @param {string} key
-	 * @return {SearchPairView} view or null if not found
+	 * @return {PairView} view or null if not found
 	 * @private
 	 */
-	findControlFor(key) {
+	findPairViewFor(key) {
 		for(let pairView of this.pairViews) {
 			if(pairView.pair.key === key) {
-				return pairView.pair;
+				return pairView;
 			}
 		}
 		return null;
@@ -233,7 +235,7 @@ class SearchView extends Framework.View {
 	}
 
 	/**
-	 * Enalbe/disable search button.
+	 * Enable/disable search button.
 	 *
 	 * @param {boolean} enabled
 	 * @private
@@ -325,6 +327,8 @@ class PairView extends Framework.View {
 		this.pair = pair;
 		this.logs = logs;
 	}
+
+	focus() {}
 }
 
 class LocationPairView extends PairView {
@@ -342,15 +346,20 @@ class LocationPairView extends PairView {
 
 
 	parseInput() {
-		let value = this.inputElement.value;
-		if(typeof value !== "string") {
-			this.logs.add("Location must be a string", 'E');
-			this.inputElement.value = this.pair.value === null ? '' : this.pair.value;
-		} else if(value === "") {
+		let value = this.inputElement.value.trim();
+		//if(typeof value !== "string") {
+		//	this.logs.add("Location must be a string", 'E');
+		//	this.inputElement.value = this.pair.value === null ? '' : this.pair.value;
+		//} else if(value === "") {
+		if(value === "") {
 			this.search.set(this.pair, null);
 		} else {
 			this.search.set(this.pair, value);
 		}
+	}
+
+	focus() {
+		this.inputElement.focus();
 	}
 }
 
