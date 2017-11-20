@@ -5,6 +5,7 @@ module.exports = function(grunt) {
 			"js/framework.js",
 			"js/XHR.js",
 			"js/log.js",
+			"js/features.js",
 			"js/search.js",
 			"js/item.js",
 			"js/itemupdate.js",
