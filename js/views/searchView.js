@@ -393,6 +393,46 @@ class LocationPairView extends PairView {
 }
 
 class SearchPairView extends PairView {
+	constructor(search, pair, logs) {
+		if(!(pair instanceof SearchPair)) {
+			throw new Error("Pair should be an instance of SearchView");
+		}
+		super(search, pair, logs);
+
+		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
+		// TODO: onclick those buttons
+
+		this.addFeatures();
+	}
+
+	addFeatures() {
+		for(let triplet of this.pair.value) {
+			this.addFeature();
+		}
+	}
+
+	addFeature() {
+		let newElement = this.createFeatureElement(name, value);
+		let translation = this.translations.get(name, this.translations.features);
+		this.featuresElement.appendChild(newElement);
+	}
+
+	createFeatureElement(name, value) {
+		// TODO: finish implementation (add >, <, =)
+		let newElement, deleteButton;
+		newElement = document.createElement("div");
+		newElement.classList.add("feature");
+
+		deleteButton = document.createElement("button");
+		deleteButton.textContent = "X";
+		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, name));
+
+		newElement.appendChild(deleteButton);
+		//let view = FeatureView.factory(newElement, this.translations, this.logs, this.item, name, value);
+		//this.featureViews.set(name, view);
+
+		return newElement;
+	}
 
 }
 

@@ -3,7 +3,7 @@ class FeatureView extends Framework.View {
 	 * @param {Element} el - a div
 	 * @param {Translations} translations
 	 * @param {Logs} logs
-	 * @param {Item} item
+	 * @param {Item|null} item
 	 * @param {string} name - internal feature name
 	 * @param {string} value - internal feature value
 	 * @see FeatureView.factory
@@ -36,7 +36,12 @@ class FeatureView extends Framework.View {
 		 */
 		this.internalValue = to;
 		this.writeValue(this.renderValue());
-		let old = this.item.features.get(this.name);
+		let old;
+		if(this.item === null) {
+			old = undefined;
+		} else {
+			old = this.item.features.get(this.name);
+		}
 		if(typeof old !== 'undefined') {
 			if(old === null && to === null) {
 				return;
@@ -45,7 +50,9 @@ class FeatureView extends Framework.View {
 				return;
 			}
 		}
-		this.item.setFeature(this.name, to);
+		if(this.item !== null) {
+			this.item.setFeature(this.name, to);
+		}
 	}
 
 	get value() {
