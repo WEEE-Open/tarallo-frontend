@@ -333,13 +333,14 @@ class PairView extends Framework.View {
 	 * @param {SearchPair} pair
 	 * @param {Logs} logs
 	 */
-	constructor(search, pair, logs) {
+	constructor(search, pair, logs, translations) {
 		let el = document.createElement('div');
 		el.classList.add("control");
 		super(el);
 		this.search = search;
 		this.pair = pair;
 		this.logs = logs;
+		this.translations = translations;
 	}
 
 	/**
@@ -400,9 +401,19 @@ class SearchPairView extends PairView {
 		super(search, pair, logs);
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
-		// TODO: onclick those buttons
+		this.featureSelect = this.el.querySelector('.featureselect');
+		this.addFeatureButton = this.el.querySelector('.addfeaturebutton');
+		this.featuresArea = this.el.querySelector('.features');
+
+		this.createFeatureList();
 
 		this.addFeatures();
+	}
+
+	createFeaturesList() {
+		if(SearchPairView.featureList === null) {
+			// TODO: for
+		}
 	}
 
 	addFeatures() {
@@ -435,6 +446,13 @@ class SearchPairView extends PairView {
 	}
 
 }
+
+Object.defineProperty(SearchPairView, 'featureList', {
+	value: null,
+	writable: true,
+	configurable: true,
+	enumerable: true,
+});
 
 class SortPairView extends PairView {
 
