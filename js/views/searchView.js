@@ -170,8 +170,22 @@ class SearchView extends Framework.View {
 	 * @private
 	 */
 	showPair(pair) {
-		// TODO: this depends on key, use a factory method maybe?
-		let view = new LocationPairView(this.search, pair, this.logs);
+		let view;
+		switch(pair.key) {
+			case 'Location':
+				view = new LocationPairView(this.search, pair, this.logs);
+				break;
+			case 'Search':
+			case 'Parent':
+				view = new SearchPairView(this.search, pair, this.logs);
+				break;
+			case 'Sort':
+				view = new SortPairView(this.search, pair, this.logs);
+				break;
+			case 'Depth':
+				view = new DepthPairView(this.search, pair, this.logs);
+				break;
+		}
 		this.pairViews.add(view);
 	}
 
@@ -328,7 +342,19 @@ class PairView extends Framework.View {
 		this.logs = logs;
 	}
 
+	/**
+	 * Focus the input area.
+	 */
 	focus() {}
+
+	/**
+	 * Serialize to string, e.g. Location = Tavolo becomes "Tavolo" (will be placed inside the URL, like "/Location/Tavolo/")
+	 *
+	 * @return {string}
+	 */
+	toString() {
+		return 'Implement-this';
+	}
 }
 
 class LocationPairView extends PairView {
@@ -343,7 +369,6 @@ class LocationPairView extends PairView {
 
 		this.inputElement.addEventListener('blur', this.parseInput.bind(this));
 	}
-
 
 	parseInput() {
 		let value = this.inputElement.value.trim();
@@ -360,6 +385,10 @@ class LocationPairView extends PairView {
 
 	focus() {
 		this.inputElement.focus();
+	}
+
+	toString() {
+		return this.pair.value;
 	}
 }
 
@@ -378,8 +407,4 @@ class DepthPairView extends PairView {
 	// 	throw new Error(this.key + " must be a positive integer, " + value + " given");
 	// }
 	// break;
-}
-
-class ParentPairView extends PairView {
-	// TODO: this should work same as search, but for parent (or ancestor, rather) item. Server should be modified accordingly
 }

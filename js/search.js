@@ -53,8 +53,7 @@ class Search extends Framework.Object {
 			this.pairs.delete(pair);
 			this.decrementKeyCounter(pair.key);
 		} else {
-			// noinspection JSUnresolvedFunction
-			pair.value = value; // TODO: something better?
+			pair.value = value;
 			if(!this.pairs.has(pair)) {
 				this.addPair(pair);
 			}
@@ -102,16 +101,6 @@ class Search extends Framework.Object {
 		} else {
 			throw new Error("Removing unexisting key " + key);
 		}
-	}
-
-	/**
-	 * Does key exist in this search?
-	 *
-	 * @param {string} key
-	 * @return {boolean}
-	 */
-	containsKey(key) {
-		return this.keysCounter.has(key);
 	}
 
 	/**
@@ -199,7 +188,7 @@ class Search extends Framework.Object {
 		let array = [];
 		for(let pair of this.pairs) {
 			array.push(pair.key);
-			array.push(pair.value); // TOOD: use toString
+			array.push(pair.value.toString());
 		}
 
 		return array;
@@ -218,24 +207,13 @@ class SearchPair {
 	 */
 	constructor(key, value, duplicate) {
 		if(!this.constructor.canDuplicate(key) && duplicate) {
-			throw new Error("Duplicate key: Sort");
+			throw new Error("Duplicate key: " + key);
 		}
 		/**
 		 * @type {string}
 		 * @readonly
 		 */
 		this.key = key;
-		this.set(key, value);
-	}
-
-	/**
-	 * Set value. Don't use from outside Search.
-	 *
-	 * @param value
-	 * @see Search.set
-	 * @private
-	 */
-	set(value) {
 		this.value = value;
 	}
 
@@ -248,7 +226,6 @@ class SearchPair {
 	static canDuplicate(key) {
 		switch(key) {
 			case 'Depth':
-			case 'Parent':
 			case 'Sort':
 				return false;
 			default:
