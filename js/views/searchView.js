@@ -173,17 +173,17 @@ class SearchView extends Framework.View {
 		let view;
 		switch(pair.key) {
 			case 'Location':
-				view = new LocationPairView(this.search, pair, this.logs);
+				view = new LocationPairView(this.search, pair, this.logs, this.translations);
 				break;
 			case 'Search':
 			case 'Parent':
-				view = new SearchPairView(this.search, pair, this.logs);
+				view = new SearchPairView(this.search, pair, this.logs, this.translations);
 				break;
 			case 'Sort':
-				view = new SortPairView(this.search, pair, this.logs);
+				view = new SortPairView(this.search, pair, this.logs, this.translations);
 				break;
 			case 'Depth':
-				view = new DepthPairView(this.search, pair, this.logs);
+				view = new DepthPairView(this.search, pair, this.logs, this.translations);
 				break;
 		}
 		this.pairViews.add(view);
@@ -406,7 +406,24 @@ class SearchPairView extends PairView {
 		this.addFeatureButton = this.el.querySelector('.addfeaturebutton');
 		this.featuresArea = this.el.querySelector('.features');
 
+		this.addFeatureButton.addEventListener('click', this.addFeatureClick.bind(this));
+
+		this.createFeaturesList();
+
 		this.addFeatures();
+	}
+
+	addFeatureClick() {
+		this.addFeature(this.featureSelect.value, null);
+	}
+
+	createFeaturesList() {
+		for(let [name, translated] of Features.getFeatures(this.translations)) {
+			let option = document.createElement('option');
+			option.value = name;
+			option.textContent = translated;
+			this.featureSelect.appendChild(option);
+		}
 	}
 
 	addFeatures() {
@@ -415,10 +432,11 @@ class SearchPairView extends PairView {
 		}
 	}
 
-	addFeature() {
+	addFeature(name, value) {
 		let newElement = this.createFeatureElement(name, value);
 		let translation = this.translations.get(name, this.translations.features);
 		this.featuresElement.appendChild(newElement);
+		// TODO: finish implementation
 	}
 
 	createFeatureElement(name, value) {
