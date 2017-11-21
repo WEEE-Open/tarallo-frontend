@@ -77,7 +77,7 @@ class FeatureView extends Framework.View {
 	static factory(el, translations, logs, item, name, value) {
 		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')  || name.endsWith('-rpm')) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
-		} else if(FeatureViewList.has(name)) {
+		} else if(Features.isEnum(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
 		} else {
 			return new FeatureView(el, translations, logs, item, name, value);
@@ -415,41 +415,10 @@ class FeatureViewUnit extends FeatureView {
 
 class FeatureViewList extends FeatureView {
 	constructor(el, translations, logs, item, name, value) {
-		if(!FeatureViewList.has(name)) {
-			throw new Error('No elements for ' + name + ' in FeatureViewList')
+		if(!Features.isEnum(name)) {
+			throw new Error('Feature ' + name + ' is not an enum')
 		}
 		super(el, translations, logs, item, name, value);
-	}
-
-	getOptions() {
-		let namesToMap;
-		if(!FeatureViewList.sortedLists.has(this.translations.code)) {
-			namesToMap = new Map();
-			FeatureViewList.sortedLists.set(this.translations.code, namesToMap);
-		} else {
-			namesToMap = FeatureViewList.sortedLists.get(this.translations.code);
-		}
-
-		let sortedMap;
-		if(namesToMap.has(this.name)) {
-			return namesToMap.get(this.name);
-		} else {
-			sortedMap = new Map();
-			namesToMap.set(this.name, sortedMap);
-		}
-
-		let translations = [];
-		let translationMap = new Map();
-
-		for(let value of FeatureViewList.lists[this.name]) {
-			let translated = this.translations.get(value, this.translations.featuresList);
-			translations.push(translated);
-			translationMap.set(translated, value);
-		}
-		for(let translated of translations.sort()) {
-			sortedMap.set(translationMap.get(translated), translated);
-		}
-		return sortedMap;
 	}
 
 	// noinspection JSUnusedGlobalSymbols it's used and overrides another method
@@ -462,7 +431,7 @@ class FeatureViewList extends FeatureView {
 		let first = document.createElement("option");
 		first.value = "";
 		input.appendChild(first);
-		for(let [value, translation] of this.getOptions()) {
+		for(let [value, translation] of Features.getSorted(this.name, this.translations)) {
 			let option = document.createElement("option");
 			option.value = value;
 			option.textContent = translation;
@@ -471,10 +440,6 @@ class FeatureViewList extends FeatureView {
 
 		input.addEventListener('change', this.featureInput.bind(this));
 		return input;
-	}
-
-	static has(name) {
-		return typeof FeatureViewList.lists[name] === 'object';
 	}
 
 	readValue() {
@@ -498,21 +463,3 @@ class FeatureViewList extends FeatureView {
 		}
 	}
 }
-
-Object.defineProperty(FeatureViewList, 'lists', {
-	enumerable: true,
-	configurable: false,
-	writable: false,
-	value: {
-		'motherboard-form-factor': new Set(['atx', 'miniatx', 'microatx', 'miniitx', 'proprietary']),
-		'type': new Set(['location', 'case', 'cpu', 'ram', 'motherboard', 'psu', 'hdd', 'odd', 'fdd', 'graphics-card', 'ethernet-card', 'modem-card', 'sound-card', 'other-card', 'card-adapter', 'keyboard', 'mouse', 'monitor', 'printer', 'scanner', 'switch', 'hub', 'modem-router', 'access-point', 'adapter', 'other']),
-	}
-});
-
-
-Object.defineProperty(FeatureViewList, 'sortedLists', {
-	enumerable: true,
-	configurable: false,
-	writable: false,
-	value: new Map()
-});
