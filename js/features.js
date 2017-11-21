@@ -23,7 +23,7 @@ class Features {
 		let translationsArray = [];
 		let translationMap = new Map();
 
-		for(let value of Features.list[name]) {
+		for(let value of Features.list.get(name)) {
 			let translated = translations.get(value, translations.featuresList);
 			translationsArray.push(translated);
 			translationMap.set(translated, value);
