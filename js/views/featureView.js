@@ -431,7 +431,7 @@ class FeatureViewList extends FeatureView {
 		let first = document.createElement("option");
 		first.value = "";
 		input.appendChild(first);
-		for(let [value, translation] of Features.getSorted(this.name, this.translations)) {
+		for(let [value, translation] of Features.getValues(this.name, this.translations)) {
 			let option = document.createElement("option");
 			option.value = value;
 			option.textContent = translation;

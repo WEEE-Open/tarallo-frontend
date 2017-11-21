@@ -1,23 +1,19 @@
 class Features {
 	/**
-	 * Get a sorted map of translated strings
+	 * Get a sorted map of translated strings for feature values
 	 *
 	 * @param {Translations} translations
 	 * @param {string} name - feature name
-	 * @return {Map.<string,string>|null} - map from internal feature name to translated feature name, sorted by translated name
+	 * @return {Map.<string,string>|null} - map from internal value to translated value, sorted by translated name
 	 */
-	static getSorted(name, translations) {
+	static getValues(name, translations) {
 		if(!Features.isEnum(name)) {
 			return null;
 		}
-		let thisLanguage = Features.getMap(translations);
-
-		let sortedMap;
-		if(thisLanguage.has(name)) {
-			return thisLanguage.get(name);
-		} else {
-			sortedMap = new Map();
-			thisLanguage.set(name, sortedMap);
+		let thisLanguage = Features.getLanguageMap(translations);
+		let sortedMap = Features.getNameMap(thisLanguage, name);
+		if(sortedMap.size > 0) {
+			return sortedMap;
 		}
 
 		let translationsArray = [];
@@ -25,6 +21,34 @@ class Features {
 
 		for(let value of Features.list.get(name)) {
 			let translated = translations.get(value, translations.featuresList);
+			translationsArray.push(translated);
+			translationMap.set(translated, value);
+		}
+		for(let translated of translationsArray.sort()) {
+			sortedMap.set(translationMap.get(translated), translated);
+		}
+		return sortedMap;
+	}
+
+	/**
+	 * Get a sorted map of translated feature names
+	 *
+	 * @param {Translations} translations
+	 * @return {Map.<string,string>|null} - map from internal feature name to translated feature name, sorted by translated name
+	 */
+	static getFeatures(translations) {
+		let name = 'FEATURES';
+		let thisLanguage = Features.getLanguageMap(translations);
+		let sortedMap = Features.getNameMap(thisLanguage, name);
+		if(sortedMap.size > 0) {
+			return sortedMap;
+		}
+
+		let translationsArray = [];
+		let translationMap = new Map();
+
+		for(let value of Features.list) {
+			let translated = translations.get(value, translations.features);
 			translationsArray.push(translated);
 			translationMap.set(translated, value);
 		}
@@ -65,7 +89,7 @@ class Features {
 	 * @return {Map.<string,Map.<string,string>>}
 	 * @private
 	 */
-	static getMap(translations) {
+	static getLanguageMap(translations) {
 		let namesToMap;
 		if(!Features.sortedLists.has(translations.code)) {
 			namesToMap = new Map();
@@ -74,6 +98,23 @@ class Features {
 			namesToMap = Features.sortedLists.get(translations.code);
 		}
 		return namesToMap;
+	}
+
+	/**
+	 * Get translations map for a feature name
+	 *
+	 * @param {Map.<string,Map.<string,string>>} thisLanguage
+	 * @param {string} name - feature name
+	 * @return {Map.<string,string>|null}
+	 */
+	static getNameMap(thisLanguage, name) {
+		if(thisLanguage.has(name)) {
+			return thisLanguage.get(name);
+		} else {
+			let sortedMap = new Map();
+			thisLanguage.set(name, sortedMap);
+			return sortedMap;
+		}
 	}
 }
 

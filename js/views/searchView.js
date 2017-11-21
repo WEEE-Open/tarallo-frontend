@@ -332,6 +332,7 @@ class PairView extends Framework.View {
 	 * @param {Search} search
 	 * @param {SearchPair} pair
 	 * @param {Logs} logs
+	 * @param {Translations} translations
 	 */
 	constructor(search, pair, logs, translations) {
 		let el = document.createElement('div');
@@ -359,8 +360,8 @@ class PairView extends Framework.View {
 }
 
 class LocationPairView extends PairView {
-	constructor(search, pair, logs) {
-		super(search, pair, logs);
+	constructor(search, pair, logs, translations) {
+		super(search, pair, logs, translations);
 
 		this.el.appendChild(document.getElementById("template-control-textbox").content.cloneNode(true));
 
@@ -394,26 +395,18 @@ class LocationPairView extends PairView {
 }
 
 class SearchPairView extends PairView {
-	constructor(search, pair, logs) {
+	constructor(search, pair, logs, translations) {
 		if(!(pair instanceof SearchPair)) {
 			throw new Error("Pair should be an instance of SearchView");
 		}
-		super(search, pair, logs);
+		super(search, pair, logs, translations);
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
 		this.featureSelect = this.el.querySelector('.featureselect');
 		this.addFeatureButton = this.el.querySelector('.addfeaturebutton');
 		this.featuresArea = this.el.querySelector('.features');
 
-		this.createFeatureList();
-
 		this.addFeatures();
-	}
-
-	createFeaturesList() {
-		if(SearchPairView.featureList === null) {
-			// TODO: for
-		}
 	}
 
 	addFeatures() {
@@ -446,13 +439,6 @@ class SearchPairView extends PairView {
 	}
 
 }
-
-Object.defineProperty(SearchPairView, 'featureList', {
-	value: null,
-	writable: true,
-	configurable: true,
-	enumerable: true,
-});
 
 class SortPairView extends PairView {
 
