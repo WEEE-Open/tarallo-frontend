@@ -52,7 +52,7 @@ class Features {
 			translationsArray.push(translated);
 			translationMap.set(translated, name);
 		}
-		for(let translated of translationsArray.sort()) {
+		for(let translated of translationsArray.sort((a, b) => a.localeCompare(b))) {
 			sortedMap.set(translationMap.get(translated), translated);
 		}
 		return sortedMap;

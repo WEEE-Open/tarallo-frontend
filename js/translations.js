@@ -26,13 +26,14 @@ class Translations extends Framework.Object {
 	 */
 	_setLanguage(code) {
 		if(code === 'it-IT') {
-			// TODO: this ends up in a "this" that isn't its "this".
 			this.features = Translations.it.features;
 			this.featuresList = Translations.it.featuresList;
 		} else {
 			// TODO: really handle multiple languages
 			throw new Error('Unknown language ' + code);
 		}
+		// noinspection JSUnresolvedVariable, JSUnresolvedFunction - it clearly exists, but PHPStorm
+		//this.collator = new Intl.Collator(code);
 		this.translations = code;
 	}
 
