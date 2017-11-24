@@ -47,10 +47,10 @@ class Features {
 		let translationsArray = [];
 		let translationMap = new Map();
 
-		for(let value of Features.list) {
-			let translated = translations.get(value, translations.features);
+		for(let [name,] of Features.list) {
+			let translated = translations.get(name, translations.features);
 			translationsArray.push(translated);
-			translationMap.set(translated, value);
+			translationMap.set(translated, name);
 		}
 		for(let translated of translationsArray.sort()) {
 			sortedMap.set(translationMap.get(translated), translated);

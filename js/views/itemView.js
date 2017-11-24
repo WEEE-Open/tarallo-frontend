@@ -707,7 +707,6 @@ class ItemView extends Framework.View {
 			option.textContent = translation;
 
 			this.selectFeatureElement.appendChild(option);
-			console.log(this.selectFeatureElement);
 		}
 	}
 
