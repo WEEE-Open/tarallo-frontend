@@ -119,7 +119,7 @@ class Features {
 }
 
 
-Object.defineProperty(FeatureViewList, 'sortedLists', {
+Object.defineProperty(Features, 'sortedLists', {
 	enumerable: true,
 	configurable: false,
 	writable: false,

@@ -91,7 +91,7 @@ class ItemView extends Framework.View {
 		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
-		this.selectFeatureElement.addEventListener('click', ItemView.populateFeatureDropdown.bind(this, false));
+		this.selectFeatureElement.addEventListener('click', this.populateFeatureDropdown.bind(this, false));
 		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
 		this.editItemButton.addEventListener('click', this.editItemButtonClick.bind(this));
 		this.saveItemButton.addEventListener('click', this.saveItemButtonClick.bind(this));
@@ -692,34 +692,22 @@ class ItemView extends Framework.View {
 	 * Populate the dropdown. Useful for not filling read-only pages with a million option tags.
 	 *
 	 * @param {boolean} force repopulate if already populated or not
-	 * @todo use memoization somewhere? Get list from somewhere else that Translations directly?
 	 * @private
 	 */
-	static populateFeatureDropdown(force = false) {
+	populateFeatureDropdown(force = false) {
 		if(!force && !!this.selectFeatureElement.lastElementChild) {
 			return;
 		}
 		while(this.selectFeatureElement.lastElementChild) {
 			this.selectFeatureElement.removeChild(this.selectFeatureElement.lastElementChild);
 		}
-		for(let f in this.translations.features) {
-			if(this.translations.features.hasOwnProperty(f)) {
-				let option = document.createElement("option");
-				option.value = f;
-				option.textContent = this.translations.features[f];
+		for(let [name, translation] of Features.getFeatures(this.translations)) {
+			let option = document.createElement("option");
+			option.value = name;
+			option.textContent = translation;
 
-				let inserted = false;
-				for(let i = 0; i < this.selectFeatureElement.length; i++) {
-					if(option.textContent < this.selectFeatureElement[i].textContent) {
-						this.selectFeatureElement.insertBefore(option, this.selectFeatureElement[i]);
-						inserted = true;
-						break;
-					}
-				}
-				if(!inserted) {
-					this.selectFeatureElement.appendChild(option);
-				}
-			}
+			this.selectFeatureElement.appendChild(option);
+			console.log(this.selectFeatureElement);
 		}
 	}
 
