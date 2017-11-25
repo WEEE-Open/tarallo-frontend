@@ -150,7 +150,6 @@ Features.list.set('motherboard-form-factor', new Set(['atx', 'miniatx', 'microat
 Features.list.set('notes', null);
 Features.list.set('agp-sockets-n', null);
 Features.list.set('arrival-batch', null);
-Features.list.set('capacity-byte', null);
 Features.list.set('capacity-decibyte', null);
 Features.list.set('cib', null);
 Features.list.set('core-n', null);
