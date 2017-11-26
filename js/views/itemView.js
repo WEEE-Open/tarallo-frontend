@@ -88,10 +88,12 @@ class ItemView extends Framework.View {
 			this.showInsideItems();
 		}
 
+		this.populateFeatureDropdown();
+
 		this.codeElement.addEventListener('blur', this.codeInput.bind(this)); // blur doesn't bubble, but codeElement is already the textbox (featuresElement contains lots of stuff instead)
 		addFieldButton.addEventListener('click', this.addFeatureClick.bind(this));
 		addItemButton.addEventListener('click', this.addItemClick.bind(this));
-		this.selectFeatureElement.addEventListener('click', this.populateFeatureDropdown.bind(this, false));
+		//this.selectFeatureElement.addEventListener('focus', this.populateFeatureDropdown.bind(this, false));
 		this.deleteItemButton.addEventListener('click', this.deleteItemClick.bind(this));
 		this.editItemButton.addEventListener('click', this.editItemButtonClick.bind(this));
 		this.saveItemButton.addEventListener('click', this.saveItemButtonClick.bind(this));
