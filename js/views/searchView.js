@@ -25,9 +25,11 @@ class SearchView extends Framework.View {
 		this.translations = translations;
 		this.transaction = transaction;
 
-		/** @type {Set.<PairView>} */
+		/** Subviews of Pair
+		 *  @type {Set.<PairView>} */
 		this.pairViews = new Set();
-		/** @type {Set.<Framework.View>} */
+		/** Subviews of Item and everything else
+		 *  @type {Set.<Framework.View>} */
 		this.subviews = new Set();
 
 		this.useComputerView = false;
@@ -187,6 +189,7 @@ class SearchView extends Framework.View {
 				break;
 		}
 		this.pairViews.add(view);
+		this.controlsElement.appendChild(view.el);
 	}
 
 	/**
@@ -399,10 +402,10 @@ class SearchPairView extends PairView {
 		super(search, pair, logs, translations);
 
 		/**
-		 * @type {Map.<Element,FeatureView>}
+		 * @type {Map.<FeatureView,Element>}
 		 * @private
 		 */
-		this.subviews = new Map();
+		this.featureViews = new Map();
 		this.triplets = [];
 		this.parseTriplets();
 
@@ -449,7 +452,7 @@ class SearchPairView extends PairView {
 		while(this.featuresArea.lastElementChild) {
 			this.featuresArea.removeChild(this.featuresArea.lastElementChild);
 		}
-		this.subviews.clear();
+		this.featureViews.clear();
 
 		for(let triplet of this.triplets) {
 			this.addFeature(triplet[0], triplet[1], triplet[2]);
@@ -485,11 +488,12 @@ class SearchPairView extends PairView {
 
 		deleteButton = document.createElement("button");
 		deleteButton.textContent = "X";
-		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, name));
 
 		newElement.appendChild(deleteButton);
 		let view = FeatureView.factory(newElement, this.translations, this.logs, null, name, value);
-		this.subviews.set(newElement, view);
+		this.featureViews.set(view, newElement);
+
+		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, view));
 
 		let select = document.createElement('select');
 		let selected = false;
@@ -511,28 +515,23 @@ class SearchPairView extends PairView {
 	/**
 	 * Handler for clicking the feature delete button
 	 *
-	 * @param {Element} element - feature element
-	 * @param {Event} event
+	 * @param {FeatureView} featureView
 	 * @private
 	 */
-	deleteFeatureClick(element, event) {
-		event.stopPropagation();
-		event.preventDefault();
-		this.removeFeature(element); // TODO: element or FeatureView?
+	deleteFeatureClick(featureView) {
+		this.removeFeature(featureView);
 	}
 
 
 	/**
 	 * Removes feature from the search area.
 	 *
-	 * @todo: finish implementation
+	 * @param {FeatureView} featureView -
 	 * @private
 	 */
-	removeFeature(name) {
-		if(this.featureViews.has(name)) {
-			this.featuresElement.removeChild(this.featureViews.get(name).el);
-			this.featureViews.delete(name);
-		}
+	removeFeature(featureView) {
+		this.featuresElement.removeChild(featureView.el);
+		this.featureViews.delete(featureView);
 	}
 
 	/**
