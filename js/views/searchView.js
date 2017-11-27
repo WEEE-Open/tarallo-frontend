@@ -398,8 +398,12 @@ class SearchPairView extends PairView {
 	constructor(search, pair, logs, translations) {
 		super(search, pair, logs, translations);
 
+		/**
+		 * @type {Map.<Element,FeatureView>}
+		 * @private
+		 */
+		this.subviews = new Map();
 		this.triplets = [];
-
 		this.parseTriplets();
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
@@ -410,14 +414,23 @@ class SearchPairView extends PairView {
 		this.addFeatureButton.addEventListener('click', this.addFeatureClick.bind(this));
 
 		this.createFeaturesList();
-
 		this.addFeatures();
 	}
 
+	/**
+	 * Handler for the "add" feature search button
+	 *
+	 * @private
+	 */
 	addFeatureClick() {
 		this.addFeature(this.featureSelect.value, null);
 	}
 
+	/**
+	 * Create list of searchable features
+	 *
+	 * @private
+	 */
 	createFeaturesList() {
 		for(let [name, translated] of Features.getFeatures(this.translations)) {
 			let option = document.createElement('option');
@@ -427,20 +440,45 @@ class SearchPairView extends PairView {
 		}
 	}
 
+	/**
+	 * Use triplets to (re)create feature elements
+	 *
+	 * @private
+	 */
 	addFeatures() {
-		for(let triplet of this.pair.value) {
-			this.addFeature();
+		while(this.featuresArea.lastElementChild) {
+			this.featuresArea.removeChild(this.featuresArea.lastElementChild);
+		}
+		this.subviews.clear();
+
+		for(let triplet of this.triplets) {
+			this.addFeature(triplet[0], triplet[1], triplet[2]);
 		}
 	}
 
-	addFeature(name, value) {
-		let newElement = this.createFeatureElement(name, value);
-		let translation = this.translations.get(name, this.translations.features);
-		this.featuresElement.appendChild(newElement);
-		// TODO: finish implementation
+	/**
+	 * Create and append feature search fields
+	 *
+	 * @param {string} name - feature name
+	 * @param {string} [comparison] - <, >, =.
+	 * @param {string|null} [value] - feature value
+	 * @private
+	 */
+	addFeature(name, comparison = '=', value = null) {
+		let newElement = this.createFeatureElement(name, comparison, value);
+		this.featuresArea.appendChild(newElement);
 	}
 
-	createFeatureElement(name, value) {
+	/**
+	 * Create new feature element.
+	 *
+	 * @param {string} name - feature name
+	 * @param {string} [comparison] - <, >, =.
+	 * @param {string|null} [value] - feature value
+	 * @return {Element}
+	 * @private
+	 */
+	createFeatureElement(name, comparison = '=', value = null) {
 		let newElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
@@ -451,19 +489,57 @@ class SearchPairView extends PairView {
 
 		newElement.appendChild(deleteButton);
 		let view = FeatureView.factory(newElement, this.translations, this.logs, null, name, value);
-		this.featureViews.set(name, view);
+		this.subviews.set(newElement, view);
 
 		let select = document.createElement('select');
+		let selected = false;
 		for(let operator of ['>', '<', '=']) {
 			let option = document.createElement('option');
 			option.value = operator;
 			option.textContent = operator;
+			if(!selected && (comparison === operator || operator === '=')) {
+				option.selected = true; // TODO: does this work?
+				selected = true;
+			}
 			select.appendChild(option);
 		}
 
 		return newElement;
 	}
 
+
+	/**
+	 * Handler for clicking the feature delete button
+	 *
+	 * @param {Element} element - feature element
+	 * @param {Event} event
+	 * @private
+	 */
+	deleteFeatureClick(element, event) {
+		event.stopPropagation();
+		event.preventDefault();
+		this.removeFeature(element); // TODO: element or FeatureView?
+	}
+
+
+	/**
+	 * Removes feature from the search area.
+	 *
+	 * @todo: finish implementation
+	 * @private
+	 */
+	removeFeature(name) {
+		if(this.featureViews.has(name)) {
+			this.featuresElement.removeChild(this.featureViews.get(name).el);
+			this.featureViews.delete(name);
+		}
+	}
+
+	/**
+	 * Read a string of triplets, fill this.triplets.
+	 *
+	 * @private
+	 */
 	parseTriplets() {
 		if(typeof this.pair.value !== 'string') {
 			return;
