@@ -465,17 +465,23 @@ class SearchPairView extends PairView {
 	}
 
 	parseTriplets() {
-		if(typeof this.pair.value === 'string')
+		if(typeof this.pair.value !== 'string') {
+			return;
+		}
 		for(let tripletString of this.pair.value.split(',')) {
-			let pieces;
-			if(tripletString.indexOf('=') > -1) {
-
-			} else if(tripletString.indexOf('>') > -1) {
-
-			} else if(tripletString.indexOf('<') > -1) {
-
-			} else {
+			let triplet = null;
+			for(let operator of ['>', '<', '=']) {
+				if(tripletString.indexOf(operator) > -1) {
+					let pieces = tripletString.split(operator, 2);
+					triplet = [pieces[0], operator, pieces[1]];
+					break;
+				}
+			}
+			if(triplet === null) {
 				throw new TypeError(tripletString + ' isn\'t a valid search triplet');
+			} else {
+				this.triplets.push(triplet);
+				triplet = null;
 			}
 		}
 	}
