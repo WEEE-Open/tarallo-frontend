@@ -507,6 +507,7 @@ class SearchPairView extends PairView {
 			}
 			select.appendChild(option);
 		}
+		newElement.insertBefore(select, view.label.nextElementSibling);
 
 		return newElement;
 	}
