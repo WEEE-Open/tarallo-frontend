@@ -396,10 +396,11 @@ class LocationPairView extends PairView {
 
 class SearchPairView extends PairView {
 	constructor(search, pair, logs, translations) {
-		if(!(pair instanceof SearchPair)) {
-			throw new Error("Pair should be an instance of SearchView");
-		}
 		super(search, pair, logs, translations);
+
+		this.triplets = [];
+
+		this.parseTriplets();
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
 		this.featureSelect = this.el.querySelector('.featureselect');
@@ -440,7 +441,6 @@ class SearchPairView extends PairView {
 	}
 
 	createFeatureElement(name, value) {
-		// TODO: finish implementation (add >, <, =)
 		let newElement, deleteButton;
 		newElement = document.createElement("div");
 		newElement.classList.add("feature");
@@ -450,12 +450,35 @@ class SearchPairView extends PairView {
 		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, name));
 
 		newElement.appendChild(deleteButton);
-		//let view = FeatureView.factory(newElement, this.translations, this.logs, this.item, name, value);
-		//this.featureViews.set(name, view);
+		let view = FeatureView.factory(newElement, this.translations, this.logs, null, name, value);
+		this.featureViews.set(name, view);
+
+		let select = document.createElement('select');
+		for(let operator of ['>', '<', '=']) {
+			let option = document.createElement('option');
+			option.value = operator;
+			option.textContent = operator;
+			select.appendChild(option);
+		}
 
 		return newElement;
 	}
 
+	parseTriplets() {
+		if(typeof this.pair.value === 'string')
+		for(let tripletString of this.pair.value.split(',')) {
+			let pieces;
+			if(tripletString.indexOf('=') > -1) {
+
+			} else if(tripletString.indexOf('>') > -1) {
+
+			} else if(tripletString.indexOf('<') > -1) {
+
+			} else {
+				throw new TypeError(tripletString + ' isn\'t a valid search triplet');
+			}
+		}
+	}
 }
 
 class SortPairView extends PairView {
