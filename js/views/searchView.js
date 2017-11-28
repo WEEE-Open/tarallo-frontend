@@ -415,6 +415,7 @@ class SearchPairView extends PairView {
 		this.featuresArea = this.el.querySelector('.features');
 
 		this.addFeatureButton.addEventListener('click', this.addFeatureClick.bind(this));
+		this.featuresArea.addEventListener('focusout', this.featuresSearchInput.bind(this)); // fires after leaving any textbox, but apparently there's no other way
 
 		this.createFeaturesList();
 		this.addFeatures();
@@ -427,6 +428,19 @@ class SearchPairView extends PairView {
 	 */
 	addFeatureClick() {
 		this.addFeature(this.featureSelect.value, null);
+	}
+
+	/**
+	 * Handle any significant input in search area
+	 */
+	featuresSearchInput() {
+		this.triplets = [];
+		for(let [view, element] of this.featureViews) {
+			if(view.value !== null) {
+				let operator = element.querySelector('.operatorselector').value;
+				this.triplets.push([view.name, operator, view.value]);
+			}
+		}
 	}
 
 	/**
@@ -497,6 +511,7 @@ class SearchPairView extends PairView {
 
 		let select = document.createElement('select');
 		let selected = false;
+		select.classList.add('operatorselector');
 		for(let operator of ['>', '<', '=']) {
 			let option = document.createElement('option');
 			option.value = operator;
