@@ -407,7 +407,9 @@ class SearchPairView extends PairView {
 		 */
 		this.featureViews = new Map();
 		this.triplets = [];
-		this.parseTriplets();
+		if(typeof this.pair.value === 'string') {
+			this.parseTriplets(this.pair.value);
+		}
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
 		this.featureSelect = this.el.querySelector('.featureselect');
@@ -415,7 +417,7 @@ class SearchPairView extends PairView {
 		this.featuresArea = this.el.querySelector('.features');
 
 		this.addFeatureButton.addEventListener('click', this.addFeatureClick.bind(this));
-		this.featuresArea.addEventListener('focusout', this.featuresSearchInput.bind(this)); // fires after leaving any textbox, but apparently there's no other way
+		this.featuresArea.addEventListener('focusout', this.parseInput.bind(this)); // fires after leaving any textbox, but apparently there's no other way
 
 		this.createFeaturesList();
 		this.addFeatures();
@@ -433,7 +435,7 @@ class SearchPairView extends PairView {
 	/**
 	 * Handle any significant input in search area
 	 */
-	featuresSearchInput() {
+	parseInput() {
 		this.triplets = [];
 		for(let [view, element] of this.featureViews) {
 			if(view.value !== null) {
@@ -441,6 +443,12 @@ class SearchPairView extends PairView {
 				this.triplets.push([view.name, operator, view.value]);
 			}
 		}
+		let stringified = this.toString();
+		this.search.set(this.pair, stringified === '' ? null : stringified);
+	}
+
+	focus() {
+		this.featureSelect.focus();
 	}
 
 	/**
@@ -469,7 +477,7 @@ class SearchPairView extends PairView {
 		this.featureViews.clear();
 
 		for(let triplet of this.triplets) {
-			this.addFeature(triplet[0], triplet[1], triplet[2]);
+			this.addFeature(triplet[0], triplet[1], triplet[2].toString());
 		}
 	}
 
@@ -553,13 +561,15 @@ class SearchPairView extends PairView {
 	/**
 	 * Read a string of triplets, fill this.triplets.
 	 *
+	 * @param {string} string - stuff=things,whatever>99,...
 	 * @private
 	 */
-	parseTriplets() {
-		if(typeof this.pair.value !== 'string') {
+	parseTriplets(string) {
+		if(typeof string !== 'string') {
 			return;
 		}
-		for(let tripletString of this.pair.value.split(',')) {
+		this.triplets = [];
+		for(let tripletString of string.split(',')) {
 			let triplet = null;
 			for(let operator of ['>', '<', '=']) {
 				if(tripletString.indexOf(operator) > -1) {
@@ -575,6 +585,17 @@ class SearchPairView extends PairView {
 				triplet = null;
 			}
 		}
+	}
+
+	toString() {
+		let result = '';
+		for(let triplet of this.triplets) {
+			result += triplet[0] + triplet[1] + triplet[2] + ',';
+		}
+		if(result.length > 0) {
+			result = result.substr(0, result.length - 1);
+		}
+		return result;
 	}
 }
 
