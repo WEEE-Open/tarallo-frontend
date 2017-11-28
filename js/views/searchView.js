@@ -525,7 +525,7 @@ class SearchPairView extends PairView {
 			option.value = operator;
 			option.textContent = operator;
 			if(!selected && (comparison === operator || operator === '=')) {
-				option.selected = true; // TODO: does this work?
+				option.selected = true;
 				selected = true;
 			}
 			select.appendChild(option);
