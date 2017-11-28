@@ -133,6 +133,7 @@ Object.defineProperty(Features, 'list', {
 	value: new Map()
 });
 
+// BEGIN GENERATED CODE
 Features.list.set('brand', null);
 Features.list.set('model', null);
 Features.list.set('owner', null);
@@ -185,3 +186,6 @@ Features.list.set('firewire-ports-n', null);
 Features.list.set('serial-ports-n', null);
 Features.list.set('parallel-ports-n', null);
 Features.list.set('ram-form-factor', new Set(['dimm', 'so-dimm', 'minidimm', 'microdimm']));
+Features.list.set('weight-g', null);
+Features.list.set('spin-rate-rpm', null);
+// END GENERATED CODE

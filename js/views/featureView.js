@@ -75,7 +75,7 @@ class FeatureView extends Framework.View {
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
 	static factory(el, translations, logs, item, name, value) {
-		if(name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')  || name.endsWith('-rpm')) {
+		if(name.indexOf('-') > -1 && (name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')  || name.endsWith('-rpm') || name.endsWith('-g') || name.endsWith('-mm'))) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else if(Features.isEnum(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
@@ -227,6 +227,10 @@ class FeatureViewUnit extends FeatureView {
 			return 'in.';
 		} else if(this.name.endsWith('-rpm')) {
 			return 'rpm';
+		} else if(this.name.endsWith('-mm')) {
+			return 'mm';
+		} else if(this.name.endsWith('-g')) {
+			return 'g';
 		} else {
 			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
 		}
@@ -258,6 +262,12 @@ class FeatureViewUnit extends FeatureView {
 				return 'P';
 			case 6:
 				return 'E';
+			case -1:
+				return 'm';
+			//case -2:
+			//	return 'µ';
+			//case -3:
+			//	return 'n';
 		}
 		throw new Error('Invalid SI prefix');
 	}
@@ -292,7 +302,8 @@ class FeatureViewUnit extends FeatureView {
 				return value.toString();
 				break;
 			case 'rpm':
-				return value.toString() + ' rpm';
+			case 'mm':
+				return value.toString() + ' ' + type;
 			case 'byte':
 				while(value >= 1024 && prefix <= 6) {
 					value /= 1024; // this SHOULD already be optimized internally to use bit shift
@@ -304,6 +315,9 @@ class FeatureViewUnit extends FeatureView {
 				}
 				return '' + value + ' ' + FeatureViewUnit.unitPrefix(prefix) + i +'B';
 				break;
+			//case 'mm':
+				// Parsing it again is too difficult
+				//return FeatureViewUnit.addUnit(value, 'm', -1);
 			default:
 				return FeatureViewUnit.addUnit(value, type);
 				break;
@@ -313,12 +327,13 @@ class FeatureViewUnit extends FeatureView {
 	/**
 	 * Reduce a number to 3 digits (+ decimals) and add a unit to it
 	 *
-	 * @param {int} value
-	 * @param {string} unit
+	 * @param {int} value - numeric value of the base unit (e.g. if base unit is -1, unit is "W", value is 1500, then result is "1.5 W")
+	 * @param {string} unit - unit symbol, will be added to the prefix
+	 * @param {int} [baseUnit] - base unit multiplier (e.g. 0 for volts, -1 for millivolts, 1 of kilovolts)
 	 * @return {string} "3.2 MHz" and the like
 	 */
-	static addUnit(value, unit) {
-		let prefix = 0;
+	static addUnit(value, unit, baseUnit = 0) {
+		let prefix = baseUnit;
 		while(value >= 1000 && prefix <= 6) {
 			value /= 1000;
 			prefix++;
@@ -371,11 +386,19 @@ class FeatureViewUnit extends FeatureView {
 			throw new Error('Cannot parse ' + string.substr(0, 0 + i) + ' as a number')
 		}
 		let exp = 0;
-		for(; i < string.length; i++) {
-			let lower = string[i].toLowerCase();
-			if(lower >= 'a' && lower <= 'z') {
-				exp = FeatureViewUnit.parsePrefix(lower);
-				break;
+		if(this.type === 'mm') {
+			// everything breaks down because:
+			// - base unit ("m") contains an M
+			// - "m" and "M" are acceptable prefixes (M could be ignored, but still "m" and "m" and "mm" are ambiguous)
+			// so...
+			exp = 0;
+		} else {
+			for(; i < string.length; i++) {
+				let lower = string[i].toLowerCase();
+				if(lower >= 'a' && lower <= 'z') {
+					exp = FeatureViewUnit.parsePrefix(lower);
+					break;
+				}
 			}
 		}
 		let base;
@@ -389,6 +412,7 @@ class FeatureViewUnit extends FeatureView {
 
 	/**
 	 * Parse the unit prefix and return exponent (or 0 if it isn't a prefix)
+	 * Note that this can't parse and won't return "m", so -1 won't be returned.
 	 *
 	 * @param {string} char - lowercase character
 	 * @returns {number} exponent
@@ -407,6 +431,11 @@ class FeatureViewUnit extends FeatureView {
 				return 5;
 			case 'e':
 				return 6;
+			//case 'µ':
+			//case 'u':
+			//	return -2;
+			//case 'n':
+			//	return -3;
 			default:
 				return 0;
 		}
