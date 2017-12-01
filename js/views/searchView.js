@@ -406,7 +406,6 @@ class SearchPairView extends PairView {
 		 * @private
 		 */
 		this.featureViews = new Map();
-		this.triplets = [];
 		if(typeof this.pair.value === 'string') {
 			this.parseTriplets(this.pair.value);
 		}
@@ -419,8 +418,8 @@ class SearchPairView extends PairView {
 		this.addFeatureButton.addEventListener('click', this.addFeatureClick.bind(this));
 		this.featuresArea.addEventListener('focusout', this.parseInput.bind(this)); // fires after leaving any textbox, but apparently there's no other way
 
+		this.clearFeatures(); // not really useful
 		this.createFeaturesList();
-		this.addFeatures();
 	}
 
 	/**
@@ -436,13 +435,6 @@ class SearchPairView extends PairView {
 	 * Handle any significant input in search area
 	 */
 	parseInput() {
-		this.triplets = [];
-		for(let [view, element] of this.featureViews) {
-			if(view.value !== null) {
-				let operator = element.querySelector('.operatorselector').value;
-				this.triplets.push([view.name, operator, view.value]);
-			}
-		}
 		let stringified = this.toString();
 		this.search.set(this.pair, stringified === '' ? null : stringified);
 	}
@@ -466,19 +458,15 @@ class SearchPairView extends PairView {
 	}
 
 	/**
-	 * Use triplets to (re)create feature elements
+	 * Clear all features
 	 *
 	 * @private
 	 */
-	addFeatures() {
+	clearFeatures() {
 		while(this.featuresArea.lastElementChild) {
 			this.featuresArea.removeChild(this.featuresArea.lastElementChild);
 		}
 		this.featureViews.clear();
-
-		for(let triplet of this.triplets) {
-			this.addFeature(triplet[0], triplet[1], triplet[2].toString());
-		}
 	}
 
 	/**
@@ -546,7 +534,6 @@ class SearchPairView extends PairView {
 		this.removeFeature(featureView);
 	}
 
-
 	/**
 	 * Removes feature from the search area.
 	 *
@@ -554,12 +541,12 @@ class SearchPairView extends PairView {
 	 * @private
 	 */
 	removeFeature(featureView) {
-		this.featuresElement.removeChild(featureView.el);
+		this.featuresArea.removeChild(featureView.el);
 		this.featureViews.delete(featureView);
 	}
 
 	/**
-	 * Read a string of triplets, fill this.triplets.
+	 * Read a string of triplets, create views.
 	 *
 	 * @param {string} string - stuff=things,whatever>99,...
 	 * @private
@@ -574,14 +561,13 @@ class SearchPairView extends PairView {
 			for(let operator of ['>', '<', '=']) {
 				if(tripletString.indexOf(operator) > -1) {
 					let pieces = tripletString.split(operator, 2);
-					triplet = [pieces[0], operator, pieces[1]];
+					triplet = this.addFeature(pieces[0], operator, pieces[1].toString());
 					break;
 				}
 			}
 			if(triplet === null) {
 				throw new TypeError(tripletString + ' isn\'t a valid search triplet');
 			} else {
-				this.triplets.push(triplet);
 				triplet = null;
 			}
 		}
@@ -589,8 +575,11 @@ class SearchPairView extends PairView {
 
 	toString() {
 		let result = '';
-		for(let triplet of this.triplets) {
-			result += triplet[0] + triplet[1] + triplet[2] + ',';
+		for(let [view, element] of this.featureViews) {
+			if(view.value !== null) {
+				let operator = element.querySelector('.operatorselector').value;
+				result += view.name + operator + view.value + ',';
+			}
 		}
 		if(result.length > 0) {
 			result = result.substr(0, result.length - 1);
