@@ -190,6 +190,7 @@ class SearchView extends Framework.View {
 				view = new DepthPairView(this.search, pair, this.logs, this.translations);
 				break;
 			case 'Location':
+			case 'Code':
 				view = new LocationPairView(this.search, pair, this.logs, this.translations);
 				break;
 			default:

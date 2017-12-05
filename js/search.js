@@ -49,8 +49,7 @@ class Search extends Framework.Object {
 	 * @param {string|int|null} value
 	 */
 	set(pair, value) {
-		console.log("set " + pair + " to " + value);
-		// remove
+		// remove pair
 		if(value === null) {
 			// unless already removed (e.g. empty controls that are still visible)
 			if(this.pairs.has(pair)) {
