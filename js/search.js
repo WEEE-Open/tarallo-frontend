@@ -224,12 +224,14 @@ class SearchPair {
 	 * @return {boolean}
 	 */
 	static canDuplicate(key) {
-		switch(key) {
-			case 'Depth':
-			case 'Sort':
-				return false;
-			default:
-				return true;
-		}
+		return false;
+		// TODO: enable once server supports multiple parameters
+		// switch(key) {
+		// 	case 'Depth':
+		// 	case 'Sort':
+		// 		return false;
+		// 	default:
+		// 		return true;
+		// }
 	}
 }

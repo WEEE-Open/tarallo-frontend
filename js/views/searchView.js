@@ -28,9 +28,9 @@ class SearchView extends Framework.View {
 		/** Subviews of Pair
 		 *  @type {Set.<PairView>} */
 		this.pairViews = new Set();
-		/** Subviews of Item and everything else
+		/** Subviews of Item
 		 *  @type {Set.<Framework.View>} */
-		this.subviews = new Set();
+		this.itemViews = new Set();
 
 		this.useComputerView = false;
 
@@ -42,7 +42,7 @@ class SearchView extends Framework.View {
 		this.compactViewCheckbox = this.el.querySelector('.usecompactview');
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
-		this.buttonsElement.addEventListener('click', this.addButtonClick.bind(this));
+		this.buttonsElement.addEventListener('click', this.searchGroupButtonClick.bind(this));
 		this.compactViewCheckbox.addEventListener('click', this.compactViewClick.bind(this));
 
 		// Read checkbox status
@@ -93,19 +93,24 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Handle clicking on any of the "add search key" buttons
+	 * (which also remove them, actually)
 	 *
 	 * @param {Event} event
 	 * @private
 	 */
-	addButtonClick(event) {
+	searchGroupButtonClick(event) {
 		if(event.target.nodeName === "BUTTON") {
-			event.stopPropagation();
 			let key = event.target.dataset.key;
 			let pairView;
 			if(!SearchPair.canDuplicate(key) && (pairView = this.findPairViewFor(key)) !== null) {
-				this.logs.add('Cannot add duplicate key ' + key, 'W');
-				pairView.focus();
+				//this.logs.add('Cannot add duplicate key ' + key, 'W');
+				//pairView.focus();
+				console.log("remove " +  key);
+				this.pairViews.delete(pairView);
+				this.controlsElement.removeChild(pairView.el);
+				this.search.set(pairView.pair, null);
 			} else {
+				console.log("add " +  key);
 				this.showPair(this.search.newPair(key, null));
 			}
 		}
@@ -130,6 +135,8 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Handle clicking on the "use compact view" checkbox
+	 *
+	 * @private
 	 */
 	compactViewClick() {
 		this.useComputerView = this.compactViewCheckbox.checked;
@@ -174,9 +181,6 @@ class SearchView extends Framework.View {
 	showPair(pair) {
 		let view;
 		switch(pair.key) {
-			case 'Location':
-				view = new LocationPairView(this.search, pair, this.logs, this.translations);
-				break;
 			case 'Search':
 			case 'Parent':
 				view = new SearchPairView(this.search, pair, this.logs, this.translations);
@@ -187,9 +191,15 @@ class SearchView extends Framework.View {
 			case 'Depth':
 				view = new DepthPairView(this.search, pair, this.logs, this.translations);
 				break;
+			case 'Location':
+				view = new LocationPairView(this.search, pair, this.logs, this.translations);
+				break;
+			default:
+				throw new Error('No PairView for key ' + pair.key);
 		}
 		this.pairViews.add(view);
 		this.controlsElement.appendChild(view.el);
+		view.focus();
 	}
 
 	/**
@@ -236,7 +246,7 @@ class SearchView extends Framework.View {
 				view = new ItemLocationView(container, item, this.translations, this.transaction, this.logs);
 				view.freezeRecursive();
 			}
-			this.subviews.add(view);
+			this.itemViews.add(view);
 		}
 	}
 
@@ -309,6 +319,7 @@ class SearchView extends Framework.View {
 					this.inRequest(false);
 					let results = this.search.results;
 					if(results === null) {
+						// TODO: this never fires, an error happens instead
 						this.logs.add('Search done, nothing found', 'S');
 					} else if(results.length === 0) {
 						this.logs.add('Search done but lost results along the way somehow (this is a bug)', 'W');
@@ -324,7 +335,7 @@ class SearchView extends Framework.View {
 			}
 		}
 
-		for(let subview of this.subviews) {
+		for(let subview of this.itemViews) {
 			subview.trigger(that, event);
 		}
 	}
