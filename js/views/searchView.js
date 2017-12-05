@@ -317,19 +317,20 @@ class SearchView extends Framework.View {
 				case 'success':
 					this.inRequest(false);
 					let results = this.search.results;
-					if(results === null) {
-						// TODO: this never fires, an error happens instead
-						this.logs.add('Search done, nothing found', 'S');
-					} else if(results.length === 0) {
-						this.logs.add('Search done but lost results along the way somehow (this is a bug)', 'W');
-					} else {
+					if(Array.isArray(results) && results.length > 0) {
 						this.logs.add('Search done, ' + results.length + ' items found', 'S');
 						this.displayResults(results);
+					} else {
+						this.logs.add('Search done but lost results along the way somehow (this is a bug)', 'W');
 					}
 					break;
 				case 'failed':
 					this.inRequest(false);
-					this.logs.add('Search failed (' + this.search.lastErrorCode + '): ' + this.search.lastErrorMessage, 'E');
+					if(this.search.lastErrorCode === 'not-found') {
+						this.logs.add('Search done, nothing found', 'S');
+					} else {
+						this.logs.add('Search failed (' + this.search.lastErrorCode + '): ' + this.search.lastErrorMessage, 'E');
+					}
 					break;
 			}
 		}
