@@ -149,9 +149,8 @@ class SearchView extends Framework.View {
 	 */
 	removeUnpairedControls() {
 		for(let pairView of this.pairViews) {
-			let pair = pairView.pair;
-			if(!this.search.pairs.has(pair)) {
-				this.controlsElement.removeChild(pair.el);
+			if(!this.search.pairs.has(pairView.pair)) {
+				this.controlsElement.removeChild(pairView.el);
 				this.pairViews.delete(pairView);
 			}
 		}
