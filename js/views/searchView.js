@@ -103,14 +103,13 @@ class SearchView extends Framework.View {
 			let key = event.target.dataset.key;
 			let pairView;
 			if(!SearchPair.canDuplicate(key) && (pairView = this.findPairViewFor(key)) !== null) {
+				// TODO: once server supports it completely, add multiple fields instead of removing them
 				//this.logs.add('Cannot add duplicate key ' + key, 'W');
 				//pairView.focus();
-				console.log("remove " +  key);
 				this.pairViews.delete(pairView);
 				this.controlsElement.removeChild(pairView.el);
 				this.search.set(pairView.pair, null);
 			} else {
-				console.log("add " +  key);
 				this.showPair(this.search.newPair(key, null));
 			}
 		}
@@ -519,6 +518,9 @@ class SearchPairView extends PairView {
 		let select = document.createElement('select');
 		let selected = false;
 		select.classList.add('operatorselector');
+		if(!(view instanceof FeatureViewUnit)) {
+			select.disabled = true;
+		}
 		for(let operator of ['>', '<', '=']) {
 			let option = document.createElement('option');
 			option.value = operator;

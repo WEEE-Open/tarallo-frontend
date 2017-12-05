@@ -49,11 +49,18 @@ class Search extends Framework.Object {
 	 * @param {string|int|null} value
 	 */
 	set(pair, value) {
+		console.log("set " + pair + " to " + value);
+		// remove
 		if(value === null) {
-			this.pairs.delete(pair);
-			this.decrementKeyCounter(pair.key);
+			// unless already removed (e.g. empty controls that are still visible)
+			if(this.pairs.has(pair)) {
+				this.pairs.delete(pair);
+				this.decrementKeyCounter(pair.key);
+			}
 		} else {
+			// set new value
 			pair.value = value;
+			// if not already added, add it
 			if(!this.pairs.has(pair)) {
 				this.addPair(pair);
 			}
@@ -99,7 +106,7 @@ class Search extends Framework.Object {
 				this.keysCounter.delete(key);
 			}
 		} else {
-			throw new Error("Removing unexisting key " + key);
+			throw new Error("Removing nonexistent key " + key);
 		}
 	}
 
@@ -217,6 +224,7 @@ class SearchPair {
 		this.value = value;
 	}
 
+	// noinspection JSUnusedLocalSymbols
 	/**
 	 * Is a key allowed to exist multiple times in the same search?
 	 *
