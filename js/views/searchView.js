@@ -607,6 +607,42 @@ class SortPairView extends PairView {
 }
 
 class DepthPairView extends PairView {
+	constructor(search, pair, logs, translations) {
+		super(search, pair, logs, translations);
+
+		this.el.appendChild(document.getElementById("template-control-depth").content.cloneNode(true));
+
+		this.inputElement = this.el.querySelector('label input');
+		this.inputElement.value = this.pair.value;
+		this.el.querySelector('label').firstChild.textContent = 'Depth: '; // TODO: translation
+
+		this.inputElement.addEventListener('input', this.parseInput.bind(this));
+	}
+
+	parseInput() {
+		let value = this.inputElement.value.trim();
+		if(value === "") {
+			this.search.set(this.pair, null);
+		} else {
+			let int = parseInt(value);
+			if(int >= 0 && int <= 10) {
+				this.search.set(this.pair, value);
+			} else {
+				this.logs.add('Depth must be an integer between 0 and 10', 'E');
+				this.inputElement.value = 10;
+				this.search.set(this.pair, "10");
+			}
+		}
+	}
+
+	focus() {
+		this.inputElement.focus();
+	}
+
+	toString() {
+		return this.pair.value;
+	}
+
 	// case 'Depth':
 	// value = parseInt(value);
 	// if(Number.isNaN(value) || value < 0) {
