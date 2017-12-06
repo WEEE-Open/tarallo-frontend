@@ -522,7 +522,13 @@ class SearchPairView extends PairView {
 		for(let operator of ['>', '<', '=']) {
 			let option = document.createElement('option');
 			option.value = operator;
-			option.textContent = operator;
+			if(operator === '>') {
+				option.textContent = '≥';
+			} else if(operator === '<') {
+				option.textContent = '≤';
+			} else {
+				option.textContent = operator;
+			}
 			if(!selected && (comparison === operator || operator === '=')) {
 				option.selected = true;
 				selected = true;
