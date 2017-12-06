@@ -367,6 +367,7 @@ class PairView extends Framework.View {
 	 * Serialize to string, e.g. Location = Tavolo becomes "Tavolo" (will be placed inside the URL, like "/Location/Tavolo/")
 	 *
 	 * @return {string}
+	 * @deprecated
 	 */
 	toString() {
 		return 'Implement-this';
@@ -388,10 +389,6 @@ class LocationPairView extends PairView {
 
 	parseInput() {
 		let value = this.inputElement.value.trim();
-		//if(typeof value !== "string") {
-		//	this.logs.add("Location must be a string", 'E');
-		//	this.inputElement.value = this.pair.value === null ? '' : this.pair.value;
-		//} else if(value === "") {
 		if(value === "") {
 			this.search.set(this.pair, null);
 		} else {
@@ -642,11 +639,4 @@ class DepthPairView extends PairView {
 	toString() {
 		return this.pair.value;
 	}
-
-	// case 'Depth':
-	// value = parseInt(value);
-	// if(Number.isNaN(value) || value < 0) {
-	// 	throw new Error(this.key + " must be a positive integer, " + value + " given");
-	// }
-	// break;
 }
