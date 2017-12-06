@@ -572,7 +572,6 @@ class SearchPairView extends PairView {
 		if(typeof string !== 'string') {
 			return;
 		}
-		this.triplets = [];
 		for(let tripletString of string.split(',')) {
 			let triplet = null;
 			for(let operator of ['>', '<', '=']) {
@@ -606,7 +605,7 @@ class SearchPairView extends PairView {
 }
 
 class SortPairView extends PairView {
-
+	// TODO: implement
 }
 
 class DepthPairView extends PairView {

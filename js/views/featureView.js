@@ -236,6 +236,13 @@ class FeatureViewUnit extends FeatureView {
 		}
 	}
 
+	get type() {
+		if(typeof this._type === 'undefined') {
+			this._type = this.parseType();
+		}
+		return this._type;
+	}
+
 	/**
 	 * Get unit prefix. 0 is none.
 	 *
@@ -281,9 +288,6 @@ class FeatureViewUnit extends FeatureView {
 	renderValue() {
 		if(this.value === null) {
 			return '';
-		}
-		if(typeof this.type === 'undefined') {
-			this.type = this.parseType();
 		}
 		return FeatureViewUnit.valueToPrintable(this.type, parseInt(this.value));
 	}
