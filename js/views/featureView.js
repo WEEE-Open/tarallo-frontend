@@ -75,7 +75,7 @@ class FeatureView extends Framework.View {
 	 * @return {FeatureView|FeatureViewUnit}
 	 */
 	static factory(el, translations, logs, item, name, value) {
-		if(name.indexOf('-') > -1 && (name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')  || name.endsWith('-rpm') || name.endsWith('-g') || name.endsWith('-mm'))) {
+		if(name.indexOf('-') > -1 && (name.endsWith('-byte') || name.endsWith('-decibyte') || name.endsWith('-hertz') || name.endsWith('-ampere') || name.endsWith('-volt') || name.endsWith('-watt') || name.endsWith('-inch') || name.endsWith('-n')  || name.endsWith('-rpm') || name.endsWith('-gram') || name.endsWith('-mm'))) {
 			return new FeatureViewUnit(el, translations, logs, item, name, value);
 		} else if(Features.isEnum(name)) {
 			return new FeatureViewList(el, translations, logs, item, name, value);
@@ -229,7 +229,7 @@ class FeatureViewUnit extends FeatureView {
 			return 'rpm';
 		} else if(this.name.endsWith('-mm')) {
 			return 'mm';
-		} else if(this.name.endsWith('-g')) {
+		} else if(this.name.endsWith('-gram')) {
 			return 'g';
 		} else {
 			throw new Error(this.name + ' isn\'t a valid FeatureViewUnit feature name')
