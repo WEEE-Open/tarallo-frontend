@@ -53,9 +53,9 @@ class BrowserView extends Framework.View {
 		while(pieces[0] === '') {
 			pieces.shift();
 		}
-		for(let i = 0; i < pieces.length; i++) {
-			pieces[i] = decodeURIComponent(pieces[i]);
-		}
+		//for(let i = 0; i < pieces.length; i++) {
+		//	pieces[i] = decodeURIComponent(pieces[i]);
+		//}
 		return pieces;
 	}
 
@@ -72,7 +72,8 @@ class BrowserView extends Framework.View {
 		}
 		let result = '';
 		for(let i = 0; i < path.length; i++) {
-			result = result + '/' + encodeURIComponent(path[i]);
+			//result = result + '/' + encodeURIComponent(path[i]);
+			result = result + '/' + path[i];
 		}
 		return result;
 	}
