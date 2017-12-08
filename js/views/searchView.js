@@ -367,7 +367,6 @@ class PairView extends Framework.View {
 	 * Serialize to string, e.g. Location = Tavolo becomes "Tavolo" (will be placed inside the URL, like "/Location/Tavolo/")
 	 *
 	 * @return {string}
-	 * @deprecated
 	 */
 	toString() {
 		return 'Implement-this';
@@ -411,11 +410,11 @@ class SearchPairView extends PairView {
 
 		/**
 		 * @type {Map.<FeatureView,Element>}
-		 * @private
+		 * @protected
 		 */
 		this.featureViews = new Map();
 		if(typeof this.pair.value === 'string') {
-			this.parseTriplets(this.pair.value);
+			this.parsePreviousContent(this.pair.value);
 		}
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
@@ -436,7 +435,7 @@ class SearchPairView extends PairView {
 	 * @private
 	 */
 	addFeatureClick() {
-		this.addFeature(this.featureSelect.value, null);
+		this.addFeature(this.featureSelect.value);
 	}
 
 	/**
@@ -483,7 +482,7 @@ class SearchPairView extends PairView {
 	 * @param {string} name - feature name
 	 * @param {string} [comparison] - <, >, =.
 	 * @param {string|null} [value] - feature value
-	 * @private
+	 * @protected
 	 */
 	addFeature(name, comparison = '=', value = null) {
 		let newElement = this.createFeatureElement(name, comparison, value);
@@ -497,21 +496,15 @@ class SearchPairView extends PairView {
 	 * @param {string} [comparison] - <, >, =.
 	 * @param {string|null} [value] - feature value
 	 * @return {Element}
-	 * @private
+	 * @protected
 	 */
 	createFeatureElement(name, comparison = '=', value = null) {
-		let newElement, deleteButton;
-		newElement = document.createElement("div");
-		newElement.classList.add("feature");
+		let newElement = this.createFeatureElementContainer();
 
-		deleteButton = document.createElement("button");
-		deleteButton.textContent = "X";
-
-		newElement.appendChild(deleteButton);
 		let view = FeatureView.factory(newElement, this.translations, this.logs, null, name, value);
 		this.featureViews.set(view, newElement);
 
-		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, view));
+		newElement.insertBefore(this.createDeleteButton(view), newElement.firstChild);
 
 		let select = document.createElement('select');
 		let selected = false;
@@ -540,12 +533,37 @@ class SearchPairView extends PairView {
 		return newElement;
 	}
 
+	/**
+	 * Create a delete button for a feature
+	 *
+	 * @param {FeatureView} view
+	 * @return {Element}
+	 */
+	createDeleteButton(view) {
+		let deleteButton = document.createElement("button");
+		deleteButton.addEventListener('click', this.deleteFeatureClick.bind(this, view));
+		deleteButton.textContent = "X";
+
+		return deleteButton;
+	}
+
+	// noinspection JSMethodCanBeStatic
+	/**
+	 * Create container div for a feature comparison row
+	 *
+	 * @return {Element}
+	 */
+	createFeatureElementContainer() {
+		let newElement = document.createElement("div");
+		newElement.classList.add("feature");
+		return newElement;
+	}
 
 	/**
 	 * Handler for clicking the feature delete button
 	 *
 	 * @param {FeatureView} featureView
-	 * @private
+	 * @protected
 	 */
 	deleteFeatureClick(featureView) {
 		this.removeFeature(featureView);
@@ -566,9 +584,9 @@ class SearchPairView extends PairView {
 	 * Read a string of triplets, create views.
 	 *
 	 * @param {string} string - stuff=things,whatever>99,...
-	 * @private
+	 * @protected
 	 */
-	parseTriplets(string) {
+	parsePreviousContent(string) {
 		if(typeof string !== 'string') {
 			return;
 		}
@@ -604,8 +622,112 @@ class SearchPairView extends PairView {
 	}
 }
 
-class SortPairView extends PairView {
-	// TODO: implement
+class SortPairView extends SearchPairView {
+	constructor(search, pair, logs, translations) {
+		super(search, pair, logs, translations);
+	}
+
+	/**
+	 * Create and append feature search fields
+	 *
+	 * @param {string} name - feature name
+	 * @param {string} [order] - + or -
+	 * @override
+	 * @protected
+	 */
+	addFeature(name, order='+') {
+		let newElement = this.createFeatureElement(name, order);
+		this.featuresArea.appendChild(newElement);
+	}
+
+	/**
+	 * @override
+	 */
+	parseInput() {
+		super.parseInput();
+		console.log(this.pair.value);
+	}
+
+	/**
+	 * Create new feature element.
+	 *
+	 * @param {string} name - feature name
+	 * @param {string} [order] - + or -
+	 * @return {Element}
+	 * @protected
+	 * @override
+	 */
+	createFeatureElement(name, order = '+') {
+		let newElement = this.createFeatureElementContainer();
+
+		let view = FeatureView.factory(newElement, this.translations, this.logs, null, name, '');
+		view.el.removeChild(view.input); // This a gioata di scarsa qualità, basically
+		this.featureViews.set(view, newElement);
+
+		newElement.insertBefore(this.createDeleteButton(view), newElement.firstChild);
+
+		let select = document.createElement('select');
+		select.classList.add('operatorselector');
+
+		let plus = document.createElement('option');
+		plus.value = '+';
+		plus.textContent = 'Ascending (alphabetical)';
+		select.appendChild(plus);
+
+		let minus = document.createElement('option');
+		minus.value = '-';
+		minus.textContent = 'Descending (reverse)';
+		select.appendChild(minus);
+
+		if(order === '+') {
+			plus.selected = true;
+		} else {
+			minus.selected = true;
+		}
+
+		newElement.appendChild(select);
+
+		return newElement;
+	}
+
+
+	// noinspection JSUnusedGlobalSymbols It's used in the constructor..........
+	/**
+	 * Read a string of sort couples, create views.
+	 *
+	 * @param {string} string - some-feature+,some-other-feature-,...
+	 * @protected
+	 * @override
+	 */
+	parsePreviousContent(string) {
+		if(typeof string !== 'string') {
+			return;
+		}
+
+		for(let piece of string.split(',')) {
+			if(piece.endsWith('+')) {
+				this.addFeature(piece.substring(0, piece.length), '+');
+			} else if(piece.endsWith('-')) {
+				this.addFeature(piece.substring(0, piece.length), '-');
+			} else {
+				throw new TypeError(piece + ' isn\'t a valid sorting couple');
+			}
+		}
+	}
+
+	toString() {
+		let result = '';
+		for(let [view, element] of this.featureViews) {
+			if(view.value !== null) {
+				let sortOrder = element.querySelector('.operatorselector').value;
+				result += view.name + sortOrder + ',';
+			}
+		}
+		if(result.length > 0) {
+			result = result.substr(0, result.length - 1);
+		}
+		return result;
+	}
 }
 
 class DepthPairView extends PairView {
