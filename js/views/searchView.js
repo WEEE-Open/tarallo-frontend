@@ -642,14 +642,6 @@ class SortPairView extends SearchPairView {
 	}
 
 	/**
-	 * @override
-	 */
-	parseInput() {
-		super.parseInput();
-		console.log(this.pair.value);
-	}
-
-	/**
 	 * Create new feature element.
 	 *
 	 * @param {string} name - feature name
@@ -706,10 +698,10 @@ class SortPairView extends SearchPairView {
 		}
 
 		for(let piece of string.split(',')) {
-			if(piece.endsWith('+')) {
-				this.addFeature(piece.substring(0, piece.length), '+');
-			} else if(piece.endsWith('-')) {
-				this.addFeature(piece.substring(0, piece.length), '-');
+			if(piece.startsWith('+')) {
+				this.addFeature(piece.substr(1, piece.length - 1), '+');
+			} else if(piece.startsWith('-')) {
+				this.addFeature(piece.substr(1, piece.length - 1), '-');
 			} else {
 				throw new TypeError(piece + ' isn\'t a valid sorting couple');
 			}
@@ -721,7 +713,7 @@ class SortPairView extends SearchPairView {
 		for(let [view, element] of this.featureViews) {
 			if(view.value !== null) {
 				let sortOrder = element.querySelector('.operatorselector').value;
-				result += view.name + sortOrder + ',';
+				result += sortOrder + view.name + ',';
 			}
 		}
 		if(result.length > 0) {
