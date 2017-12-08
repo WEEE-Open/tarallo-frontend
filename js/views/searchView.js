@@ -423,7 +423,7 @@ class SearchPairView extends PairView {
 		this.featuresArea = this.el.querySelector('.features');
 
 		this.addFeatureButton.addEventListener('click', this.addFeatureClick.bind(this));
-		this.featuresArea.addEventListener('focusout', this.parseInput.bind(this)); // fires after leaving any textbox, but apparently there's no other way
+		this.el.addEventListener('focusout', this.parseInput.bind(this)); // fires after leaving any textbox, but apparently there's no other way
 
 		this.clearFeatures(); // not really useful
 		this.createFeaturesList();
@@ -567,6 +567,7 @@ class SearchPairView extends PairView {
 	 */
 	deleteFeatureClick(featureView) {
 		this.removeFeature(featureView);
+		this.parseInput();
 	}
 
 	/**
