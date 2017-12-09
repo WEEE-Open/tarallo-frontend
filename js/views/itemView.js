@@ -181,20 +181,6 @@ class ItemView extends Framework.View {
 	}
 
 	/**
-	 * Remove and ItemView from inside here (does nothing to item)
-	 *
-	 * @param {ItemView} view
-	 */
-	removeInside(view) {
-		if(this.subViews.has(view)) {
-			this.subViews.delete(view);
-			this.insideElement.removeChild(view.el);
-		} else {
-			throw new Error("Subview not in ItemView");
-		}
-	}
-
-	/**
 	 * Handle clicking on the "edit" button to unfreeze the item.
 	 *
 	 * @private
@@ -271,7 +257,6 @@ class ItemView extends Framework.View {
 		// But worst case should never happen in practice so nobody cares.
 		for(let subview of this.subViews) {
 			if(subview.item.empty()) {
-				this.item.removeInside(subview.item);
 				this.removeInside(subview);
 			} else {
 				subview.removeEmptyInside();
@@ -298,7 +283,7 @@ class ItemView extends Framework.View {
 			if(this.parentItemView === null) {
 				this.toggleDeleted(true);
 			} else {
-				this.parentItemView.deleteItemInside(this);
+				this.parentItemView.removeInside(this);
 			}
 		}
 	}
@@ -679,15 +664,17 @@ class ItemView extends Framework.View {
 	}
 
 	/**
-	 * Delete a subitem via its ItemView, remove from transaction
+	 * Delete a subitem and its subview.
+	 * Does nothing to transaction, since subitems shouldn't be directly in transaction anyway.
 	 *
-	 * @param {ItemView} removeThis - item view to delete
+	 * @param {ItemView} subview - item view to delete
 	 * @protected
 	 */
-	deleteItemInside(removeThis) {
-		this.item.removeInside(removeThis.item);
-		this.insideElement.removeChild(removeThis.el);
-		removeThis.parentItemView = null;
+	removeInside(subview) {
+		this.item.removeInside(subview.item);
+		this.subViews.delete(subview);
+		this.insideElement.removeChild(subview.el);
+		subview.parentItemView = null;
 	}
 
 	/**
