@@ -12,6 +12,8 @@ class RootView extends Framework.View {
 		this.logs = new Logs();
 		this.translations = new Translations('it-IT');
 		this.transaction = new Transaction();
+		// TODO: remove, maybe
+		window.secretAutocommitSwitch = () => console.log('Autocommit set to: ' + (this.transaction.autocommit = !this.transaction.autocommit));
 
 		this.el.appendChild(RootView.createHeader());
 		this.container = RootView.createViewHolder();

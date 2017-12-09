@@ -23,6 +23,14 @@ class Transaction extends Framework.Object {
 		 * @type {null|string|Item}
 		 */
 		this.lastUndo = null;
+
+		/**
+		 * Try to commit transaction as soon as ANYTHING gets added, unless there were other waiting items.
+		 * If there are other waiting items, either autocommit has just been enabled, or previous transaction failed...
+		 *
+		 * @type {boolean}
+		 */
+		this.autocommit = true;
 	}
 
 	get actionsCount() {
@@ -54,6 +62,7 @@ class Transaction extends Framework.Object {
 		this.lastAdded = item;
 		this.lastUndo = null;
 		this.trigger('to-add');
+		this.tryAutocommit();
 	}
 
 	/**
@@ -78,6 +87,7 @@ class Transaction extends Framework.Object {
 		this.lastAdded = itemUpdate.code;
 		this.lastUndo = null;
 		this.trigger('to-update');
+		this.tryAutocommit();
 	}
 
 	/**
@@ -105,6 +115,18 @@ class Transaction extends Framework.Object {
 		this.lastAdded = code;
 		this.lastUndo = null;
 		this.trigger('to-delete');
+		this.tryAutocommit();
+	}
+
+	/**
+	 * Try to do an autocommit, if enabled
+	 */
+	tryAutocommit() {
+		console.log("AUTOCOMMIT? " + this.autocommit + " && " + this.actionsCount);
+		if(this.autocommit && this.actionsCount === 1) {
+			console.log("VADO!");
+			this.commit();
+		}
 	}
 
 	/**
