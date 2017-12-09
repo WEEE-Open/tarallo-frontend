@@ -25,7 +25,7 @@ class Search extends Framework.Object {
 	 */
 	newPair(key, value) {
 		let pair = new SearchPair(key, value, this.keysCounter.has(value));
-		if(value === null) {
+		if(value !== null) {
 			this.addPair(pair);
 		}
 		return pair;
@@ -209,6 +209,7 @@ class SearchPair {
 	 * @param {string|int} value
 	 * @param {boolean} duplicate - was this key already encountered?
 	 * @private
+	 * @see Search.newPair - use this instead
 	 * @see Search.set - use this instead
 	 */
 	constructor(key, value, duplicate) {
