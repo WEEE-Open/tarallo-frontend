@@ -413,9 +413,6 @@ class SearchPairView extends PairView {
 		 * @protected
 		 */
 		this.featureViews = new Map();
-		if(typeof this.pair.value === 'string') {
-			this.parsePreviousContent(this.pair.value);
-		}
 
 		this.el.appendChild(document.getElementById("template-control-search").content.cloneNode(true));
 		this.featureSelect = this.el.querySelector('.featureselect');
@@ -427,6 +424,10 @@ class SearchPairView extends PairView {
 
 		this.clearFeatures(); // not really useful
 		this.createFeaturesList();
+
+		if(typeof this.pair.value === 'string') {
+			this.parsePreviousContent(this.pair.value);
+		}
 	}
 
 	/**
