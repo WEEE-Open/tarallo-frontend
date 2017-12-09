@@ -42,7 +42,13 @@ class ItemView extends Framework.View {
 		 * @type {Map.<string,FeatureView>}
 		 */
 		this.featureViews = new Map();
-		this.itemEl = ItemView.newElement();
+
+		let works = item.features.get('working');
+		if(typeof works !== 'string') {
+			works = null;
+		}
+
+		this.itemEl = ItemView.newElement(works);
 		this.el.appendChild(this.itemEl);
 
 		// querySelector uses depth-first search, so as long as these are before .inside there should be no problem.
@@ -642,13 +648,19 @@ class ItemView extends Framework.View {
 	 * Create a container element, for a single item, and return it.
 	 * This is necessary since the containing "el" isn't owned by the view so it shouldn't be changed, but hiding deleted items or other such things require hiding the entire container...
 	 *
+	 * @param {string|null} [working] - Does this item work? Yes, no, maybe, any other value of the "working" feature. Null if unknown.
+	 *
 	 * @return {HTMLElement} container
 	 * @private
 	 */
-	static newElement() {
+	static newElement(working=null) {
 		let container = document.createElement("div");
-		container.classList.add("item");
 		container.appendChild(document.getElementById("template-item").content.cloneNode(true));
+		container.classList.add("item");
+		if(working !== null) {
+			container.classList.add("working");
+			container.classList.add(working);
+		}
 		return container;
 	}
 

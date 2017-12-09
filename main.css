@@ -238,6 +238,21 @@ ul.breadcrumbs li:not(:first-child)::before {
 	padding: 0.5em;
 }
 
+.item.working.yes {
+	border-color: #4F8A10;
+	box-shadow: 0 0 0.3em 0.2em #DFF2BF;
+}
+
+.item.working.maybe {
+	border-color: #9F6000;
+	box-shadow: 0 0 0.3em 0.2em #FEEFB3;
+}
+
+.item.working.no {
+	border-color: #D8000C;
+	box-shadow: 0 0 0.3em 0.2em #FFBABA;
+}
+
 .item .code:disabled {
 	font-weight: bold;
 }
