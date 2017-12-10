@@ -37,8 +37,7 @@ module.exports = function(grunt) {
 		concat: {
 			options: {
 				separator: ';',
-				sourceMap: true,
-				sourceMapStyle: 'inline',
+				sourceMap: true
 			},
 			all: {
 				src: concatThese,
