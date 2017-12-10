@@ -193,6 +193,9 @@ class SearchView extends Framework.View {
 			case 'Code':
 				view = new LocationPairView(this.search, pair, this.logs, this.translations);
 				break;
+			case 'Page':
+				// Not visible here
+				return;
 			default:
 				throw new Error('No PairView for key ' + pair.key);
 		}
