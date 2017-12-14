@@ -4,7 +4,7 @@ class Search extends Framework.Object {
 
 		this.lastErrorCode = null;
 		this.lastErrorMessage = null;
-		this.results = null;
+		this.reset();
 
 		/** @type {Map.<string,int>}
 		 *  @private */
@@ -110,13 +110,24 @@ class Search extends Framework.Object {
 	}
 
 	/**
+	 * Clean up previous results, reset, clear all, close all, clc
+	 *
+	 * @private
+	 */
+	reset() {
+		this.pages = null;
+		this.total = null;
+		this.results = null;
+	}
+
+	/**
 	 * Send query, get response.
 	 * All results will be parsed before the "success" event and will be available in this.results.
 	 *
 	 * @return {Search}
 	 */
 	getFromServer() {
-		this.results = null;
+		this.reset();
 
 		if(!this.hasContent()) {
 			throw new Error("Trying to do an empty search");
@@ -180,6 +191,29 @@ class Search extends Framework.Object {
 		}
 
 		this.results = itemRoots;
+
+		this.pages = 0;
+		// noinspection JSUnresolvedVariable
+		if(typeof data.pages !== 'undefined') {
+			// noinspection JSUnresolvedVariable - stop complaining, dammit!
+			let pages = data.pages;
+			if(typeof pages === 'string') {
+				pages = parseInt(pages);
+			}
+			if(typeof pages === 'number' && !Number.isNaN(pages)) {
+				this.pages = pages;
+			} // TODO: else throw an error?
+		}
+
+		this.total = this.results.length;
+		if(typeof data.count !== 'undefined') {
+			if(typeof data.count === 'string') {
+				data.count = parseInt(data.count);
+			}
+			if(typeof data.count === 'number' && !Number.isNaN(data.count)) {
+				this.total = data.count;
+			}
+		}
 
 		return true;
 	}

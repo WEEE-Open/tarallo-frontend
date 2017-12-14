@@ -321,7 +321,7 @@ class SearchView extends Framework.View {
 					this.inRequest(false);
 					let results = this.search.results;
 					if(Array.isArray(results) && results.length > 0) {
-						this.logs.add('Search done, ' + results.length + ' items found', 'S');
+						this.logs.add('Search done, ' + this.search.total + ' items found (displaying ' + results.length + ' of them, ' + this.search.pages + ' pages)', 'S');
 						this.displayResults(results);
 					} else {
 						this.logs.add('Search done but lost results along the way somehow (this is a bug)', 'W');
