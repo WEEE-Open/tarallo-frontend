@@ -116,6 +116,7 @@ class Search extends Framework.Object {
 	 */
 	reset() {
 		this.pages = null;
+		this.currentPage = null;
 		this.total = null;
 		this.results = null;
 	}
@@ -212,6 +213,14 @@ class Search extends Framework.Object {
 			}
 			if(typeof data.count === 'number' && !Number.isNaN(data.count)) {
 				this.total = data.count;
+			}
+		}
+
+		this.currentPage = 1;
+		for(let pair of this.pairs) {
+			if(pair.key === 'Page') {
+				this.currentPage = parseInt(pair.value);
+				break;
 			}
 		}
 

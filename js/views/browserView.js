@@ -60,22 +60,32 @@ class BrowserView extends Framework.View {
 	}
 
 	/**
-	 * Build the URL piece thingamajig from array.
+	 * Build the URL piece thingamajig from an array.
+	 *
+	 * @param {string[]} pieces
+	 * @return string
+	 */
+	static buildUrl(pieces) {
+		if(pieces.length === 0) {
+			return '/';
+		}
+		let result = '';
+		for(let i = 0; i < pieces.length; i++) {
+			//result = result + '/' + encodeURIComponent(path[i]);
+			result = result + '/' + pieces[i];
+		}
+		return result;
+	}
+
+	/**
+	 * Build the URL piece thingamajig from current state.
 	 *
 	 * @return {string}
 	 * @private
 	 */
-	buildUrl() {
+	buildCurrentUrl() {
 		let path = this.state.getAll();
-		if(path.length === 0) {
-			return '/';
-		}
-		let result = '';
-		for(let i = 0; i < path.length; i++) {
-			//result = result + '/' + encodeURIComponent(path[i]);
-			result = result + '/' + path[i];
-		}
-		return result;
+		return BrowserView.buildUrl(path);
 	}
 
 	/**
@@ -94,7 +104,7 @@ class BrowserView extends Framework.View {
 				if(this.hashchanged) {
 					this.hashchanged = false;
 				} else {
-					BrowserView.setUrl(this.buildUrl());
+					BrowserView.setUrl(this.buildCurrentUrl());
 				}
 			}
 		}

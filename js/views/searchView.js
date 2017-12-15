@@ -72,8 +72,8 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Handle clicking on the search button.
-	 * Sets the URL and waits for the StateHolder "change" event. If URL is actually unchanged, calls this.doSearch directly.
-	 * Empty search fields are also deleted, and nothing is done if no valid search fields remained.
+	 * Deletes empty fields, sets URL, requests results from server.
+	 * If there are no valid (full) fields, nothing is done.
 	 *
 	 * @private
 	 */
@@ -81,13 +81,22 @@ class SearchView extends Framework.View {
 		this.removeUnpairedControls();
 
 		if(this.search.hasContent()) {
-			// setAllAray fires an event before returning, this has to be set before calling setAllArray so that trigger can notice it
-			this.searchCommit = true;
-			let changed = this.state.setAllArray(this.search.serialize());
-			if(!changed) {
-				this.searchCommit = false;
-				this.doSearch();
-			}
+			this.setUrlToSearch();
+		}
+	}
+
+	/**
+	 * Sets the URL and waits for the StateHolder "change" event. If URL is actually unchanged, calls this.doSearch directly.
+	 *
+	 * @private
+	 */
+	setUrlToSearch() {
+		// setAllAray fires an event before returning, this has to be set before calling setAllArray so that trigger can notice it
+		this.searchCommit = true;
+		let changed = this.state.setAllArray(this.search.serialize());
+		if(!changed) {
+			this.searchCommit = false;
+			this.doSearch();
 		}
 	}
 
@@ -113,6 +122,25 @@ class SearchView extends Framework.View {
 				this.showPair(this.search.newPair(key, null));
 			}
 		}
+	}
+
+	pageNavigationClick(page) {
+		if(!Number.isInteger(page)) {
+			throw new Error("Page must be an iteger, " + typeof page + " given");
+		}
+		let pagePair = null;
+		for(let pair of this.search.pairs) {
+			if(pair.key === 'Page') {
+				pagePair = pair;
+				break;
+			}
+		}
+		if(pagePair === null) {
+			this.search.newPair('Page', page);
+		} else {
+			this.search.set(pagePair, page);
+		}
+		this.setUrlToSearch();
 	}
 
 	/**
@@ -206,6 +234,8 @@ class SearchView extends Framework.View {
 
 	/**
 	 * Search. SEARCH. NOW.
+	 *
+	 * @see this.setUrlToSearch use setUrlToSearch to handle triggers correctly
 	 * @private
 	 */
 	doSearch() {
@@ -231,7 +261,7 @@ class SearchView extends Framework.View {
 	}
 
 	/**
-	 * Remove all results from display
+	 * Remove all results from display, then display new ones
 	 *
 	 * @param {Item[]} results
 	 * @private
@@ -250,6 +280,16 @@ class SearchView extends Framework.View {
 			}
 			this.itemViews.add(view);
 		}
+	}
+
+	/**
+	 * Display clickable links to other pages
+	 *
+	 * @param pages - counter of total pages
+	 * @param currentPage - current page number
+	 */
+	displayPagination(pages, currentPage) {
+		console.log(pages + ' pageeeene, sono alla ' + currentPage);
 	}
 
 	/**
@@ -323,6 +363,7 @@ class SearchView extends Framework.View {
 					if(Array.isArray(results) && results.length > 0) {
 						this.logs.add('Search done, ' + this.search.total + ' items found (displaying ' + results.length + ' of them, ' + this.search.pages + ' pages)', 'S');
 						this.displayResults(results);
+						this.displayPagination(this.search.pages, this.search.currentPage);
 					} else {
 						this.logs.add('Search done but lost results along the way somehow (this is a bug)', 'W');
 					}
