@@ -82,6 +82,13 @@ class SearchView extends Framework.View {
 		this.removeUnpairedControls();
 
 		if(this.search.hasContent()) {
+			// Avoids keeping page from old search
+			for(let pair of this.search.pairs) {
+				if(pair.key === 'Page') {
+					this.search.set(pair, null);
+					break;
+				}
+			}
 			this.setUrlToSearch();
 		}
 	}
