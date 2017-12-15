@@ -39,6 +39,7 @@ class SearchView extends Framework.View {
 		this.buttonsElement = this.el.querySelector('.searchbuttons');
 		this.searchButton = this.el.querySelector('.searchbutton');
 		this.resultsElement = this.el.querySelector('.results');
+		this.paginationElement = this.el.querySelector('.pagination');
 		this.compactViewCheckbox = this.el.querySelector('.usecompactview');
 
 		this.searchButton.addEventListener('click', this.searchButtonClick.bind(this));
@@ -124,9 +125,15 @@ class SearchView extends Framework.View {
 		}
 	}
 
+	/**
+	 * Handle clicking on one of the page navigation links
+	 *
+	 * @param {int} page go there
+	 */
 	pageNavigationClick(page) {
+		console.log(page);
 		if(!Number.isInteger(page)) {
-			throw new Error("Page must be an iteger, " + typeof page + " given");
+			throw new Error("Page must be an integer, " + typeof page + " given");
 		}
 		let pagePair = null;
 		for(let pair of this.search.pairs) {
@@ -289,7 +296,31 @@ class SearchView extends Framework.View {
 	 * @param currentPage - current page number
 	 */
 	displayPagination(pages, currentPage) {
-		console.log(pages + ' pageeeene, sono alla ' + currentPage);
+		while(this.paginationElement.lastChild) {
+			this.paginationElement.removeChild(this.paginationElement.lastChild);
+		}
+
+		this.paginationElement.appendChild(this.pageLink(currentPage > 1, '← Prev', currentPage - 1));
+		for(let i = 1; i <= pages; i++) {
+			this.paginationElement.appendChild(this.pageLink(currentPage !== i, i.toString(), i));
+		}
+		this.paginationElement.appendChild(this.pageLink(currentPage < pages, 'Next →', currentPage + 1));
+	}
+
+	/**
+	 * Create and return a single link element to another page
+	 *
+	 * @param {boolean} enabled - clickable or not
+	 * @param {string} content - text
+	 * @param {int} [target] - page number, ignored if not enabled
+	 */
+	pageLink(enabled, content, target = 1) {
+		let element = document.createElement('a');
+		if(enabled) {
+			element.addEventListener('click', this.pageNavigationClick.bind(this, target));
+		}
+		element.textContent = content;
+		return element;
 	}
 
 	/**
