@@ -259,6 +259,18 @@ class SearchPair {
 		if(!this.constructor.canDuplicate(key) && duplicate) {
 			throw new Error("Duplicate key: " + key);
 		}
+		switch(key) {
+			case 'Code':
+			case 'Depth':
+			case 'Location':
+			case 'Page':
+			case 'Parent':
+			case 'Search':
+			case 'Sort':
+				break;
+			default:
+				throw new Error('Unknown field ' + key);
+		}
 		/**
 		 * @type {string}
 		 * @readonly
