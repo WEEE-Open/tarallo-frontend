@@ -307,11 +307,15 @@ class SearchView extends Framework.View {
 			this.paginationElement.removeChild(this.paginationElement.lastChild);
 		}
 
-		this.paginationElement.appendChild(this.pageLink(currentPage > 1, '← Prev', currentPage - 1));
+		if(currentPage > 1) {
+			this.paginationElement.appendChild(this.pageLink(true, '← Prev', currentPage - 1));
+		}
 		for(let i = 1; i <= pages; i++) {
 			this.paginationElement.appendChild(this.pageLink(currentPage !== i, i.toString(), i));
 		}
-		this.paginationElement.appendChild(this.pageLink(currentPage < pages, 'Next →', currentPage + 1));
+		if(currentPage < pages) {
+			this.paginationElement.appendChild(this.pageLink(true, 'Next →', currentPage + 1));
+		}
 	}
 
 	/**
@@ -325,6 +329,8 @@ class SearchView extends Framework.View {
 		let element = document.createElement('a');
 		if(enabled) {
 			element.addEventListener('click', this.pageNavigationClick.bind(this, target));
+		} else {
+			element.classList.add('disabled');
 		}
 		element.textContent = content;
 		return element;
@@ -399,7 +405,7 @@ class SearchView extends Framework.View {
 					this.inRequest(false);
 					let results = this.search.results;
 					if(Array.isArray(results) && results.length > 0) {
-						this.logs.add('Search done, ' + this.search.total + ' items found (displaying ' + results.length + ' of them, ' + this.search.pages + ' pages)', 'S');
+						this.logs.add('Search done, ' + this.search.total + ' items found (displaying ' + results.length + ' of them, page ' + this.search.currentPage + ' of ' + this.search.pages + ')', 'S');
 						this.displayResults(results);
 						this.displayPagination(this.search.pages, this.search.currentPage);
 					} else {
