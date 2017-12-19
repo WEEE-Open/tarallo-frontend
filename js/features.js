@@ -194,7 +194,7 @@ Features.list.set('ram-ecc', new Set(['no', 'yes']));
 Features.list.set('other-code', null);
 Features.list.set('hdmi-ports-n', null);
 Features.list.set('scsi-sca2-ports-n', null);
-Features.list.set('scsi-dh68-ports-n', null);
+Features.list.set('scsi-db68-ports-n', null);
 Features.list.set('mini-ide-ports-n', null);
 Features.list.set('data-erased', new Set(['yes']));
 Features.list.set('surface-scan', new Set(['fail', 'pass']));
