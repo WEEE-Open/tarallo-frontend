@@ -138,7 +138,6 @@ class SearchView extends Framework.View {
 	 * @param {int} page go there
 	 */
 	pageNavigationClick(page) {
-		console.log(page);
 		if(!Number.isInteger(page)) {
 			throw new Error("Page must be an integer, " + typeof page + " given");
 		}
@@ -272,6 +271,9 @@ class SearchView extends Framework.View {
 		while(this.resultsElement.lastChild) {
 			this.resultsElement.removeChild(this.resultsElement.lastChild);
 		}
+		while(this.paginationElement.lastChild) {
+			this.paginationElement.removeChild(this.paginationElement.lastChild);
+		}
 	}
 
 	/**
@@ -303,10 +305,6 @@ class SearchView extends Framework.View {
 	 * @param currentPage - current page number
 	 */
 	displayPagination(pages, currentPage) {
-		while(this.paginationElement.lastChild) {
-			this.paginationElement.removeChild(this.paginationElement.lastChild);
-		}
-
 		if(currentPage > 1) {
 			this.paginationElement.appendChild(this.pageLink(true, '← Prev', currentPage - 1));
 		}
