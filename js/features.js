@@ -139,7 +139,7 @@ Features.list.set('model', null);
 Features.list.set('owner', null);
 Features.list.set('sn', null);
 Features.list.set('mac', null);
-Features.list.set('type', new Set(['location', 'case', 'motherboard', 'cpu', 'graphics-card', 'ram', 'hdd', 'odd', 'psu', 'audio-card', 'ethernet-card', 'monitor', 'mouse', 'keyboard', 'network-switch', 'network-hub', 'modem-router', 'fdd', 'ports-bracket', 'other-card', 'heatsink', 'fan', 'fan-controller', 'modem-card', 'scsi-card', 'wifi-card', 'external-psu', 'zip-drive']));
+Features.list.set('type', new Set(['location', 'case', 'motherboard', 'cpu', 'graphics-card', 'ram', 'hdd', 'odd', 'psu', 'audio-card', 'ethernet-card', 'monitor', 'mouse', 'keyboard', 'network-switch', 'network-hub', 'modem-router', 'fdd', 'ports-bracket', 'other-card', 'heatsink', 'fan', 'fan-controller', 'modem-card', 'scsi-card', 'wifi-card', 'external-psu', 'zip-drive', 'printer', 'scanner']));
 Features.list.set('working', new Set(['no', 'yes', 'maybe']));
 Features.list.set('capacity-byte', null);
 Features.list.set('frequency-hertz', null);
