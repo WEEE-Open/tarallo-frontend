@@ -180,7 +180,6 @@ Features.list.set('usb-ports-n', null);
 Features.list.set('vga-ports-n', null);
 Features.list.set('os-license-code', null);
 Features.list.set('os-license-version', null);
-Features.list.set('soldered-in-place', new Set(['yes']));
 Features.list.set('power-idle-pfc', null);
 Features.list.set('firewire-ports-n', null);
 Features.list.set('serial-ports-n', null);
