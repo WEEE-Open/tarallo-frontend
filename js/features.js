@@ -212,7 +212,7 @@ Features.list.set('isa-sockets-n', null);
 Features.list.set('mini-pcie-sockets-n', null);
 Features.list.set('mini-pci-sockets-n', null);
 Features.list.set('brand-reseller', null);
-Features.list.set('psu-form-factor', new Set(['atx', 'cfx', 'lfx', 'sfx-lowprofile', 'sfx-topfan', 'sfx-topfan-reduceddepth', 'sfx', 'sfx-ps3', 'tfx', 'flexatx', 'proprietary', 'eps']));
+Features.list.set('psu-form-factor', new Set(['atx', 'cfx', 'lfx', 'sfx-lowprofile', 'sfx-topfan', 'sfx-topfan-reduceddepth', 'sfx', 'sfx-ps3', 'sfx-l', 'tfx', 'flexatx', 'proprietary', 'eps']));
 Features.list.set('cib-old', null);
 Features.list.set('restrictions', new Set(['loan', 'in-use', 'bought', 'training', 'ready', 'other']));
 Features.list.set('displayport-ports-n', null);

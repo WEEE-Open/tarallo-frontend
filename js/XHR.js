@@ -1,6 +1,6 @@
 let XHR = (function() {
 	const TIMEOUT = 30000;
-	const pathPrefix = location.protocol + '//' + location.host + '/server/index.php?path=';
+	const pathPrefix = location.protocol + '//' + location.host + '/server/v1';
 
 	/**
 	 * @param {string[]} path URL parameter (e.g. ['Login'])

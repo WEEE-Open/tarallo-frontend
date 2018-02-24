@@ -289,7 +289,7 @@ class Item extends Framework.Object {
 			throw new Error("Invalid item code: '" + this.code + "'");
 		}
 
-		let req = XHR.GET(['Code', this.code],
+		let req = XHR.GET(['items', this.code],
 			(code, message/*, data*/) => {
 				this.lastErrorCode = code;
 				this.lastErrorMessage = message;
